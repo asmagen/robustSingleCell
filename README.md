@@ -1,4 +1,4 @@
-# MagenSingleCell
+# rubostSingleCell
 Robust single cell clustering and similarity measurement methods
 
 
