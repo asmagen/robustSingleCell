@@ -30,7 +30,7 @@ options("width"=250)
 source('/home/USER_NAME/scripts/Magen_scRNAseq.pipeline.R')
 
 # Define gene signatures of interest for regression or visualization
-library(data.table);markers = data.frame(fread('/home/USER_NAME/data/markers.csv'))[,1:5];marker.genes = unique(markers$symbol)
+library(data.table);markers = data.frame(fread(file.path('/home/USER_NAME/data/markers.csv'))[,1:5];marker.genes = unique(markers$symbol)
 Exhaustion = c('Pdcd1','Cd244','Havcr2','Ctla4','Cd160','Lag3','Tigit','Cd96')
 
 # Initialize project information and drive paths
