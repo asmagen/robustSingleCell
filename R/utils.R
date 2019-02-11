@@ -35,12 +35,12 @@ get_slurm_out <- function (sjob) {
   return(slurm_out)
 }
 
-start <- function (name = NA,append = F,split = F,print = T) {
+start <- function (track_dir_path, name = NA,append = F,split = F,print = T) {
   time = get.time()
   label = as.character(sys.calls()[[sys.nframe()-1]])[1]
   if (!is.na(name)) label = paste(label,name,sep='.')
   file = paste(label,'txt',sep='.')
-  sink( file.path('tracking',file),type = 'output',append,split )
+  sink(file.path(track_dir_path, file),type = 'output',append,split )
   if (!split && print) print(as.list(sys.calls())[seq(sys.nframe()-1)])
   return(time)
 }

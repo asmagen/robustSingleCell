@@ -37,12 +37,12 @@ initialize.project <- function (
   environment$baseline.work.path = environment$work.path = file.path(work.path,environment$project)
   if (clear.history) unlink(environment$work.path,recursive = T, force = T)
   dir.create(environment$work.path, showWarnings = F, recursive = T, mode = "700")
-  setwd(environment$work.path)
-  dir.create('tracking', showWarnings = F, recursive = T, mode = "700")
+  dir.create(file.path(environment$work.path, 'tracking'),
+             showWarnings = F, recursive = T, mode = "700")
   environment$baseline.data.path = environment$res.data.path = file.path(environment$work.path,'data')
   dir.create(environment$res.data.path, showWarnings = F, recursive = T, mode = "700")
   environment$marker.genes = marker.genes
-  t = start()
+  t = start(file.path(environment$work.path, 'tracking'))
   print(environment)
   end(t)
 

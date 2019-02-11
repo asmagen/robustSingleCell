@@ -1,0 +1,56 @@
+---
+title: "LMCV demo"
+author: "Meng Wang"
+output:
+   github_document
+always_allow_html: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Initialization
+
+```{r initialize}
+library(MagenSingleCell)
+marker_genes <- readr::read_csv("/Users/szmamie/Documents/repos/magensinglecell/data/markers.csv")
+Exhaustion <- capwords(c('Pdcd1','Cd244','Havcr2','Ctla4','Cd160','Lag3','Tigit','Cd96'))
+env <- initialize.project(datasets = c("CD44Total_1"), 
+                          origins = "CD44+ cells",
+                          experiments = "Rep1", 
+                          data.path = "/Users/szmamie/Desktop/Inbox/LMCV",
+                          work.path = "/Users/szmamie/Desktop/Inbox/analysis",
+                          marker.genes = capwords(unique(marker_genes$symbol)))
+```
+
+
+## Read data
+
+The `read.data` function reads the data in 10X genomics format (`matrix.mtx`, `gene.tsv`, `barcode.tsv`)
+
+```{r}
+env <- read.data(env)
+```
+
+## Preprocess data
+
+```{r}
+env <- get.variable.genes(env) 
+env <- add.confounder.variables (env,
+	ribosomal.score = ribosomal.score(env),
+	mitochondrial.score = mitochondrial.score(env),
+	cell.cycle.score = cell.cycle.score(env),
+	Exhaustion = controlled.mean.score(env, Exhaustion))
+env <- MagenSingleCell::PCA(env)
+```
+
+## clustering
+
+```{r}
+env <- cluster.analysis(env)
+```
+
+
+## Differential expression and visualizations
+

@@ -4,7 +4,7 @@
 \alias{read.data}
 \title{Read and preprocess data}
 \usage{
-read.data(genome = "mm10", min.genes.per.cell = 500,
+read.data(environment, genome = "mm10", min.genes.per.cell = 500,
   max.genes.per.cell.quantile = 0.98,
   max.UMIs.per.cell.quantile = 0.98, min.cells.per.gene = 1,
   max.mitochondrial.frac = 0.1, max.ribosomal.frac = NA,

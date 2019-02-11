@@ -18,7 +18,6 @@ read.10x.data <- function( path ) {
                              stringsAsFactors = FALSE)
   colnames(mat) = barcode.names$V1
   rownames(mat) = feature.names$V2
-
   return(mat)
 }
 
@@ -41,6 +40,7 @@ read.10x.data <- function( path ) {
 #' @export
 #' @import ggplot2
 read.data <- function(
+  environment,
   genome = 'mm10',
   min.genes.per.cell = 500,
   max.genes.per.cell.quantile = 0.98,
@@ -51,7 +51,7 @@ read.data <- function(
   cell.filters = NA,
   raw.data.matrices = NA,
   rerun = F) {
-
+  #browser()
   cache = file.path(environment$baseline.data.path, 'data.RData')
 
   if( !rerun & file.exists(cache) ) {
@@ -60,7 +60,7 @@ read.data <- function(
   } else {
 
     print.message('Computing')
-    t = start()
+    t = start(file.path(environment$work.path, 'tracking'))
 
     merged = NA
     dataset = environment$datasets[1]
@@ -68,13 +68,13 @@ read.data <- function(
     for(dataset in environment$datasets) {
       if (is.na(raw.data.matrices)) {
         print.message('Loading',dataset)
-        measurements = read.10x.data (path = file.path(environment$data.path,dataset))
-        measurements = as.matrix(measurements[,colSums(measurements>0)>=min.genes.per.cell])
+        measurements = read.10x.data (path = file.path(environment$data.path, dataset))
+        measurements = as.matrix(measurements[, Matrix::colSums(measurements>0)>=min.genes.per.cell])
       } else {
         print.message('Using input',dataset)
         measurements = raw.data.matrices[[dataset]]
       }
-      colnames(measurements) = rep(environment$datasets[environment$datasets==dataset],ncol(measurements))
+      colnames(measurements) = rep(environment$datasets[environment$datasets==dataset], ncol(measurements))
       dataset.labels = rep(paste(environment$origins[environment$datasets==dataset],' (',environment$experiments[environment$datasets==dataset],')',sep=''),ncol(measurements))
       origins = rep(environment$origins[environment$datasets==dataset],ncol(measurements))
       experiments = rep(environment$experiments[environment$datasets==dataset],ncol(measurements))
@@ -222,14 +222,13 @@ read.data <- function(
       }
     }
     rownames = data.frame(rownames,new=rownames(counts))
-
     normalized = sweep(counts,MARGIN=2,FUN="/",STATS=colSums(counts))
     # sum((counts[,1]/sum(counts[,1]))!=normalized[,1])
     normalized = normalized*10000
     normalized = log(normalized+1)
     print.message('Normalized');corner(normalized)
 
-    t = start(append=T,split=T)
+    t = start(file.path(environment$work.path, 'tracking'), append=T,split=T)
     duplicated.indices = duplicated(t(counts[genes.filter,])) | duplicated(t(counts[genes.filter,]),fromLast=T)
     if (sum(duplicated.indices) > 0) {
       print.message('\nRemoving all',sum(duplicated.indices),'duplicated cells\n')
@@ -273,6 +272,7 @@ read.data <- function(
 #' @param rerun Whether to rerun the reading process
 #' @export
 read.preclustered.datasets <- function (
+  environment,
   path = NA,
   recursive = T,
   rerun = F) {
@@ -285,7 +285,7 @@ read.preclustered.datasets <- function (
   } else {
 
     print.message('Computing')
-    t = start(split=T)
+    t = start(file.path(environment$work.path, 'tracking'), split=T)
 
     if (is.na(path)) path = dirname(environment$baseline.work.path)
     dataset = environment$datasets[1]

@@ -7,6 +7,7 @@
 #' @param min.dispersion.scaled Minimum dispersion value
 #' @param rerun Whether to rerun
 get.variable.genes <- function (
+  environment,
   min.mean = 0.05,
   min.frac.cells = 0,
   min.dispersion.scaled = 1,
@@ -19,7 +20,7 @@ get.variable.genes <- function (
     load(cache)
   } else {
     print.message('Computing')
-    t = start()
+    t = start(file.path(environment$work.path, 'tracking'))
 
     normalized = environment$normalized
 
@@ -79,28 +80,27 @@ get.variable.genes <- function (
 
   environment$HVG = HVG
 
-  cat('# highly variable genes = ',length(environment$HVG),'\n',sep='')
+  cat('# highly variable genes = ', length(environment$HVG), '\n', sep='')
 
   return(environment)
 }
 
-nUMIs <- function () { return(colSums(environment$counts)) }
+nUMIs <- function (environment) { return(colSums(environment$counts)) }
 
 nGenes <- function () { return(colSums(environment$counts>0)) }
 
-add.confounder.variables <- function (...) {
-
-  environment$confounders = data.frame(environment$confounders,data.frame(...));print(head(environment$confounders))
+add.confounder.variables <- function (environment, ...) {
+  environment$confounders = data.frame(environment$confounders, data.frame(...))
   print(head(environment$confounders))
   return(environment)
 }
 
-ribosomal.score <- function (control = T,knn=10) {
-  t = start()
+ribosomal.score <- function (environment, control = T,knn=10) {
+  t = start(file.path(environment$work.path, 'tracking'))
   genes = get.ribo.genes(environment$genes)
   print.message('Using genes:');print(genes)
   if (control) {
-    score = controlled.mean.score(genes,knn)
+    score = controlled.mean.score(environment, genes,knn)
   } else {
     score = colMeans(environment$normalized[genes,])
   }
@@ -112,14 +112,15 @@ get.ribo.genes <- function (genes) {
   return (genes[c(grep('^Rpl',genes,ignore.case = T),grep('^Rps',genes,ignore.case = T))])
 }
 
-mitochondrial.score <- function (control = F,knn=10) {
-  t = start()
+mitochondrial.score <- function (environment, control = F, knn=10) {
+  #browser()
+  t = start(file.path(environment$work.path, 'tracking'))
   genes = get.mito.genes(environment$genes)
   print.message('Using genes:');print(genes)
   if (control) {
-    score = controlled.mean.score(genes,knn)
+    score = controlled.mean.score(environment, genes, knn)
   } else {
-    score = colMeans(environment$normalized[genes,])
+    score = Matrix::colMeans(environment$normalized[genes %in% capwords(rownames(environment$normalized)),])
   }
   end(t)
   return(score)
@@ -129,18 +130,21 @@ get.mito.genes <- function (genes) {
   return (genes[grep('^Mt-',genes,ignore.case = T)])
 }
 
-cell.cycle.score <- function (knn = 10,cc.genes.path = NA) {
+cell.cycle.score <- function (environment, knn = 10, cc.genes.path = NA) {
+  t = start(file.path(environment$work.path, 'tracking'))
 
-  if (is.na(cc.genes.path)) cc.genes.path = file.path(environment$data.path, "regev_lab_cell_cycle_genes.txt")
+  if(is.na(cc.genes.path)) {
+    cc.genes <- capwords(cell_cycle_genes)
+  } else {
+    cc.genes <- capwords(readLines(cc.genes.path))
+  }
 
-  t = start()
-  cc.genes = capwords(readLines(cc.genes.path))
-  s.genes = cc.genes[1:43];s.genes = s.genes[s.genes%in%environment$genes];print(s.genes)
-  g2m.genes = cc.genes[44:98];g2m.genes = g2m.genes[g2m.genes%in%environment$genes];print(g2m.genes)
+  s.genes = cc.genes[1:43];s.genesi = s.genes[s.genes %in% capwords(environment$genes)];print(s.genes)
+  g2m.genes = cc.genes[44:98];g2m.genes = g2m.genes[g2m.genes %in% capwords(environment$genes)];print(g2m.genes)
 
-  s.score = controlled.mean.score (s.genes,knn)
-  g2m.score = controlled.mean.score (g2m.genes,knn)
-  cell.cycle.score = controlled.mean.score (c(s.genes,g2m.genes),knn)
+  s.score = controlled.mean.score (environment, s.genes,knn)
+  g2m.score = controlled.mean.score (environment, g2m.genes,knn)
+  cell.cycle.score = controlled.mean.score (environment, c(s.genes,g2m.genes), knn)
 
   print.message('# s.score > 0:',sum(s.score>0),'fraction',sum(s.score>0)/length(s.score))
   print.message('# g2m.score > 0:',sum(g2m.score>0),'fraction',sum(g2m.score>0)/length(g2m.score))
@@ -149,7 +153,7 @@ cell.cycle.score <- function (knn = 10,cc.genes.path = NA) {
   return(data.frame(s.score=s.score,g2m.score=g2m.score,cell.cycle.score=cell.cycle.score))
 }
 
-controlled.mean.score <- function (genes,knn = 10,exclude.missing.genes = T,constrain.cell.universe = NA) {
+controlled.mean.score <- function (environment, genes,knn = 10,exclude.missing.genes = T,constrain.cell.universe = NA) {
   # similarly to http://science.sciencemag.org/content/sci/suppl/2016/04/07/352.6282.189.DC1/Tirosh.SM.pdf/Seurat to reduce association with library size or other technical
 
   if (is.na(constrain.cell.universe)) constrain.cell.universe = rep(T,ncol(environment$normalized))
@@ -166,17 +170,17 @@ controlled.mean.score <- function (genes,knn = 10,exclude.missing.genes = T,cons
       }
     }
 
-    background.genes = background.genes (foreground.genes = genes,knn)
+    background.genes = background.genes (environment, foreground.genes = genes,knn)
 
-    return(colMeans(environment$normalized[genes,constrain.cell.universe])-colMeans(environment$normalized[background.genes,constrain.cell.universe]))
+    return(Matrix::colMeans(environment$normalized[genes,constrain.cell.universe])-Matrix::colMeans(environment$normalized[background.genes,constrain.cell.universe]))
   } else {
-    return(colMeans(environment$normalized[genes,constrain.cell.universe]))
+    return(Matrix::colMeans(environment$normalized[genes,constrain.cell.universe]))
   }
 }
 
-get.technically.similar.genes <- function (knn = 10) {
+get.technically.similar.genes <- function (environment, knn = 10) {
 
-  t = start()
+  t = start(file.path(environment$work.path, 'tracking'))
   cache = file.path(environment$baseline.data.path,paste(knn,'technical.background.genes.distances.RData',sep='.'))
 
   if( file.exists(cache) ) {
@@ -206,11 +210,11 @@ get.technically.similar.genes <- function (knn = 10) {
   return(list(knns=knns,technical.variables=technical.variables))
 }
 
-background.genes <- function (foreground.genes,knn) {
+background.genes <- function (environment, foreground.genes,knn) {
 
-  t = start()
+  t = start(file.path(environment$work.path, 'tracking'))
   foreground.genes = foreground.genes[foreground.genes%in%environment$genes]
-  technically.similar.genes = get.technically.similar.genes (knn)
+  technically.similar.genes = get.technically.similar.genes (environment, knn)
   knns = technically.similar.genes$knns
   technical.variables = technically.similar.genes$technical.variables
 
@@ -222,7 +226,7 @@ background.genes <- function (foreground.genes,knn) {
   return(background.genes)
 }
 
-regress.covariates <- function (regress,data,groups,rerun = F,save = F) {
+regress.covariates <- function (environment, regress,data,groups,rerun = F,save = F) {
 
   cache = file.path(environment$res.data.path,paste(paste(colnames(regress),collapse='+'),'HVG.regressed.covariates.RData',sep='_'))
 
@@ -231,7 +235,7 @@ regress.covariates <- function (regress,data,groups,rerun = F,save = F) {
     load(cache)
   } else {
     print.message('Computing')
-    t = start()
+    t = start(file.path(environment$work.path, 'tracking'))
 
     formula.str = paste('gene',paste(colnames(regress),collapse=' + '),sep=' ~ ')
     formula = as.formula(formula.str)

@@ -1,4 +1,5 @@
 PCA <- function (
+  environment,
   regress = NA, # Gene signature activation scores to regress
   groups = NA, # Experimental design annotation to guide dataset-specific regression
   nShuffleRuns = 10, # Number of shuffled analyses
@@ -26,8 +27,8 @@ PCA <- function (
   environment$PCA = environment$Rotation = environment$PCA.path = NA
   if (clear.previously.calculated.clustering) environment$clustering = environment$seurat.cluster.association = NA
   dir.create(file.path(environment$work.path,'tracking'), showWarnings = F, recursive = T, mode = "700")
-  print.message('Transitioning to',config,'folder')
-  setwd(environment$work.path)
+  print.message('Transitioning to', config, 'folder')
+
   environment$res.data.path = file.path(environment$work.path,'data')
   shuffled.PCA.data.path = file.path(environment$res.data.path,'shuffled.PCA')
 
@@ -40,7 +41,7 @@ PCA <- function (
     load(cache)
   } else {
     print.message('Computing')
-    t = start()
+    t = start(file.path(environment$work.path, 'tracking'))
 
     if (clear.previously.calculated.clustering) unlink(file.path(environment$res.data.path,'clustering'),recursive=T,force=T)
 
@@ -84,7 +85,7 @@ PCA <- function (
     var.perm = get_slurm_out(sjob);dim(var.perm)
 
     end(t)
-    start(append=T,split=T)
+    start(file.path(environment$work.path, 'tracking'), append=T,split=T)
 
     if (length(var.perm) == 0 || nrow(var.perm) < nShuffleRuns) {
       print.message('JOB ERROR: Not enough shuffled results:',nrow(var.perm),'<',nShuffleRuns,'\nCHECK FOR FAILED JOBS\n\n\n')
@@ -96,7 +97,7 @@ PCA <- function (
       }
     }
     end(t)
-    start(append=T)
+    start(file.path(environment$work.path, 'tracking'), append=T)
     tryCatch({cleanup_files(sjob);cleanup_files(sjob);cleanup_files(sjob)},error=function(v) v)
     print.message('Shuffled PCA Var');corner(var.perm,10)
 
