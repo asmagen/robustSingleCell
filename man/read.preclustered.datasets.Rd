@@ -4,7 +4,8 @@
 \alias{read.preclustered.datasets}
 \title{Read preclustered datasets}
 \usage{
-read.preclustered.datasets(path = NA, recursive = T, rerun = F)
+read.preclustered.datasets(environment, path = NA, recursive = T,
+  rerun = F)
 }
 \arguments{
 \item{path}{Search path for previous projects}

@@ -10,17 +10,33 @@ always_allow_html: yes
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Initialization
+## Data set
+
+If `GEOquery` package is not installed, use `biocLite()` to install the package:
+
+```{r install_GEOquery}
+source("http://bioconductor.org/biocLite.R")
+biocLite("GEOquery")
+```
+
+The example data set comes from Ciucci 2018[^1]. Two replicates of CD44+ cells were available from [GSM3423794](https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSM3423794) and [GSM3423795](https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSM3423795). 
+
+
+```{r}
+dir.create("~/Downloads/LMCV")
+rep1_path <- GEOquery::getGEOSuppFiles("GSM3423794", baseDir = "~/Downloads/LMCV")
+rep2_path <- GEOquery::getGEOSuppFiles("GSM3423795", baseDir = "~/Downloads/LMCV")
+```
+
 
 ```{r initialize}
 library(MagenSingleCell)
-marker_genes <- readr::read_csv("/Users/szmamie/Documents/repos/magensinglecell/data/markers.csv")
-Exhaustion <- capwords(c('Pdcd1','Cd244','Havcr2','Ctla4','Cd160','Lag3','Tigit','Cd96'))
-env <- initialize.project(datasets = c("CD44Total_1"), 
-                          origins = "CD44+ cells",
-                          experiments = "Rep1", 
-                          data.path = "/Users/szmamie/Desktop/Inbox/LMCV",
-                          work.path = "/Users/szmamie/Desktop/Inbox/analysis",
+Exhaustion <- MagenSingleCell:::capwords(c('Pdcd1','Cd244','Havcr2','Ctla4','Cd160','Lag3','Tigit','Cd96'))
+env <- initialize.project(datasets = c("GSM3423794", "GSM3423795"), 
+                          origins = rep("CD44+ cells", 2),
+                          experiments = c("Rep1", "Rep2")
+                          data.path = "~/Downloads/LMCV",
+                          work.path = "~/Downloads/LMCV_analysis",
                           marker.genes = capwords(unique(marker_genes$symbol)))
 ```
 
@@ -51,6 +67,6 @@ env <- MagenSingleCell::PCA(env)
 env <- cluster.analysis(env)
 ```
 
-
 ## Differential expression and visualizations
 
+[^1] Ciucci, Thomas, et al. "The Emergence and Functional Fitness of Memory CD4+ T Cells Require the Transcription Factor Thpok." _Immunity_ 50.1 (2019): 91-105.
