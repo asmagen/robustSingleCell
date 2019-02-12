@@ -28,6 +28,7 @@ env <- add.confounder.variables (env, ribosomal.score = ribosomal.score,
   Exhaustion = Exhaustion)
 env <- PCA(env)
 env <- cluster.analysis(env)
+env <- summarize(env)
 
 
 # pooled analysis

@@ -1,5 +1,10 @@
-#' @import rslurm
-run.tSNE <- function (perplexity,max_iter,rerun) {
+#' Run tSNE
+#' @param environment The environment
+#' @param perplexity The perplexity parameter of tSNE
+#' @param max_iter The maximum number of iterations to run the tSNE
+#' @param rerun Whether to rerun
+#' @export
+run.tSNE <- function (environment, perplexity,max_iter,rerun) {
 
   tSNE <- function (perplexity,max_iter) {
 
@@ -16,7 +21,7 @@ run.tSNE <- function (perplexity,max_iter,rerun) {
   sjob = NA
 
   if (rerun || !dir.exists(tSNEs.dir)) {
-    t = start(split = T)
+    t = start(file.path(environment$work.path, 'tracking'), split = T)
     print(tSNEs.dir)
     # unlink(tSNEs.dir,recursive=T,force=T)
     dir.create(tSNEs.dir)

@@ -306,12 +306,27 @@ regress.covariates <- function (environment, regress,data,groups,rerun = F,save 
   return (corrected)
 }
 
-summarize <- function (perplexity = seq(10,30,10),max_iter = 10000,rerun = F,robust = F,order = NA,contrast = 'all',min.fold = 1.5,quantile = 0.95) {
+#' Summarize the clustering results
+#' 
+#' TODO
+#'
+#' @param environment The environment object
+#' @param perplexity The perplexity parameter for tSNE anlaysis
+#' @param max_iter Maximum iterations for tSNE
+#' @param rerun Whether to rerun 
+#' @param robust TODO
+#' @param order TODO
+#' @param contrast TODO
+#' @param min.fold TODO
+#' @param quantile TODO
+#' @return TODO
+#' export
+summarize <- function (environment, perplexity = seq(10,30,10),max_iter = 10000,rerun = F,robust = F,order = NA,contrast = 'all',min.fold = 1.5,quantile = 0.95) {
 
   cluster.size = table(environment$cluster.names)
   if (is.na(order)) order = names(cluster.size)[order(cluster.size,decreasing=T)]
-  tSNE.job = run.tSNE (perplexity,max_iter,rerun)
-  plot.PCA (quantile = 0.05,order)
+  tSNE.job = run.tSNE (environment, perplexity,max_iter,rerun)
+  plot.PCA (environment, quantile = 0.05,order)
   plot.cluster.stats (membership = environment$cluster.names,order = order)
   if (length(environment$seurat.cluster.association)>1) tryCatch({ plot.cluster.stats (membership = environment$seurat.cluster.association,label = 'Seurat',order = order) },error=function(v) v)
 

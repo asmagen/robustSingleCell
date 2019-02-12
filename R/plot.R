@@ -2,11 +2,12 @@
 #'
 #' TODO: description
 #'
+#' @param environment The environment object
 #' @param quantile quantile
 #' @param order order
 #' @import GGally
 #' @import ggrepel
-plot.PCA <- function (quantile,order) {
+plot.PCA <- function (environment, quantile,order) {
 
   work.path = environment$work.path
   PCA = environment$PCA
