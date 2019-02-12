@@ -13,7 +13,6 @@ cluster <- function (knn.ratio,label,path,data.path,nPCs) {
     load(file.path(data.path))
   }
 
-  library(Rphenograph,quietly=T);library(cccd,quietly=T)
   # Rphenograph_out = Rphenograph(t(PCA), k = floor(knn.ratio*ncol(PCA)))
   neighborMatrix <- find_neighbors(t(PCA), k=floor(knn.ratio*ncol(PCA)))[,-1]
   jaccard_coeff <- function(idx) {
@@ -77,16 +76,34 @@ get.clustering.results <- function (clustering.dir,knn.ratio,shuffledKNN) {
   return(list(membership=membership,memberships=memberships,modularity=modularity,shuffled=shuffled.matches,shuffled.membership=shuffled.membership,shuffled.modularity=shuffled.matches$modularity))
 }
 
+#' Clustering analysis
+#' 
+#' TODO
+#'
+#' @param knn.ratios Range of KNN parameters to scan (corresponding to different resolutions)
+#' @param nShuffleRuns Number of shuffled clustering analyses to perform per KNN threshold
+#' @param shuffleKNN Number of closest KNN shuffled analyses to include in background clustering quality computation
+#' @param loadPreviousKnn Whether to load previous analysis results
+#' @param rerun Whether to rerun
+#' @param deleteCacheWhether to delete cache files
+#' @param mem HPC memory
+#' @param time HPC time
+#' @param plot Whether to plot the clustering qualities compared to shuffled
+#' @return TODO
+#' @import cccd
+#' @import Rphenograph
+#' @export
 cluster.analysis <- function (
-  knn.ratios = c(0.01,0.05,0.1), # Range of KNN parameters to scan (corresponding to different resolutions)
-  nShuffleRuns = 10, # Number of shuffled clustering analyses to perform per KNN threshold
-  shuffledKNN = 10, # Number of closest KNN shuffled analyses to include in background clustering quality computation
-  loadPreviousKnn = T, # Whether to load previous analysis results
-  rerun = F, # Whether to rerun
-  deleteCache = F, # Whether to delete cahce files
-  mem = '4GB', # HPC memory
-  time = '0:15:00', # HPC time
-  plot = T) { # Whether to plot the clustering qualities compared to shuffled
+  environment,
+  knn.ratios = c(0.01,0.05,0.1), 
+  nShuffleRuns = 10, 
+  shuffledKNN = 10, 
+  loadPreviousKnn = T, 
+  rerun = F, 
+  deleteCache = F, 
+  mem = '4GB', 
+  time = '0:15:00', 
+  plot = T) { 
 
   clustering.dir = file.path(environment$res.data.path,'clustering')
   shuffled.result.files = list.files(clustering.dir,pattern = paste('shuffled.*.*.RData',sep=''));shuffled.result.files
@@ -103,7 +120,7 @@ cluster.analysis <- function (
 
   if( rerun || !dir.exists(clustering.dir) ) {
     print.message('Computing')
-    t = start()
+    t = start(file.path(environment$work.path, 'tracking'))
 
     if (deleteCache) unlink(clustering.dir,recursive=T,force=T)
     dir.create(clustering.dir)
@@ -113,7 +130,6 @@ cluster.analysis <- function (
     print.message('Head params:');print(head(params))
     print.message('Tail params:');print(tail(params))
 
-    suppressWarnings(library(rslurm,quietly=T))
     sopt <- list(mem = mem, time = time, share = TRUE)
     sjob <- slurm_apply(cluster, params, nodes = nrow(params), cpus_per_node = 1, submit = TRUE, slurm_options = sopt)#, add_objects = c('path','data.path')
     tryCatch({get_slurm_out(sjob);get_slurm_out(sjob);get_slurm_out(sjob)},error=function(v) v)
@@ -125,7 +141,7 @@ cluster.analysis <- function (
     print.message('Loading precomputed')
     load(cache)
   } else {
-    t = start(name = 'KNN.stats',split = T)
+    t = start(file.path(environment$work.path, 'tracking'), name = 'KNN.stats',split = T)
 
     nResults = length(list.files(clustering.dir,pattern = paste('*.RData',sep='')))
     if (nResults < nrow(params)) {
@@ -167,7 +183,7 @@ cluster.analysis <- function (
         new.plot.stats = rbind(new.plot.stats,data.frame(nClusters=ncluster, Type = 'Shuffled Data', Modularity = mean(shuffled),sd = sd(shuffled)))
         fold.data = rbind(fold.data,data.frame(nClusters=ncluster,Type='Original Data', Modularity = mean(original), Fold = mean(original)/mean(shuffled)))
       }
-      library(ggplot2)
+
       pdf(file.path(environment$work.path,'Clustering.modularity.pdf'),width=10)
       print(ggplot(new.plot.stats, aes(x=nClusters, y=Modularity, fill=Type)) + geom_bar(stat="identity", color="black", position=position_dodge()) + geom_errorbar(aes(ymin=Modularity-sd, ymax=Modularity+sd), width=.2, position=position_dodge(.9)) + labs(title="Clustering modularity analysis", x="Number of Clusters", y = "Modularity") + theme_classic(base_size=25) + scale_fill_manual(values=c('#999999','#E69F00')) + geom_text(data = fold.data,aes(nClusters, max(Modularity)*1.05, label = sprintf("%2.1f", Fold)),size=7))
       print(ggplot(new.plot.stats, aes(x=nClusters, y=Modularity, fill=Type)) + geom_bar(stat="identity", color="black", position=position_dodge()) + geom_errorbar(aes(ymin=Modularity-sd, ymax=Modularity+sd), width=.2, position=position_dodge(.9)) + labs(title="Clustering modularity analysis", x="Number of Clusters", y = "Modularity") + theme_classic(base_size=25) + scale_fill_manual(values=c('#999999','#E69F00')) + geom_text(data = fold.data,aes(nClusters, max(Modularity)*1.05, label = sprintf("%2.2f", Fold)),size=7))

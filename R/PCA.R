@@ -1,15 +1,33 @@
+#' Parallelized PCA
+#'
+#' TODO
+#'
+#' @param environment The environment object
+#' @param regress Gene signature activation scores to regress
+#' @param groups Experimental design annotation to guide dataset-specific regression
+#' @param nShuffleRuns Number of shuffled analyses
+#' @param threshold FDR threshold 
+#' @param maxPCs Maximum number of possible PCs
+#' @param label Optional analyses label folder
+#' @param mem HPC memory
+#' @param time HPC time
+#' @param rerun Whether to rerun
+#' @param clear.previously.calculated.clustering Whether to clear previous clustering analysis
+#' @return TODO
+#' @export
+#' @import rslurm 
 PCA <- function (
   environment,
-  regress = NA, # Gene signature activation scores to regress
-  groups = NA, # Experimental design annotation to guide dataset-specific regression
-  nShuffleRuns = 10, # Number of shuffled analyses
-  threshold = 0.1, # FDR threshold
-  maxPCs = 100, # Maximum number of possible PCs
-  label = NA, # Optional analyses label folder
-  mem = '2GB', # HPC memory
-  time = '0:10:00', # HPC time
-  rerun = F, # Whether to rerun
-  clear.previously.calculated.clustering = T) { # Whether to clear previous clustering analysis
+  regress = NA,
+  groups = NA,  
+  nShuffleRuns = 10,  
+  threshold = 0.1, 
+  maxPCs = 100, 
+  label = NA,  
+  mem = '2GB',  
+  time = '0:10:00',  
+  rerun = F,  
+  clear.previously.calculated.clustering = T) { 
 
   if (length(regress)>1 || !is.na(regress)) {
     config = paste(colnames(regress),collapse='+')
@@ -71,7 +89,6 @@ PCA <- function (
       return (var.perm)
     }
 
-    suppressWarnings(library(rslurm,quietly=T))
     sopt <- list(mem = mem, time = time, share = TRUE)
     sjob <- slurm_apply(get.shuffled.var, data.frame(rep=seq(nShuffleRuns)), add_objects = c('shuffled.PCA.data.path','data','ndf'), pkgs = NULL, nodes = nShuffleRuns, cpus_per_node = 1, submit = TRUE, slurm_options = sopt)
 
@@ -86,7 +103,6 @@ PCA <- function (
 
     end(t)
     start(file.path(environment$work.path, 'tracking'), append=T,split=T)
-
     if (length(var.perm) == 0 || nrow(var.perm) < nShuffleRuns) {
       print.message('JOB ERROR: Not enough shuffled results:',nrow(var.perm),'<',nShuffleRuns,'\nCHECK FOR FAILED JOBS\n\n\n')
       terminate = readline(prompt="Terminate? (y/n) ")

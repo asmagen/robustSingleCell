@@ -20,11 +20,13 @@ env <- get.variable.genes(env)
 ribosomal.score = ribosomal.score(env)	
 mitochondrial.score = mitochondrial.score(env)
 cell.cycle.score = cell.cycle.score(env)
-Exhaustion = controlled.mean.score(env Exhaustion)
+Exhaustion = controlled.mean.score(env, Exhaustion)
 
-env <- add.confounder.variables (env,
-env <- MagenSingleCell::PCA(env)
-
+env <- add.confounder.variables (env, ribosomal.score = ribosomal.score, 
+  mitochondrial.score = mitochondrial.score,
+  cell.cycle.score = cell.cycle.score,
+  Exhaustion = Exhaustion)
+env <- PCA(env)
 env <- cluster.analysis(env)
 
 
