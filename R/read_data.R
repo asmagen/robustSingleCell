@@ -204,7 +204,7 @@ read.data <- function(
     origins = merged.origins
     experiments = merged.experiments
     criteria = merged.criteria
-    rm(gbm,merged,measurements,merged.dataset.labels,merged.origins,merged.experiments,merged.criteria)
+    rm(merged,measurements,merged.dataset.labels,merged.origins,merged.experiments,merged.criteria)
 
     cells.per.gene = rowSums(counts>0)
     print.message('Filtered cells.per.gene');print(summary(cells.per.gene))

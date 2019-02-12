@@ -19,7 +19,7 @@ initialize.project <- function (
   experiments,
   data.path,
   work.path,
-  marker.genes,
+  marker.genes = NULL,
   clear.history = F,
   analysis.label = NA,
   convert.to.mouse.gene.symbols = NULL) {
@@ -41,6 +41,9 @@ initialize.project <- function (
              showWarnings = F, recursive = T, mode = "700")
   environment$baseline.data.path = environment$res.data.path = file.path(environment$work.path,'data')
   dir.create(environment$res.data.path, showWarnings = F, recursive = T, mode = "700")
+  if (is.null(marker.genes)) {
+     marker.genes <- unique(marker_genes$symbol)
+  }
   environment$marker.genes = marker.genes
   t = start(file.path(environment$work.path, 'tracking'))
   print(environment)

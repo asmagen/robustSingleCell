@@ -8,7 +8,8 @@ read.data(environment, genome = "mm10", min.genes.per.cell = 500,
   max.genes.per.cell.quantile = 0.98,
   max.UMIs.per.cell.quantile = 0.98, min.cells.per.gene = 1,
   max.mitochondrial.frac = 0.1, max.ribosomal.frac = NA,
-  cell.filters = NA, raw.data.matrices = NA, rerun = F)
+  cell.filters = NA, raw.data.matrices = NA, rerun = F,
+  subsample = NULL, seed = 0)
 }
 \arguments{
 \item{genome}{Genome annotation}
@@ -31,6 +32,10 @@ genes per cell}
 \item{raw.data.matrices}{Logical indicating if data matrices is provided instead of 10X dataset}
 
 \item{rerun}{Whether to rerun loading the dataset}
+
+\item{subsample}{Number of cells to subsample}
+
+\item{seed}{seed for subsampling}
 }
 \description{
 TODO: DESCRIPTION

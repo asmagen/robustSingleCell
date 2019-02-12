@@ -5,7 +5,7 @@
 \title{Intialize the project object}
 \usage{
 initialize.project(datasets, origins, experiments, data.path, work.path,
-  marker.genes, clear.history = F, analysis.label = NA,
+  marker.genes = NULL, clear.history = F, analysis.label = NA,
   convert.to.mouse.gene.symbols = NULL)
 }
 \arguments{

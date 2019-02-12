@@ -1,5 +1,0 @@
-LMCV demo
-================
-Meng Wang
-
-

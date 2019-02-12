@@ -6,6 +6,7 @@
 #' @param min.frac.cells Minimum fraction of cells expressing each gene
 #' @param min.dispersion.scaled Minimum dispersion value
 #' @param rerun Whether to rerun
+#' @export
 get.variable.genes <- function (
   environment,
   min.mean = 0.05,
@@ -89,12 +90,28 @@ nUMIs <- function (environment) { return(colSums(environment$counts)) }
 
 nGenes <- function () { return(colSums(environment$counts>0)) }
 
+#' Add confounder variable to environment object
+#' 
+#' TODO
+#'
+#' @param environment The environment object
+#' @param ... confounding variables
+#' @export
 add.confounder.variables <- function (environment, ...) {
   environment$confounders = data.frame(environment$confounders, data.frame(...))
   print(head(environment$confounders))
   return(environment)
 }
 
+#' Compute ribosomal score
+#' 
+#' TODO
+#'
+#' @param environment The environment object
+#' @param control TODO
+#' @param knn Number of nearest neighbor
+#' @return A vector of ribosonal score (TODO)
+#' @export
 ribosomal.score <- function (environment, control = T,knn=10) {
   t = start(file.path(environment$work.path, 'tracking'))
   genes = get.ribo.genes(environment$genes)
@@ -112,6 +129,15 @@ get.ribo.genes <- function (genes) {
   return (genes[c(grep('^Rpl',genes,ignore.case = T),grep('^Rps',genes,ignore.case = T))])
 }
 
+#' Compute mitochondrial score
+#' 
+#' TODO
+#'
+#' @param environment The environment object
+#' @param control TODO
+#' @param knn Number of nearest neighbor
+#' @return A vector of mitochondrial score (TODO)
+#' @export
 mitochondrial.score <- function (environment, control = F, knn=10) {
   #browser()
   t = start(file.path(environment$work.path, 'tracking'))
@@ -130,6 +156,15 @@ get.mito.genes <- function (genes) {
   return (genes[grep('^Mt-',genes,ignore.case = T)])
 }
 
+#' Compute cell cycle score
+#' 
+#' TODO
+#' 
+#' @param environment The environment object
+#' @param knn The number of nearest neighbor
+#' @param cc.genes.path Optional; path to defined cell cycle genes. Default used TODO (citation)
+#' @return TODO
+#' @export 
 cell.cycle.score <- function (environment, knn = 10, cc.genes.path = NA) {
   t = start(file.path(environment$work.path, 'tracking'))
 
@@ -153,6 +188,17 @@ cell.cycle.score <- function (environment, knn = 10, cc.genes.path = NA) {
   return(data.frame(s.score=s.score,g2m.score=g2m.score,cell.cycle.score=cell.cycle.score))
 }
 
+#' Compute controled mean score
+#' 
+#' TODO
+#' 
+#' @param environment THe environment object
+#' @param genes TODO
+#' @param knn Number of nearest neighbors
+#' @param exclude.missing.genes Whether to exclude genes with missing values
+#' @param contrain.cell.universe TODO
+#' @return TODO
+#' @export
 controlled.mean.score <- function (environment, genes,knn = 10,exclude.missing.genes = T,constrain.cell.universe = NA) {
   # similarly to http://science.sciencemag.org/content/sci/suppl/2016/04/07/352.6282.189.DC1/Tirosh.SM.pdf/Seurat to reduce association with library size or other technical
 
