@@ -6,9 +6,9 @@
 #' @return A matrix of genes by cells
 #' @export
 read.10x.data <- function( path ) {
-  barcode.path <- file.path(path,"barcodes.tsv")
-  features.path <- file.path(path,"genes.tsv")
-  matrix.path <- file.path(path,"matrix.mtx")
+  barcode.path <- list.files(path, pattern = "barcodes.tsv", full = T)
+  features.path <- list.files(path, pattern = "genes.tsv", full = T)
+  matrix.path <- list.files(path, pattern = "matrix.mtx", full = T)
   mat <- Matrix::readMM(file = matrix.path)
   feature.names = read.delim(features.path,
                              header = FALSE,
@@ -37,6 +37,8 @@ read.10x.data <- function( path ) {
 #' @param cell.filters Filtering option for cells based on marker genes
 #' @param raw.data.matrices Logical indicating if data matrices is provided instead of 10X dataset
 #' @param rerun Whether to rerun loading the dataset
+#' @param subsample Number of cells to subsample
+#' @param seed seed for subsampling
 #' @export
 #' @import ggplot2
 read.data <- function(
@@ -50,7 +52,9 @@ read.data <- function(
   max.ribosomal.frac = NA,
   cell.filters = NA,
   raw.data.matrices = NA,
-  rerun = F) {
+  rerun = F,
+  subsample = NULL,
+  seed = 0) {
   #browser()
   cache = file.path(environment$baseline.data.path, 'data.RData')
 
@@ -65,6 +69,7 @@ read.data <- function(
     merged = NA
     dataset = environment$datasets[1]
     merged.dataset.labels = merged.origins = merged.experiments = merged.criteria = {}
+    set.seed(seed)
     for(dataset in environment$datasets) {
       if (is.na(raw.data.matrices)) {
         print.message('Loading',dataset)
@@ -74,10 +79,14 @@ read.data <- function(
         print.message('Using input',dataset)
         measurements = raw.data.matrices[[dataset]]
       }
+      if (!is.null(subsample) & subsample < ncol(measurements)) {
+        measurements <- measurements[, sample(seq(ncol(measurements)), subsample)]
+      }
       colnames(measurements) = rep(environment$datasets[environment$datasets==dataset], ncol(measurements))
       dataset.labels = rep(paste(environment$origins[environment$datasets==dataset],' (',environment$experiments[environment$datasets==dataset],')',sep=''),ncol(measurements))
       origins = rep(environment$origins[environment$datasets==dataset],ncol(measurements))
       experiments = rep(environment$experiments[environment$datasets==dataset],ncol(measurements))
+      cat(dim(measurements))
       # corner(measurements)
       # measurements = measurements[,measurements['Cd4',]>0]
 

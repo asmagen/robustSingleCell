@@ -120,7 +120,7 @@ mitochondrial.score <- function (environment, control = F, knn=10) {
   if (control) {
     score = controlled.mean.score(environment, genes, knn)
   } else {
-    score = Matrix::colMeans(environment$normalized[genes %in% capwords(rownames(environment$normalized)),])
+    score = Matrix::colMeans(environment$normalized[genes %in% rownames(environment$normalized),])
   }
   end(t)
   return(score)
