@@ -1,6 +1,5 @@
 #' Intialize the project object
 #'
-#' TODO: description
 #'
 #' @param datasets List of dataset code names
 #' @param origins List of dataset tissue origin/condition full name
@@ -12,6 +11,7 @@
 #' @param analysis.label Whether you would like to add a specific label to the analysis folder
 #' @param convert.to.mouse.gene.symbols Whether you are using human gene symbols and would like to convert them
 #' to mouse gene symbols
+#' @return \code{environment} parameter containing file paths and experiment parameters
 #' @export
 initialize.project <- function (
   datasets,

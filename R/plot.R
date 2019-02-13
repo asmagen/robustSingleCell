@@ -1,6 +1,5 @@
-#' Plot PCA
+#' Plot PCA results as cell embedding in 2D space and annotation of gene loadings
 #'
-#' TODO: description
 #'
 #' @param environment The environment object
 #' @param quantile quantile

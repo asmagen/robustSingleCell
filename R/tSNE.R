@@ -1,6 +1,5 @@
-#' Run tSNE
+#' Run distributed tSNE analysis for multiple input parameters
 #' 
-#' TODO
 #' 
 #' @param environment The environment
 #' @param perplexity The perplexity parameter of tSNE

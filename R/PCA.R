@@ -1,6 +1,5 @@
 #' Parallelized PCA
 #'
-#' TODO
 #'
 #' @param environment The environment object
 #' @param regress Gene signature activation scores to regress
@@ -13,7 +12,7 @@
 #' @param time HPC time
 #' @param rerun Whether to rerun
 #' @param clear.previously.calculated.clustering Whether to clear previous clustering analysis
-#' @return TODO
+#' @return \code{environment} parameter containing PC coordinates
 #' @export
 #' @import rslurm 
 PCA <- function (

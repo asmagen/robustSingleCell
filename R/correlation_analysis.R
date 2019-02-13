@@ -78,7 +78,6 @@ get.clustering.results <- function (clustering.dir,knn.ratio,shuffledKNN) {
 
 #' Clustering analysis
 #' 
-#' TODO
 #'
 #' @param knn.ratios Range of KNN parameters to scan (corresponding to different resolutions)
 #' @param nShuffleRuns Number of shuffled clustering analyses to perform per KNN threshold
@@ -89,7 +88,7 @@ get.clustering.results <- function (clustering.dir,knn.ratio,shuffledKNN) {
 #' @param mem HPC memory
 #' @param time HPC time
 #' @param plot Whether to plot the clustering qualities compared to shuffled
-#' @return TODO
+#' @return \code{environment} parameter containing clustering assignment and provisional cluster names
 #' @import cccd
 #' @import Rphenograph
 #' @export

@@ -22,9 +22,8 @@ read.10x.data <- function( path ) {
 }
 
 
-#' Read and preprocess data
+#' Read data from 10X files or a raw data matrix and perform normalization, QC filtering and duplicates removal
 #'
-#' TODO: DESCRIPTION
 #'
 #' @param genome Genome annotation
 #' @param min.genes.per.cell Minimum required number of genes per cell

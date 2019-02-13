@@ -1,11 +1,11 @@
-#' Get variable genes
+#' Get highly variable genes by Heteroscedasticity controlled binning
 #'
-#' TODO: description
 #'
 #' @param min.mean Minimum mean expression per gene
 #' @param min.frac.cells Minimum fraction of cells expressing each gene
 #' @param min.dispersion.scaled Minimum dispersion value
 #' @param rerun Whether to rerun
+#' @return \code{environment} parameter containing highly variable genes selection
 #' @export
 get.variable.genes <- function (
   environment,
@@ -92,10 +92,10 @@ nGenes <- function () { return(colSums(environment$counts>0)) }
 
 #' Add confounder variable to environment object
 #' 
-#' TODO
 #'
 #' @param environment The environment object
 #' @param ... confounding variables
+#' @return \code{environment} parameter containing added confounder variable
 #' @export
 add.confounder.variables <- function (environment, ...) {
   environment$confounders = data.frame(environment$confounders, data.frame(...))
@@ -105,12 +105,11 @@ add.confounder.variables <- function (environment, ...) {
 
 #' Compute ribosomal score
 #' 
-#' TODO
 #'
 #' @param environment The environment object
-#' @param control TODO
+#' @param control Whether to subtract the score defined by technically similar genes
 #' @param knn Number of nearest neighbor
-#' @return A vector of ribosonal score (TODO)
+#' @return A vector of ribosomal genes activation score 
 #' @export
 ribosomal.score <- function (environment, control = T,knn=10) {
   t = start(file.path(environment$work.path, 'tracking'))
@@ -131,12 +130,11 @@ get.ribo.genes <- function (genes) {
 
 #' Compute mitochondrial score
 #' 
-#' TODO
 #'
 #' @param environment The environment object
-#' @param control TODO
+#' @param control Whether to subtract the score defined by technically similar genes
 #' @param knn Number of nearest neighbor
-#' @return A vector of mitochondrial score (TODO)
+#' @return A vector of mitochondrial genes activation score 
 #' @export
 mitochondrial.score <- function (environment, control = F, knn=10) {
   #browser()
@@ -158,12 +156,11 @@ get.mito.genes <- function (genes) {
 
 #' Compute cell cycle score
 #' 
-#' TODO
 #' 
 #' @param environment The environment object
 #' @param knn The number of nearest neighbor
-#' @param cc.genes.path Optional; path to defined cell cycle genes. Default used TODO (citation)
-#' @return TODO
+#' @param cc.genes.path Optional; path to defined cell cycle genes. Default uses gene sets defined in Kowalczyk, M. S. et al. Single-cell RNA-seq reveals changes in cell cycle and differentiation programs upon aging of hematopoietic stem cells. Genome Res 25, 1860-1872, doi:10.1101/gr.192237.115 (2015).
+#' @return A matrix of cell cycle genes activation scores (S, G2M and aggregated S/G2M scores, separately)
 #' @export 
 cell.cycle.score <- function (environment, knn = 10, cc.genes.path = NA) {
   t = start(file.path(environment$work.path, 'tracking'))
@@ -188,16 +185,15 @@ cell.cycle.score <- function (environment, knn = 10, cc.genes.path = NA) {
   return(data.frame(s.score=s.score,g2m.score=g2m.score,cell.cycle.score=cell.cycle.score))
 }
 
-#' Compute controled mean score
+#' Compute controlled mean gene signatures activation score
 #' 
-#' TODO
 #' 
-#' @param environment THe environment object
-#' @param genes TODO
+#' @param environment The environment object
+#' @param genes The gene list upon which to calculate gene signature activate
 #' @param knn Number of nearest neighbors
 #' @param exclude.missing.genes Whether to exclude genes with missing values
-#' @param contrain.cell.universe TODO
-#' @return TODO
+#' @param constrain.cell.universe A binary vector indicating in which subset of cells to calculate the gene signature activation. Default is all cells.
+#' @return Gene signature activation scores per cell
 #' @export
 controlled.mean.score <- function (environment, genes,knn = 10,exclude.missing.genes = T,constrain.cell.universe = NA) {
   # similarly to http://science.sciencemag.org/content/sci/suppl/2016/04/07/352.6282.189.DC1/Tirosh.SM.pdf/Seurat to reduce association with library size or other technical
@@ -306,20 +302,18 @@ regress.covariates <- function (environment, regress,data,groups,rerun = F,save 
   return (corrected)
 }
 
-#' Summarize the clustering results
+#' Summarize the clustering results into figures
 #' 
-#' TODO
 #'
 #' @param environment The environment object
 #' @param perplexity The perplexity parameter for tSNE anlaysis
 #' @param max_iter Maximum iterations for tSNE
 #' @param rerun Whether to rerun 
-#' @param robust TODO
-#' @param order TODO
-#' @param contrast TODO
-#' @param min.fold TODO
-#' @param quantile TODO
-#' @return TODO
+#' @param robust TODO # Mamie - We should remove this functionality. 
+#' @param order Order in which to plot the clusters 
+#' @param contrast Either 'all' indicating differential expression between one cluster against all others or 'datasets' indicating differential expression analysis comparing one cluster to all other within each dataset separately ('datasets' should be used in pooled analysis for optimal results)
+#' @param min.fold Minimum fold change for filtering final differentially expressed gene lists
+#' @param quantile q-value cutoff
 #' @export
 summarize <- function (environment, perplexity = seq(10,30,10),max_iter = 10000,rerun = F,robust = F,order = NA,contrast = 'all',min.fold = 1.5,quantile = 0.95) {
 
