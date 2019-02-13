@@ -1,4 +1,7 @@
 #' Run tSNE
+#' 
+#' TODO
+#' 
 #' @param environment The environment
 #' @param perplexity The perplexity parameter of tSNE
 #' @param max_iter The maximum number of iterations to run the tSNE
@@ -42,7 +45,7 @@ run.tSNE <- function (environment, perplexity,max_iter,rerun) {
       }
     }
 
-    sopt <- list(mem = '8GB', time = '1:00:00', share = TRUE)
+    sopt <- list(mem = '4GB', time = '0:15:00', share = TRUE)
     sjob <- slurm_apply(tSNE, params, nodes = nrow(params), cpus_per_node = 1, add_objects = c('data.path','tSNEs.dir'), submit = TRUE, slurm_options = sopt)
     end()
   }

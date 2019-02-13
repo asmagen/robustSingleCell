@@ -320,20 +320,20 @@ regress.covariates <- function (environment, regress,data,groups,rerun = F,save 
 #' @param min.fold TODO
 #' @param quantile TODO
 #' @return TODO
-#' export
+#' @export
 summarize <- function (environment, perplexity = seq(10,30,10),max_iter = 10000,rerun = F,robust = F,order = NA,contrast = 'all',min.fold = 1.5,quantile = 0.95) {
 
   cluster.size = table(environment$cluster.names)
   if (is.na(order)) order = names(cluster.size)[order(cluster.size,decreasing=T)]
-  tSNE.job = run.tSNE (environment, perplexity,max_iter,rerun)
+  tSNE.job = run.tSNE (environment, perplexity, max_iter, rerun)
   plot.PCA (environment, quantile = 0.05,order)
-  plot.cluster.stats (membership = environment$cluster.names,order = order)
-  if (length(environment$seurat.cluster.association)>1) tryCatch({ plot.cluster.stats (membership = environment$seurat.cluster.association,label = 'Seurat',order = order) },error=function(v) v)
+  plot.cluster.stats (environment, membership = environment$cluster.names,order = order)
+  if (length(environment$seurat.cluster.association)>1) tryCatch({ plot.cluster.stats (environment, membership = environment$seurat.cluster.association,label = 'Seurat',order = order) },error=function(v) v)
 
-  final.diff = run.diff.expression (clustering = environment$clustering,min.fold,quantile,label='main',robust = robust,rerun = rerun,contrast = contrast)
+  final.diff = run.diff.expression (environment, clustering = environment$clustering,min.fold,quantile,label='main',robust = robust,rerun = rerun,contrast = contrast)
 
   order = sort(unique(environment$cluster.names))
-  plot.heatmaps (diff.exp = final.diff,membership = environment$cluster.names,order = order)
-  if (length(environment$seurat.cluster.association)>1) tryCatch({ plot.heatmaps (diff.exp = final.diff,membership = environment$seurat.cluster.association,label = 'Seurat') },error=function(v) v)
-  plot.tSNE (tSNE.job,perplexity,max_iter)
+  plot.heatmaps (environment, diff.exp = final.diff,membership = environment$cluster.names,order = order)
+  if (length(environment$seurat.cluster.association)>1) tryCatch({ plot.heatmaps (environment, diff.exp = final.diff,membership = environment$seurat.cluster.association,label = 'Seurat') },error=function(v) v)
+  plot.tSNE (environment, tSNE.job,perplexity,max_iter)
 }

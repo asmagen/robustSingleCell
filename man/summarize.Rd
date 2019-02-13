@@ -29,7 +29,6 @@ summarize(environment, perplexity = seq(10, 30, 10), max_iter = 10000,
 }
 \value{
 TODO
-export
 }
 \description{
 TODO

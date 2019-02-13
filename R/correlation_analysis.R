@@ -22,10 +22,10 @@ cluster <- function (knn.ratio,label,path,data.path,nPCs) {
   links <- links[links[,1]>0, ]
   relations <- as.data.frame(links)
   colnames(relations)<- c("from","to","weight")
-  community <- cluster_louvain(graph.data.frame(relations, directed=FALSE))
+  community <- igraph::cluster_louvain(igraph::graph.data.frame(relations, directed=FALSE))
 
-  modularity = modularity(community)
-  membership = membership(community)
+  modularity = igraph::modularity(community)
+  membership = igraph::membership(community)
   memberships = community$memberships
   nclusters = length(unique(membership))
 

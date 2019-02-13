@@ -1,8 +1,8 @@
 getDE.limma <- function( Y, group,filter = T ){
   design = model.matrix( ~group )
   my.lm <- limma::lmFit(Y, design = design )
-  my.lm <- eBayes(my.lm)
-  topTable = topTable(my.lm,number=Inf, coef = seq(2,ncol(design)))
+  my.lm <- limma::eBayes(my.lm)
+  topTable = limma::topTable(my.lm,number=Inf, coef = seq(2,ncol(design)))
   if( filter ) topTable = topTable[topTable$"adj.P.Val" < 0.1,]
   topTable = topTable[order(topTable$"adj.P.Val",decreasing = F),]
   colnames(topTable)[colnames(topTable)=='P.Value'] = 'PValue'
@@ -11,7 +11,7 @@ getDE.limma <- function( Y, group,filter = T ){
   return(topTable)
 }
 
-run.diff.expression <- function (clustering,min.fold,quantile,label,robust = F,rerun = F,contrast = 'all',contrast.groups = NA) {
+run.diff.expression <- function (environment, clustering,min.fold,quantile,label,robust = F,rerun = F,contrast = 'all',contrast.groups = NA) {
 
   get.diff.exp.stats <- function (id) {
     t=Sys.time()
@@ -74,7 +74,7 @@ run.diff.expression <- function (clustering,min.fold,quantile,label,robust = F,r
     load(cache)
   } else {
     print.message('Computing')
-    t = start(split = T)
+    t = start(file.path(environment$work.path, 'tracking'), split = T)
     membership = as.vector(clustering$membership)
 
     empirical.diff = NA

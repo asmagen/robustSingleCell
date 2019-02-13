@@ -83,7 +83,7 @@ plot.PCA <- function (environment, quantile,order) {
   dev.off()
 }
 
-plot.cluster.stats <- function (membership,label = NA,order = NA) {
+plot.cluster.stats <- function (environment, membership,label = NA,order = NA) {
   file.name = 'cluster.size.pdf'
   work.path = environment$work.path
   if (!is.na(label)) {
@@ -126,7 +126,7 @@ plot.cluster.stats <- function (membership,label = NA,order = NA) {
   dev.off()
 }
 
-plot.tSNE <- function (tSNE.job,perplexity,max_iter,membership = NA) {
+plot.tSNE <- function (environment, tSNE.job,perplexity,max_iter,membership = NA) {
 
   if (!is.na(tSNE.job)) {
     tSNE = get_slurm_out(tSNE.job)
@@ -263,7 +263,7 @@ plot.expression.heatmap.based.on.FC.marker <- function( measurements,clustering,
   rownames(others)
 }
 
-plot.simple.heatmap <- function (name,path = NA,markers,membership = NA,normalized = NA,order = NA,width = 5, height = 5,scale='row',RowSideColors = NA,counts = F,filter.diff.exp=F,cellnote=F,key=F,save=NA,sort.rows=T,sort.cols=T,Colv=F,Rowv=F,dendrogram = 'none') {
+plot.simple.heatmap <- function (environment, name,path = NA,markers,membership = NA,normalized = NA,order = NA,width = 5, height = 5,scale='row',RowSideColors = NA,counts = F,filter.diff.exp=F,cellnote=F,key=F,save=NA,sort.rows=T,sort.cols=T,Colv=F,Rowv=F,dendrogram = 'none') {
 
   if (is.na(path)) path = environment$work.path
   pdf(file=file.path(path,paste(name,'heatmap.pdf',sep='.')),width = width, height = height)
@@ -307,7 +307,7 @@ plot.simple.heatmap <- function (name,path = NA,markers,membership = NA,normaliz
   dev.off()
 }
 
-plot.violin <- function (genes,types,fore1exp1,fore2exp1,fore1exp2,fore2exp2,back1exp1,back2exp1,back1exp2,back2exp2,path,height = 5,width = 5,scale = T,palette = "Greys",separate.background = F) { #Pastel2
+plot.violin <- function (environment, genes,types,fore1exp1,fore2exp1,fore1exp2,fore2exp2,back1exp1,back2exp1,back1exp2,back2exp2,path,height = 5,width = 5,scale = T,palette = "Greys",separate.background = F) { #Pastel2
 
   violin.plot.data = {}
   cluster.indices = environment$cluster.names %in% c(fore1exp1,fore2exp1,fore1exp2,fore2exp2,back1exp1,back2exp1,back1exp2,back2exp2)
@@ -348,7 +348,7 @@ plot.violin <- function (genes,types,fore1exp1,fore2exp1,fore1exp2,fore2exp2,bac
   })
 }
 
-plot.heatmaps <- function (diff.exp,membership,order = NA,nTopRanked = 10,label = NA) {
+plot.heatmaps <- function (environment, diff.exp,membership,order = NA,nTopRanked = 10,label = NA) {
 
   symbols = {}
   for (cluster in unique(diff.exp$cluster)) {
@@ -390,7 +390,7 @@ plot.heatmaps <- function (diff.exp,membership,order = NA,nTopRanked = 10,label 
 }
 
 
-visualize.cluster.cors.heatmaps <- function (work.path,similarity) {
+visualize.cluster.cors.heatmaps <- function (environment, work.path,similarity) {
 
   name = 'cross.sample.similarities'
   work.path = file.path(environment$work.path,name)

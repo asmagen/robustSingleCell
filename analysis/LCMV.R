@@ -8,7 +8,7 @@ file.rename("~/Downloads/LCMV/GSM3423795", "~/Downloads/LCMV/LCMV2")
 
 
 library(MagenSingleCell)
-Exhaustion <- c('Pdcd1','Cd244','Havcr2','Ctla4','Cd160','Lag3','Tigit','Cd96')
+exhaustion_markers <- c('Pdcd1','Cd244','Havcr2','Ctla4','Cd160','Lag3','Tigit','Cd96')
 env <- initialize.project(datasets = "LCMV1",
                           origins = "CD44+ cells",
                           experiments = "Rep1",
@@ -20,7 +20,7 @@ env <- get.variable.genes(env)
 ribosomal.score = ribosomal.score(env)	
 mitochondrial.score = mitochondrial.score(env)
 cell.cycle.score = cell.cycle.score(env)
-Exhaustion = controlled.mean.score(env, Exhaustion)
+Exhaustion = controlled.mean.score(env, exhaustion_markers)
 
 env <- add.confounder.variables (env, ribosomal.score = ribosomal.score, 
   mitochondrial.score = mitochondrial.score,
@@ -30,6 +30,30 @@ env <- PCA(env)
 env <- cluster.analysis(env)
 env <- summarize(env)
 
+######
+
+env2 <- initialize.project(datasets = "LCMV2",
+                          origins = "CD44+ cells",
+                          experiments = "Rep2",
+                          data.path = "~/Downloads/LCMV",
+                          work.path = "~/Downloads/LCMV_analysis")
+env2 <- read.data(env2, subsample = 1000)
+env2 <- get.variable.genes(env2) 
+
+ribosomal.score = ribosomal.score(env2)	
+mitochondrial.score = mitochondrial.score(env2)
+cell.cycle.score = cell.cycle.score(env2)
+Exhaustion = controlled.mean.score(env2, exhaustion_markers)
+
+env2 <- add.confounder.variables (env2, ribosomal.score = ribosomal.score,
+  mitochondrial.score = mitochondrial.score,
+  cell.cycle.score = cell.cycle.score,
+  Exhaustion = Exhaustion)
+
+env2 <- PCA(env2)
+env2 <- cluster.analysis(env2)
+env2 <- summarize(env2)
+
 
 # pooled analysis
 env <- initialize.project(datasets = c("LCMV1", "LCMV2"), 
@@ -38,6 +62,3 @@ env <- initialize.project(datasets = c("LCMV1", "LCMV2"),
                           data.path = "~/Downloads/LCMV",
                           work.path = "~/Downloads/LCMV_analysis",
                           marker.genes = unique(marker_genes$symbol))
-env <- read.data(env, subsample = 1000)
-
-

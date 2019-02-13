@@ -4,9 +4,11 @@
 \alias{plot.PCA}
 \title{Plot PCA}
 \usage{
-\method{plot}{PCA}(quantile, order)
+\method{plot}{PCA}(environment, quantile, order)
 }
 \arguments{
+\item{environment}{The environment object}
+
 \item{quantile}{quantile}
 
 \item{order}{order}
