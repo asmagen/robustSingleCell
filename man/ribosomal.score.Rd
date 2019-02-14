@@ -9,13 +9,13 @@ ribosomal.score(environment, control = T, knn = 10)
 \arguments{
 \item{environment}{The environment object}
 
-\item{control}{TODO}
+\item{control}{Whether to subtract the score defined by technically similar genes}
 
 \item{knn}{Number of nearest neighbor}
 }
 \value{
-A vector of ribosonal score (TODO)
+A vector of ribosomal genes activation score
 }
 \description{
-TODO
+Compute ribosomal score
 }

@@ -309,22 +309,21 @@ regress.covariates <- function (environment, regress,data,groups,rerun = F,save 
 #' @param perplexity The perplexity parameter for tSNE anlaysis
 #' @param max_iter Maximum iterations for tSNE
 #' @param rerun Whether to rerun 
-#' @param robust TODO # Mamie - We should remove this functionality. 
 #' @param order Order in which to plot the clusters 
 #' @param contrast Either 'all' indicating differential expression between one cluster against all others or 'datasets' indicating differential expression analysis comparing one cluster to all other within each dataset separately ('datasets' should be used in pooled analysis for optimal results)
 #' @param min.fold Minimum fold change for filtering final differentially expressed gene lists
 #' @param quantile q-value cutoff
 #' @export
-summarize <- function (environment, perplexity = seq(10,30,10),max_iter = 10000,rerun = F,robust = F,order = NA,contrast = 'all',min.fold = 1.5,quantile = 0.95) {
+summarize <- function (environment, perplexity = seq(10,30,10),max_iter = 10000,rerun = F, order = NA,contrast = 'all',min.fold = 1.5,quantile = 0.95) {
 
   cluster.size = table(environment$cluster.names)
-  if (is.na(order)) order = names(cluster.size)[order(cluster.size,decreasing=T)]
+  if (length(order) == 1 && is.na(order)) order = names(cluster.size)[order(cluster.size,decreasing=T)]
   tSNE.job = run.tSNE (environment, perplexity, max_iter, rerun)
   plot.PCA (environment, quantile = 0.05,order)
   plot.cluster.stats (environment, membership = environment$cluster.names,order = order)
   if (length(environment$seurat.cluster.association)>1) tryCatch({ plot.cluster.stats (environment, membership = environment$seurat.cluster.association,label = 'Seurat',order = order) },error=function(v) v)
 
-  final.diff = run.diff.expression (environment, clustering = environment$clustering,min.fold,quantile,label='main',robust = robust,rerun = rerun,contrast = contrast)
+  final.diff = run.diff.expression (environment, clustering = environment$clustering,min.fold,quantile,label='main', rerun = rerun,contrast = contrast)
 
   order = sort(unique(environment$cluster.names))
   plot.heatmaps (environment, diff.exp = final.diff,membership = environment$cluster.names,order = order)

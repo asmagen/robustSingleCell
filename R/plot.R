@@ -37,7 +37,9 @@ plot.PCA <- function (environment, quantile,order) {
   dev.off()
 
   pdf(file.path(work.path,'all.PCA.pdf'))
-  data = data.frame(t(PCA),Cluster = factor(cluster.names),Dataset = factor(dataset));head(data)
+  PCA_t <- t(PCA)
+  rownames(PCA_t) <- NULL
+  data = data.frame(PCA_t,Cluster = factor(cluster.names),Dataset = factor(dataset));head(data)
   for (row in seq(nrow(PCA)-1)) {
     print(ggplot(data, aes_string(x=rownames(PCA)[row], y=rownames(PCA)[row+1], color='Cluster')) + geom_point() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black")))
   }
@@ -48,7 +50,8 @@ plot.PCA <- function (environment, quantile,order) {
   }
   dev.off()
 
-  data = data.frame(t(PCA),Cluster = factor(cluster.names),Dataset = factor(dataset));head(data)
+  data = data.frame(PCA_t,Cluster = factor(cluster.names),Dataset = factor(dataset));head(data)
+  rm(PCA_t)
   pdf(file.path(work.path,'PC.scores.histogram.pdf'),width = 10)
   for (row in seq(nrow(PCA)-1)) {
     print(ggplot(data, aes_string(x=rownames(PCA)[row], fill = 'Cluster')) + geom_density(alpha = 0.5) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black")) + ylab('Density') + theme_classic(base_size=25))
@@ -90,7 +93,7 @@ plot.cluster.stats <- function (environment, membership,label = NA,order = NA) {
     dir.create(work.path,showWarnings = F)
     file.name = paste(label,file.name,sep='.')
   }
-  if (is.na(order)) order = order(table(membership),decreasing=T)
+  if (length(order) == 1 && is.na(order)) order = order(table(membership),decreasing=T)
   pdf(file.path(work.path,file.name),width=8,height=5)
   data = data.frame(clustering=factor(membership,levels = order),Dataset=factor(environment$dataset.labels))
   if (length(unique(environment$dataset.labels))>1) {
@@ -127,7 +130,7 @@ plot.cluster.stats <- function (environment, membership,label = NA,order = NA) {
 
 plot.tSNE <- function (environment, tSNE.job,perplexity,max_iter,membership = NA) {
 
-  if (!is.na(tSNE.job)) {
+  if (length(tSNE.job) == 1 && !is.na(tSNE.job)) {
     tSNE = get_slurm_out(tSNE.job)
     tryCatch({cleanup_files(tSNE.job);cleanup_files(tSNE.job);cleanup_files(tSNE.job)},error=function(v) v)
   }
@@ -212,7 +215,7 @@ plot.expression.heatmap.based.on.FC.marker <- function( measurements,clustering,
 
       if (exponent) mat = exp(mat)
 
-      if (is.na(order)) order = seq(nclusters)
+      if (length(order) == 1 && is.na(order)) order = seq(nclusters)
       others = mat
       others = others[,order]
       if (sort.rows) {
@@ -248,9 +251,9 @@ plot.expression.heatmap.based.on.FC.marker <- function( measurements,clustering,
 
       if( cellnote == T ) {
         cellnote = round(multiplication*others,rounding)
-        plots[[titles[list.row]]] = heatmap.2(as.matrix(others), col=color.palette, scale=scale, key=key, cexRow=1, cexCol=1, density.info="none", trace="none",srtCol=srtCol,adjCol = c(1,1),Rowv = Rowv, Colv = Colv,margins = c(8,5),dendrogram = dendrogram,main = titles[list.row],RowSideColors=RowSideColors,breaks=breaks,cellnote=cellnote,notecol='white')#100*round((2^others)-1,2)
+        plots[[titles[list.row]]] = heatmap.2(as.matrix(others), col=color.palette, scale=scale, key=key, cexRow=1, cexCol=1, density.info="none", trace="none",srtCol=srtCol,adjCol = c(1,1),Rowv = Rowv, Colv = Colv,margins = c(8,5),dendrogram = dendrogram,main = titles[list.row],RowSideColors=RowSideColors,cellnote=cellnote,notecol='white')#100*round((2^others)-1,2), breaks = breaks
       } else {
-        plots[[titles[list.row]]] = heatmap.2(as.matrix(others), col=color.palette, scale=scale, key=key, cexRow=1, cexCol=1, density.info="none", trace="none",srtCol=srtCol,adjCol = c(1,1),Rowv = Rowv, Colv = Colv,margins = c(8,5),dendrogram = dendrogram,main = titles[list.row],RowSideColors=RowSideColors,breaks=breaks)
+        plots[[titles[list.row]]] = heatmap.2(as.matrix(others), col=color.palette, scale=scale, key=key, cexRow=1, cexCol=1, density.info="none", trace="none",srtCol=srtCol,adjCol = c(1,1),Rowv = Rowv, Colv = Colv,margins = c(8,5),dendrogram = dendrogram,main = titles[list.row],RowSideColors=RowSideColors) # breaks = breaks
       }
 
       if( !is.na(save) ) {
@@ -271,7 +274,7 @@ plot.simple.heatmap <- function (environment, name,path = NA,markers,membership 
   if (is.na(normalized)) normalized = environment$normalized
 
   cluster.size = table(membership)
-  if (is.na(order)) order = names(cluster.size)[order(cluster.size,decreasing=T)]
+  if (length(order) == 1 && is.na(order)) order = names(cluster.size)[order(cluster.size,decreasing=T)]
 
   plot.expression.heatmap.based.on.FC.marker(
     normalized,
@@ -361,7 +364,7 @@ plot.heatmaps <- function (environment, diff.exp,membership,order = NA,nTopRanke
 
   file.name = 'diff.genes.pdf'
   work.path = environment$work.path
-  if (!is.na(label)) {
+  if (length(label) == 1 && !is.na(label)) {
     work.path = file.path(environment$work.path,label)
     dir.create(work.path,showWarnings = F)
     file.name = paste(label,file.name,sep='.')
@@ -377,7 +380,7 @@ plot.heatmaps <- function (environment, diff.exp,membership,order = NA,nTopRanke
 
   extended.genes = environment$marker.genes
   file.name = 'all.markers.pdf'
-  if (!is.na(label)) file.name = paste(label,file.name,sep='.')
+  if (length(label) == 1 && !is.na(label)) file.name = paste(label,file.name,sep='.')
   pdf(file=file.path(work.path,file.name),width = length(unique(clustering))/2, height = length(extended.genes)^(1/1.5))
   plot.expression.heatmap.based.on.FC.marker( measurements=environment$normalized,clustering,gene.list=list(markers=extended.genes),order=order,filter.diff.exp=T,doMeans = T,exponent = T,multiplication = 10,rounding = 0)
   plot.expression.heatmap.based.on.FC.marker( measurements=environment$normalized,clustering,gene.list=list(markers=extended.genes),counts = T,order=order,filter.diff.exp=T,doMeans = T,exponent = F,multiplication = 100,rounding = 0)

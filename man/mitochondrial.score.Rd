@@ -9,13 +9,13 @@ mitochondrial.score(environment, control = F, knn = 10)
 \arguments{
 \item{environment}{The environment object}
 
-\item{control}{TODO}
+\item{control}{Whether to subtract the score defined by technically similar genes}
 
 \item{knn}{Number of nearest neighbor}
 }
 \value{
-A vector of mitochondrial score (TODO)
+A vector of mitochondrial genes activation score
 }
 \description{
-TODO
+Compute mitochondrial score
 }

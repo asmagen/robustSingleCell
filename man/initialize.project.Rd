@@ -28,6 +28,9 @@ initialize.project(datasets, origins, experiments, data.path, work.path,
 \item{convert.to.mouse.gene.symbols}{Whether you are using human gene symbols and would like to convert them
 to mouse gene symbols}
 }
+\value{
+\code{environment} parameter containing file paths and experiment parameters
+}
 \description{
-TODO: description
+Intialize the project object
 }

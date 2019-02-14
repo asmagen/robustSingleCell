@@ -2,7 +2,7 @@
 % Please edit documentation in R/tSNE.R
 \name{run.tSNE}
 \alias{run.tSNE}
-\title{Run tSNE}
+\title{Run distributed tSNE analysis for multiple input parameters}
 \usage{
 run.tSNE(environment, perplexity, max_iter, rerun)
 }
@@ -16,5 +16,5 @@ run.tSNE(environment, perplexity, max_iter, rerun)
 \item{rerun}{Whether to rerun}
 }
 \description{
-TODO
+Run distributed tSNE analysis for multiple input parameters
 }

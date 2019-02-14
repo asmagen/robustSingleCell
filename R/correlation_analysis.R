@@ -212,7 +212,7 @@ cluster.analysis <- function (
     dir = file.path(environment$work.path,format(Sys.time(), "%a_%b_%e_%Y__%H_%M_%S"));dir.create(dir)
     if (length(files) > 0) {
       file.copy(files, dir);file.remove(files)
-      file.remove(c(list.files(environment$res.data.path,pattern = '*.diff.exp.RData',full.names=T),file.path(environment$res.data.path,c('main.diff.exp.RData','clustering.RData','homogeneity.RData','Seurat.RData'))))
+      file.remove(c(list.files(environment$res.data.path,pattern = '*.diff.exp.RData',full.names=T),file.path(environment$res.data.path,c('main.diff.exp.RData','clustering.RData','homogeneity.RData','Seurat.RData'))), showWarnings = F)
     }
     unlink(file.path(environment$work.path,'diff.exp'),recursive=T,force=T)
     save(clustering,file=cache)

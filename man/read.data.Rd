@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_data.R
 \name{read.data}
 \alias{read.data}
-\title{Read and preprocess data}
+\title{Read data from 10X files or a raw data matrix and perform normalization, QC filtering and duplicates removal}
 \usage{
 read.data(environment, genome = "mm10", min.genes.per.cell = 500,
   max.genes.per.cell.quantile = 0.98,
@@ -38,5 +38,5 @@ genes per cell}
 \item{seed}{seed for subsampling}
 }
 \description{
-TODO: DESCRIPTION
+Read data from 10X files or a raw data matrix and perform normalization, QC filtering and duplicates removal
 }

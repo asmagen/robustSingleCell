@@ -29,8 +29,8 @@ cluster.analysis(environment, knn.ratios = c(0.01, 0.05, 0.1),
 \item{deleteCacheWhether}{to delete cache files}
 }
 \value{
-TODO
+\code{environment} parameter containing clustering assignment and provisional cluster names
 }
 \description{
-TODO
+Clustering analysis
 }

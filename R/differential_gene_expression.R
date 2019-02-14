@@ -11,7 +11,7 @@ getDE.limma <- function( Y, group,filter = T ){
   return(topTable)
 }
 
-run.diff.expression <- function (environment, clustering,min.fold,quantile,label,robust = F,rerun = F,contrast = 'all',contrast.groups = NA) {
+run.diff.expression <- function (environment, clustering,min.fold,quantile,label, rerun = F,contrast = 'all',contrast.groups = NA) {
 
   get.diff.exp.stats <- function (id) {
     t=Sys.time()

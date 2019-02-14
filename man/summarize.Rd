@@ -2,11 +2,11 @@
 % Please edit documentation in R/preprocess.R
 \name{summarize}
 \alias{summarize}
-\title{Summarize the clustering results}
+\title{Summarize the clustering results into figures}
 \usage{
 summarize(environment, perplexity = seq(10, 30, 10), max_iter = 10000,
-  rerun = F, robust = F, order = NA, contrast = "all",
-  min.fold = 1.5, quantile = 0.95)
+  rerun = F, order = NA, contrast = "all", min.fold = 1.5,
+  quantile = 0.95)
 }
 \arguments{
 \item{environment}{The environment object}
@@ -17,19 +17,14 @@ summarize(environment, perplexity = seq(10, 30, 10), max_iter = 10000,
 
 \item{rerun}{Whether to rerun}
 
-\item{robust}{TODO}
+\item{order}{Order in which to plot the clusters}
 
-\item{order}{TODO}
+\item{contrast}{Either 'all' indicating differential expression between one cluster against all others or 'datasets' indicating differential expression analysis comparing one cluster to all other within each dataset separately ('datasets' should be used in pooled analysis for optimal results)}
 
-\item{contrast}{TODO}
+\item{min.fold}{Minimum fold change for filtering final differentially expressed gene lists}
 
-\item{min.fold}{TODO}
-
-\item{quantile}{TODO}
-}
-\value{
-TODO
+\item{quantile}{q-value cutoff}
 }
 \description{
-TODO
+Summarize the clustering results into figures
 }

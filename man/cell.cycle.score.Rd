@@ -11,11 +11,11 @@ cell.cycle.score(environment, knn = 10, cc.genes.path = NA)
 
 \item{knn}{The number of nearest neighbor}
 
-\item{cc.genes.path}{Optional; path to defined cell cycle genes. Default used TODO (citation)}
+\item{cc.genes.path}{Optional; path to defined cell cycle genes. Default uses gene sets defined in Kowalczyk, M. S. et al. Single-cell RNA-seq reveals changes in cell cycle and differentiation programs upon aging of hematopoietic stem cells. Genome Res 25, 1860-1872, doi:10.1101/gr.192237.115 (2015).}
 }
 \value{
-TODO
+A matrix of cell cycle genes activation scores (S, G2M and aggregated S/G2M scores, separately)
 }
 \description{
-TODO
+Compute cell cycle score
 }

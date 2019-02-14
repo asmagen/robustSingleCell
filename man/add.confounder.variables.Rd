@@ -11,6 +11,9 @@ add.confounder.variables(environment, ...)
 
 \item{...}{confounding variables}
 }
+\value{
+\code{environment} parameter containing added confounder variable
+}
 \description{
-TODO
+Add confounder variable to environment object
 }

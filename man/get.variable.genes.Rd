@@ -2,7 +2,7 @@
 % Please edit documentation in R/preprocess.R
 \name{get.variable.genes}
 \alias{get.variable.genes}
-\title{Get variable genes}
+\title{Get highly variable genes by Heteroscedasticity controlled binning}
 \usage{
 get.variable.genes(environment, min.mean = 0.05, min.frac.cells = 0,
   min.dispersion.scaled = 1, rerun = F)
@@ -16,6 +16,9 @@ get.variable.genes(environment, min.mean = 0.05, min.frac.cells = 0,
 
 \item{rerun}{Whether to rerun}
 }
+\value{
+\code{environment} parameter containing highly variable genes selection
+}
 \description{
-TODO: description
+Get highly variable genes by Heteroscedasticity controlled binning
 }

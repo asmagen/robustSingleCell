@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot.R
 \name{plot.PCA}
 \alias{plot.PCA}
-\title{Plot PCA}
+\title{Plot PCA results as cell embedding in 2D space and annotation of gene loadings}
 \usage{
 \method{plot}{PCA}(environment, quantile, order)
 }
@@ -14,5 +14,5 @@
 \item{order}{order}
 }
 \description{
-TODO: description
+Plot PCA results as cell embedding in 2D space and annotation of gene loadings
 }

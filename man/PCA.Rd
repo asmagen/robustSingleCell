@@ -33,8 +33,8 @@ PCA(environment, regress = NA, groups = NA, nShuffleRuns = 10,
 \item{clear.previously.calculated.clustering}{Whether to clear previous clustering analysis}
 }
 \value{
-TODO
+\code{environment} parameter containing PC coordinates
 }
 \description{
-TODO
+Parallelized PCA
 }
