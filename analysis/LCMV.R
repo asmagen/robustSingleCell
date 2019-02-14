@@ -70,9 +70,18 @@ env2 <- set.cluster.names(env2, names = env2_cluster_names)
 summarize(env2)
 
 # pooled analysis
-env <- initialize.project(datasets = c("LCMV1", "LCMV2"), 
+pooled_env <- initialize.project(datasets = c("LCMV1", "LCMV2"), 
                           origins = rep("CD44+ cells", 2),
                           experiments = c("Rep1", "Rep2"),
                           data.path = "~/Downloads/LCMV",
-                          work.path = "~/Downloads/LCMV_analysis",
-                          marker.genes = unique(marker_genes$symbol))
+                          work.path = "~/Downloads/LCMV_analysis")
+
+pooled_env <- read.preclustered.datasets(pooled_env)
+
+ribosomal.score = ribosomal.score(pooled_env)	
+mitochondrial.score = mitochondrial.score(pooled_env)
+cell.cycle.score = cell.cycle.score(pooled_env)
+Exhaustion = controlled.mean.score(pooled_env, exhaustion_markers)
+
+
+

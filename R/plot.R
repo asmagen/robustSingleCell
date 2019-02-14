@@ -208,7 +208,7 @@ plot.expression.heatmap.based.on.FC.marker <- function( measurements,clustering,
           mat = rbind(mat,averages)
         }
         rownames(mat) = names
-        if (sort.cols) mat = mat[,order(as.numeric(colnames(mat)))]
+        if (sort.cols) mat = mat[,order(colnames(mat))]
       } else {
         mat = measurements.diff.exp
       }
