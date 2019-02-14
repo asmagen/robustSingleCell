@@ -1,4 +1,15 @@
-get.cluster.names <- function (types,min.fold = 1.25,max.Qval = 0.1,print = T) {
+#' Get names of the clusters
+#' 
+#' TODO
+#'
+#' @param environment The environment object
+#' @param types TODO
+#' @param min.fold TODO
+#' @param max.Qval TODO
+#' @param print TODO
+#' @return TODO
+#' @export
+get.cluster.names <- function (environment, types,min.fold = 1.25,max.Qval = 0.1,print = T) {
 
   load(file.path(environment$res.data.path,paste('main','all','diff.exp.RData',sep='.')))
   if(print) print(summary(limma.all))
@@ -11,7 +22,7 @@ get.cluster.names <- function (types,min.fold = 1.25,max.Qval = 0.1,print = T) {
     cluster.diff = diff.exp[diff.exp$cluster == cluster,]
     cluster.name = get.cluster.names.with.diff (cluster.diff,types,print)
     if (print) print(cluster.name)
-    if (!is.na(cluster.name)) cluster.names[cluster] = paste(cluster.name,collapse = '_')
+    if (!(length(cluster.names) == 1 && is.na(cluster.name))) cluster.names[cluster] = paste(cluster.name,collapse = '_')
   }
   cluster.names
 
@@ -40,7 +51,15 @@ get.cluster.names.with.diff <- function (cluster.diff,types,print) {
   return (cluster.name)
 }
 
-set.cluster.names <- function (names) {
+#' Set cluster names
+#' 
+#' TODO 
+#' 
+#' @param environment The environment object
+#' @param names The cluster names
+#' @return The environment object with cluster named from provided input
+#' @export
+set.cluster.names <- function (environment, names) {
 
   cluster.name.map = data.frame(id = seq(length(names)),name = names)
   environment$cluster.names = cluster.names = names[environment$clustering$membership]
@@ -50,7 +69,7 @@ set.cluster.names <- function (names) {
   return(environment)
 }
 
-load.cluster.names <- function () {
+load.cluster.names <- function(environment) {
 
   load(file.path(environment$res.data.path,'cluster.names.RData'))
   environment$cluster.names = cluster.names
@@ -58,20 +77,20 @@ load.cluster.names <- function () {
   return(environment)
 }
 
-remove.cluster.names <- function () {
+remove.cluster.names <- function(environment) {
 
   environment$cluster.names = environment$clustering$membership
 
   return(environment)
 }
 
-filter.cluster.data <- function (remove.clusters) {
+filter.cluster.data <- function (environment, remove.clusters) {
   membership  = as.vector(environment$clustering$membership)
   keep = !membership %in% remove.clusters
   filter.data(keep)
 }
 
-filter.data <- function (keep) {
+filter.data <- function (environment, keep) {
   data.file = file.path(environment$baseline.data.path,'data.RData')
   load(data.file)
   file.rename(data.file,paste(data.file,format(Sys.time(), "%a_%b_%e_%Y__%H_%M_%S"),sep='---'))
@@ -88,7 +107,7 @@ filter.data <- function (keep) {
   file.rename(environment$work.path,paste(environment$work.path,'pre.filter',format(Sys.time(), "%a_%b_%e_%Y__%H_%M_%S"),sep='_'))
 }
 
-filter.robust.clusters <- function (robust.clusters) {
+filter.robust.clusters <- function (environment, robust.clusters) {
 
   load(file.path(environment$baseline.data.path,'preclustered.datasets.RData'))
 

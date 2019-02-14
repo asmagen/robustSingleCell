@@ -28,7 +28,19 @@ env <- add.confounder.variables (env, ribosomal.score = ribosomal.score,
   Exhaustion = Exhaustion)
 env <- PCA(env)
 env <- cluster.analysis(env)
-env <- summarize(env)
+summarize(env)
+types <- rbind(
+    data.frame(type='Tfh',gene=c('Tcf7','Cxcr5','Bcl6')),
+    data.frame(type='Th1',gene=c('Cxcr6','Ifng','Tbx21')),
+    data.frame(type='Isc',gene=c('Irf7','Stat1','Ifit3')),
+    data.frame(type='Treg',gene=c('Foxp3','Il2ra')),
+    data.frame(type='Ccr7',gene=c('Ccr7')),
+    data.frame(type='Il7r',gene=c('Il7r')),
+    data.frame(type='Cycle',gene=c('Mki67','Top2a','Birc5'))
+)
+env_cluster_names = get.cluster.names(env, types)
+env <- set.cluster.names(env, names = env_cluster_names)
+summarize(env)
 
 ######
 
@@ -52,8 +64,10 @@ env2 <- add.confounder.variables (env2, ribosomal.score = ribosomal.score,
 
 env2 <- PCA(env2)
 env2 <- cluster.analysis(env2)
-env2 <- summarize(env2)
-
+summarize(env2)
+env2_cluster_names <- get.cluster.names(env2, types)
+env2 <- set.cluster.names(env2, names = env2_cluster_names)
+summarize(env2)
 
 # pooled analysis
 env <- initialize.project(datasets = c("LCMV1", "LCMV2"), 
