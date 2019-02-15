@@ -1,26 +1,26 @@
 ---
-title: "LMCV demo"
+title: "Introduction to MagenSingleCell"
 author: "Meng Wang"
-output:
-   github_document
-always_allow_html: yes
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette:
+  fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Introduction to MagenSingleCell}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
 ```
+
 
 ## Data set
 
-If `GEOquery` package is not installed, use `biocLite()` to install the package:
-
-```{r install_GEOquery}
-source("http://bioconductor.org/biocLite.R")
-biocLite("GEOquery")
-```
-
 The example data set comes from Ciucci 2018[^1]. Two replicates of CD44+ cells were available from [GSM3423794](https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSM3423794) and [GSM3423795](https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSM3423795). 
-
 
 ```{r}
 dir.create("~/Downloads/LMCV")
@@ -42,7 +42,6 @@ env <- initialize.project(datasets = c("LCMV1", "LCMV2"),
                           marker.genes = unique(marker_genes$symbol))
 ```
 
-
 ## Read data
 
 The `read.data` function reads the data in 10X genomics format (`matrix.mtx`, `gene.tsv`, `barcode.tsv`)
@@ -62,12 +61,12 @@ env <- add.confounder.variables (env,
 	Exhaustion = controlled.mean.score(env, Exhaustion))
 
 ```
+
 ## PCA
 
 ```{r}
 env <- MagenSingleCell::PCA(env)
 ```
-
 
 ## clustering
 
@@ -76,5 +75,7 @@ env <- cluster.analysis(env)
 ```
 
 ## Differential expression and visualizations
+
+
 
 [^1] Ciucci, Thomas, et al. "The Emergence and Functional Fitness of Memory CD4+ T Cells Require the Transcription Factor Thpok." _Immunity_ 50.1 (2019): 91-105.

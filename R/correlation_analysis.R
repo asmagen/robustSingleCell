@@ -4,7 +4,6 @@ cluster <- function(knn.ratio, label, path, data.path, nPCs) {
         path, "\ndata.path = ", data.path, "\n", sep = ""))
 
     if (length(grep("shuffled", label)) > 0) {
-        # PCA = apply(PCA,2,sample,nrow(PCA))
         rep <- strsplit(as.character(label), split = "[.]")[[1]][2]
         file <- file.path(path, "shuffled.PCA", paste("shuffled.PCA.rep", rep, "RData",
             sep = "."))
@@ -16,7 +15,6 @@ cluster <- function(knn.ratio, label, path, data.path, nPCs) {
         load(file.path(data.path))
     }
 
-    # Rphenograph_out = Rphenograph(t(PCA), k = floor(knn.ratio*ncol(PCA)))
     neighborMatrix <- find_neighbors(t(PCA), k = floor(knn.ratio * ncol(PCA)))[,
         -1]
     jaccard_coeff <- function(idx) {
@@ -142,7 +140,7 @@ cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuf
 
         sopt <- list(mem = mem, time = time, share = TRUE)
         sjob <- slurm_apply(cluster, params, nodes = nrow(params), cpus_per_node = 1,
-            submit = TRUE, slurm_options = sopt)  #, add_objects = c('path','data.path')
+            submit = TRUE, slurm_options = sopt)
         tryCatch({
             get_slurm_out(sjob)
             get_slurm_out(sjob)
