@@ -392,6 +392,15 @@ plot.heatmaps <- function (environment, diff.exp,membership,order = NA,nTopRanke
 }
 
 
+#' Visualize cluster correlation heatmap
+#' 
+#' TODO
+#' 
+#' @param environment The environment object
+#' @param work.path TODO
+#' @param similarity TODO
+#' @return TODO
+#' @export
 visualize.cluster.cors.heatmaps <- function (environment, work.path,similarity) {
 
   name = 'cross.sample.similarities'

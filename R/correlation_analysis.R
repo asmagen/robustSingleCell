@@ -227,8 +227,3 @@ cluster.analysis <- function (
   return(environment)
 }
 
-pearson.correlation <- function (diff1,diff2) {
-
-  cor = cor.test(diff1,diff2,method='pearson')
-  return (data.frame(similarity = cor$estimate,significance = cor$p.value))
-}

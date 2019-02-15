@@ -1,9 +1,19 @@
+#' Get Robust Cluster Similarity
+#' 
+#' TODO
+#'
+#' @param environment The environment object
+#' @param similarity TODO
+#' @param min.sd TODO
+#' @param max.q.val TODO
+#' @param rerun TODO
+#' @export
 #' @import RColorBrewer
 #' @import reshape2
 #' @import gplots
 #' @import dplyr
 #' @import ggpubr
-get.robust.cluster.similarity <- function (similarity,min.sd = qnorm(.95),max.q.val = 0.01,rerun = F) {
+get.robust.cluster.similarity <- function (environment, similarity,min.sd = qnorm(.95),max.q.val = 0.01,rerun = F) {
 
   cache = file.path(environment$res.data.path,'filtered.cluster.similarity.RData')
   if( !rerun && file.exists(cache) ) {
@@ -115,7 +125,24 @@ get.robust.cluster.similarity <- function (similarity,min.sd = qnorm(.95),max.q.
   return(filtered.cluster.similarity)
 }
 
-compare.cluster.similarity <- function (diff.exp.file = 'main.datasets.diff.exp.RData',cluster.similarity.function = pearson.correlation,label = 'pearson',rerun = F) {
+pearson.correlation <- function (diff1,diff2) {
+
+  cor = cor.test(diff1,diff2,method='pearson')
+  return (data.frame(similarity = cor$estimate,significance = cor$p.value))
+}
+
+#' Compare the similarity between clusters
+#' 
+#' TODO
+#'
+#' @param environment The environment object 
+#' @param diff.exp.file TODO
+#' @param cluster.similarity.function TODO
+#' @param label TOOD
+#' @param rerun TODO
+#' @return TODO
+#' @export
+compare.cluster.similarity <- function (environment, diff.exp.file = 'main.datasets.diff.exp.RData',cluster.similarity.function = pearson.correlation,label = 'pearson',rerun = F) {
 
   cache = file.path(environment$res.data.path,paste(label,'cluster.similarity.RData',sep='.'))
   if( !rerun && file.exists(cache) ) {
@@ -123,7 +150,7 @@ compare.cluster.similarity <- function (diff.exp.file = 'main.datasets.diff.exp.
     load(cache)
   } else {
     print.message('Computing')
-    t = start(split = F)
+    t = start(file.path(environment$work.path, 'tracking'), split = F)
 
     name = paste('compare.cluster.similarity',label,sep='_')
     work.path = file.path(environment$work.path,name)
