@@ -13,41 +13,40 @@
 #' to mouse gene symbols
 #' @return \code{environment} parameter containing file paths and experiment parameters
 #' @export
-initialize.project <- function (
-  datasets,
-  origins,
-  experiments,
-  data.path,
-  work.path,
-  marker.genes = NULL,
-  clear.history = F,
-  analysis.label = NA,
-  convert.to.mouse.gene.symbols = NULL) {
-
-  options("width"=205)
-  environment = {}
-  environment$datasets = datasets
-  environment$origins = origins
-  environment$experiments = experiments
-  environment$labels = labels
-  environment$data.path = data.path
-  environment$project = ifelse(length(datasets)>1,paste('merged',paste(datasets,collapse='.'),sep='.'),datasets)
-  if (!is.na(analysis.label)) environment$project = paste(analysis.label,environment$project,sep='_')
-  if (length(convert.to.mouse.gene.symbols) > 1 || !is.null(convert.to.mouse.gene.symbols)) environment$convert.to.mouse.gene.symbols = convert.to.mouse.gene.symbols
-  environment$baseline.work.path = environment$work.path = file.path(work.path,environment$project)
-  if (clear.history) unlink(environment$work.path,recursive = T, force = T)
-  dir.create(environment$work.path, showWarnings = F, recursive = T, mode = "700")
-  dir.create(file.path(environment$work.path, 'tracking'),
-             showWarnings = F, recursive = T, mode = "700")
-  environment$baseline.data.path = environment$res.data.path = file.path(environment$work.path,'data')
-  dir.create(environment$res.data.path, showWarnings = F, recursive = T, mode = "700")
-  if (is.null(marker.genes)) {
-     marker.genes <- unique(marker_genes$symbol)
-  }
-  environment$marker.genes = marker.genes
-  t = start(file.path(environment$work.path, 'tracking'))
-  print(environment)
-  end(t)
-
-  return(environment)
+initialize.project <- function(datasets, origins, experiments, data.path, work.path, 
+    marker.genes = NULL, clear.history = F, analysis.label = NA, convert.to.mouse.gene.symbols = NULL) {
+    
+    options(width = 205)
+    environment <- {
+    }
+    environment$datasets <- datasets
+    environment$origins <- origins
+    environment$experiments <- experiments
+    environment$labels <- labels
+    environment$data.path <- data.path
+    environment$project <- ifelse(length(datasets) > 1, paste("merged", paste(datasets, 
+        collapse = "."), sep = "."), datasets)
+    if (!is.na(analysis.label)) 
+        environment$project <- paste(analysis.label, environment$project, sep = "_")
+    if (length(convert.to.mouse.gene.symbols) > 1 || !is.null(convert.to.mouse.gene.symbols)) 
+        environment$convert.to.mouse.gene.symbols <- convert.to.mouse.gene.symbols
+    environment$baseline.work.path <- environment$work.path <- file.path(work.path, 
+        environment$project)
+    if (clear.history) 
+        unlink(environment$work.path, recursive = T, force = T)
+    dir.create(environment$work.path, showWarnings = F, recursive = T, mode = "700")
+    dir.create(file.path(environment$work.path, "tracking"), showWarnings = F, recursive = T, 
+        mode = "700")
+    environment$baseline.data.path <- environment$res.data.path <- file.path(environment$work.path, 
+        "data")
+    dir.create(environment$res.data.path, showWarnings = F, recursive = T, mode = "700")
+    if (is.null(marker.genes)) {
+        marker.genes <- unique(marker_genes$symbol)
+    }
+    environment$marker.genes <- marker.genes
+    t <- start(file.path(environment$work.path, "tracking"))
+    print(environment)
+    end(t)
+    
+    return(environment)
 }
