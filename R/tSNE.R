@@ -1,10 +1,12 @@
-#' Run distributed tSNE analysis for multiple input parameters
+#' Perform tSNE Analyses
 #' 
+#' Run distributed tSNE analysis for multiple input hyperparameters
 #' 
-#' @param environment The environment
-#' @param perplexity The perplexity parameter of tSNE
-#' @param max_iter The maximum number of iterations to run the tSNE
-#' @param rerun Whether to rerun
+#' @param environment \code{environment} object
+#' @param perplexity perplexity parameter of tSNE
+#' @param max_iter maximum number of iterations to run the tSNE
+#' @param rerun whether to rerun or load from cache
+#' @return Distributed job identified object
 #' @export
 run.tSNE <- function(environment, perplexity, max_iter, rerun) {
     

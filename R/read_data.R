@@ -1,9 +1,9 @@
-#' Read 10X data
+#' Read 10X Data
 #'
 #' Load sparse data matrices from 10X genomics.
 #'
 #' @param path Path to directory containing matrix.mtx, genes.tsv, and barcodes.tsv
-#' @return A matrix of genes by cells
+#' @return a matrix of genes by cells
 #' @export
 read.10x.data <- function(path) {
     barcode.path <- list.files(path, pattern = "barcodes.tsv", full = T)
@@ -18,22 +18,24 @@ read.10x.data <- function(path) {
 }
 
 
-#' Read data from 10X files or a raw data matrix and perform normalization, QC filtering and duplicates removal
+#' Read and Preprocess Data
 #'
+#' Read 10X data files or a raw data matrix and perform normalization, QC filtering and duplicates removal.
 #'
-#' @param genome Genome annotation
-#' @param min.genes.per.cell Minimum required number of genes per cell
-#' @param max.genes.per.cell.quantile Upper quantile for number of genes per cell
-#' @param max.UMIs.per.cell.quantile Upper quantile for number of UMIs per cell
-#' @param min.cells.per.gene Minimum required number of cells per gene
-#' @param max.mitochondrial.frac Maximum fraction of reads mapped to mitochondrial
+#' @param environment \code{environment} object
+#' @param genome genome annotation
+#' @param min.genes.per.cell minimum required number of genes per cell
+#' @param max.genes.per.cell.quantile upper quantile for number of genes per cell
+#' @param max.UMIs.per.cell.quantile upper quantile for number of UMIs per cell
+#' @param min.cells.per.gene minimum required number of cells per gene
+#' @param max.mitochondrial.frac maximum fraction of reads mapped to mitochondrial
 #' genes per cell
-#' @param max.ribosomal.frac Maximum fraction of reads mapped to ribosomal genes per cell
-#' @param cell.filters Filtering option for cells based on marker genes
-#' @param raw.data.matrices Logical indicating if data matrices is provided instead of 10X dataset
-#' @param rerun Whether to rerun loading the dataset
-#' @param subsample Number of cells to subsample
-#' @param seed seed for subsampling
+#' @param max.ribosomal.frac maximum fraction of reads mapped to ribosomal genes per cell
+#' @param cell.filters filtering option for cells based on marker genes
+#' @param raw.data.matrices logical indicating if data matrices is provided instead of 10X dataset
+#' @param rerun whether to rerun loading the dataset or load from cache
+#' @param subsample number of cells to subsample
+#' @param seed seed for subsampling of cells
 #' @export
 #' @import ggplot2
 read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, max.genes.per.cell.quantile = 0.98, 
@@ -298,10 +300,14 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
     return(environment)
 }
 
-#' Read preclustered datasets
-#' @param path Search path for previous projects
-#' @param recursive Recursive path search
-#' @param rerun Whether to rerun the reading process
+#' Read Preclustered Datasets
+#'
+#' Read previous analysis of multiple datasets to perform integrated analysis.
+#'
+#' @param environment \code{environment} object
+#' @param path search path for previous projects
+#' @param recursive recursive path search
+#' @param rerun whether to rerun the reading process or load from cache
 #' @export
 read.preclustered.datasets <- function(environment, path = NA, recursive = T, rerun = F) {
     
