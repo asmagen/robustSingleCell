@@ -27,5 +27,7 @@ If you encounter a clear bug, please submit an
 [issue](https://github.com/asmagen/MagenSingleCell/issues) with
 reproducible example.
 
+### Reference
+
 1.  Magen *et al*. “Single-cell profiling of tumor-reactive CD4+ T-cells
     reveals unexpected transcriptomic diversity” *bioRxiv 543199*
