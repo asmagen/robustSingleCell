@@ -1,12 +1,13 @@
 #' Get Robust Cluster Similarity
 #' 
-#' TODO
+#' Use cross-replicate experiment cluster similarity to remove irreproducible clusters.
 #'
-#' @param environment The environment object
-#' @param similarity TODO
-#' @param min.sd TODO
-#' @param max.q.val TODO
-#' @param rerun TODO
+#' @param environment \code{environment} object
+#' @param similarity pearson correlation between clusters' FC vectors defined in compare.cluster.similarity
+#' @param min.sd minimum standard deviation for cluster reproducibility assessment
+#' @param max.q.val maximum q value for cluster correlation cutoff
+#' @param rerun whether to rerun the analysis or load from cache
+#' @return filtered cluster similarity matrix
 #' @export
 #' @import RColorBrewer
 #' @import reshape2
@@ -197,16 +198,16 @@ pearson.correlation <- function(diff1, diff2) {
     return(data.frame(similarity = cor$estimate, significance = cor$p.value))
 }
 
-#' Compare the similarity between clusters
+#' Compare Cluster Similarity
 #' 
-#' TODO
+#' Assess similarity between pairs of clusters.
 #'
-#' @param environment The environment object 
-#' @param diff.exp.file TODO
-#' @param cluster.similarity.function TODO
-#' @param label TOOD
-#' @param rerun TODO
-#' @return TODO
+#' @param environment \code{environment} object
+#' @param diff.exp.file name of differential expression results file
+#' @param cluster.similarity.function which similarity function to use (either 'pearson.correlation' or '?') Mamie - there was another similarity function using euclidean distance. Do you know where did it go to? Can you replace the '?' with the name of this other function?
+#' @param label name of the similarity measure to use for the results folder
+#' @param rerun whether to rerun the analysis or load from cache
+#' @return pairwise cluster similarity measures
 #' @export
 compare.cluster.similarity <- function(environment, diff.exp.file = "main.datasets.diff.exp.RData", 
     cluster.similarity.function = pearson.correlation, label = "pearson", rerun = F) {
@@ -440,3 +441,4 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
     
     return(list(map = map, similarity = similarity))
 }
+

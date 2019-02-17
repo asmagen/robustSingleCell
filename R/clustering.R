@@ -1,13 +1,13 @@
-#' Get names of the clusters
+#' Get Cluster Names by Marker Gene Expression
 #' 
-#' TODO
+#' Use predefined marker genes to assign clusters with putative cell type or state labels.
 #'
-#' @param environment The environment object
-#' @param types TODO
-#' @param min.fold TODO
-#' @param max.Qval TODO
-#' @param print TODO
-#' @return TODO
+#' @param environment \code{environment} object
+#' @param types data frame associating cell type or state with marker genes
+#' @param min.fold minimum fold change to consider a marker as overexpressed
+#' @param max.Qval maximum FDR q value to consider a marker as overexpressed
+#' @param print whether to print output calculations
+#' @return vector containing assigned cluster name labels
 #' @export
 get.cluster.names <- function(environment, types, min.fold = 1.25, max.Qval = 0.1, 
     print = T) {
@@ -63,13 +63,13 @@ get.cluster.names.with.diff <- function(cluster.diff, types, print) {
     return(cluster.name)
 }
 
-#' Set cluster names
+#' Set Cluster Names in Environment
 #' 
-#' TODO 
+#' Save the cluster names in storage and in the \code{environment} object
 #' 
-#' @param environment The environment object
-#' @param names The cluster names
-#' @return The environment object with cluster named from provided input
+#' @param environment \code{environment} object
+#' @param names cluster names defined in get.cluster.names
+#' @return \code{environment} object coded with cluster names
 #' @export
 set.cluster.names <- function(environment, names) {
     

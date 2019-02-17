@@ -1,17 +1,18 @@
-#' Parallelized PCA
+#' Parallelized PCA Analysis
 #'
+#' Run PCA analysis with a simulation analysis of shuffled data to determine the appropriate number of PCs.
 #'
-#' @param environment The environment object
-#' @param regress Gene signature activation scores to regress
-#' @param groups Experimental design annotation to guide dataset-specific regression
-#' @param nShuffleRuns Number of shuffled analyses
+#' @param environment \code{environment} object
+#' @param regress gene signature activation scores to regress
+#' @param groups experimental design annotation to guide dataset-specific regression
+#' @param nShuffleRuns number of shuffled analyses
 #' @param threshold FDR threshold 
-#' @param maxPCs Maximum number of possible PCs
-#' @param label Optional analyses label folder
+#' @param maxPCs maximum number of possible PCs
+#' @param label optional analyses label folder
 #' @param mem HPC memory
 #' @param time HPC time
-#' @param rerun Whether to rerun
-#' @param clear.previously.calculated.clustering Whether to clear previous clustering analysis
+#' @param rerun whether to rerun the analysis rather than load from cache
+#' @param clear.previously.calculated.clustering whether to clear previous clustering analysis
 #' @return \code{environment} parameter containing PC coordinates
 #' @export
 #' @import rslurm 

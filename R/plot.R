@@ -1,9 +1,10 @@
-#' Plot PCA results as cell embedding in 2D space and annotation of gene loadings
+#' Plot PCA results
 #'
+#' Plot the results obtained from PCA analysis as cell embedding in 2D space and annotation of gene loadings
 #'
-#' @param environment The environment object
-#' @param quantile quantile
-#' @param order order
+#' @param environment \code{environment} object
+#' @param quantile quantile of PCA loadings for which to define top genes driving PCs
+#' @param order ordering by which to plot the in heatmap of top genes driving PCs
 #' @import GGally
 #' @import ggrepel
 plot.PCA <- function(environment, quantile, order) {
@@ -143,7 +144,7 @@ plot.cluster.stats <- function(environment, membership, label = NA, order = NA) 
             byrow = F)))
         print(ggplot(data, aes(clustering, fill = Dataset)) + geom_bar(aes(y = (..count..)/sum(..count..))) + 
             scale_y_continuous(labels = scales::percent) + ylab("relative frequencies") + 
-            scale_fill_brewer(palette = "Set3") + xlab("Cluster ID") + ylab("Number of cells") + 
+            scale_fill_brewer(palette = "Set3") + xlab("Cluster ID")
             theme_classic(base_size = 15) + theme(legend.position = "bottom") + theme(axis.text.x = element_text(angle = 25, 
             hjust = 1)) + guides(fill = guide_legend(nrow = max(1, floor(length(unique(environment$dataset.labels))/2)), 
             byrow = F)))
@@ -153,9 +154,9 @@ plot.cluster.stats <- function(environment, membership, label = NA, order = NA) 
     }
     for (dataset in unique(environment$dataset.labels)) {
         print(ggplot(data[data$Dataset == dataset, ], aes(clustering)) + geom_bar(aes(y = (..count..)/sum(..count..))) + 
-            scale_y_continuous(labels = scales::percent) + ylab("relative frequencies") + 
+            scale_y_continuous(labels = scales::percent) + ylab("Relative frequencies") + 
             theme(axis.text.x = element_text(angle = 25, hjust = 1)) + xlab("Cluster ID") + 
-            ylab("Number of cells") + ggtitle(dataset) + theme_classic(base_size = 15))
+            ggtitle(dataset) + theme_classic(base_size = 15))
     }
     print(ggplot(data, aes(clustering)) + geom_bar() + theme(axis.text.x = element_text(angle = 25, 
         hjust = 1)))
@@ -225,27 +226,11 @@ plot.tSNE <- function(environment, tSNE.job, perplexity, max_iter, membership = 
             print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Cluster, shape = Origin)) + 
                 geom_point(data = data, size = 4, alpha = 0.6) + scale_shape(solid = T) + 
                 xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) + 
-                theme(legend.position = "bottom") + ggtitle("color = Cluster, shap = Origin"))  # + scale_color_brewer(palette = 'Set2')
-            print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Cluster, shape = Origin)) + 
-                geom_point(data = data, size = 5, alpha = 0.6) + scale_shape(solid = T) + 
-                xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) + 
-                theme(legend.position = "bottom") + ggtitle("color = Cluster, shap = Origin"))  # + scale_color_brewer(palette = 'Set2')
-            print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Cluster, shape = Origin)) + 
-                geom_point(data = data, size = 6, alpha = 0.6) + scale_shape(solid = T) + 
-                xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) + 
-                theme(legend.position = "bottom") + ggtitle("color = Cluster, shap = Origin"))  # + scale_color_brewer(palette = 'Set2')
-            print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Cluster, shape = Origin)) + 
-                geom_point(data = data, size = 7, alpha = 0.4) + scale_shape(solid = T) + 
-                xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) + 
-                theme(legend.position = "bottom") + ggtitle("color = Cluster, shap = Origin"))  # + scale_color_brewer(palette = 'Set2')
-            print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Cluster, shape = Origin)) + 
-                geom_point(data = data, size = 7, alpha = 0.6) + scale_shape(solid = F) + 
-                xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) + 
-                theme(legend.position = "bottom") + ggtitle("color = Cluster, shap = Origin"))  # + scale_color_brewer(palette = 'Set2')
+                theme(legend.position = "bottom") + ggtitle("color = Cluster, shap = Origin"))
             print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Cluster, shape = Experiment)) + 
                 geom_point(data = data, size = 7, alpha = 0.4) + scale_shape(solid = T) + 
                 xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) + 
-                theme(legend.position = "bottom") + ggtitle("color = Cluster, shape = Experiment"))  # + scale_color_brewer(palette = 'Set2')
+                theme(legend.position = "bottom") + ggtitle("color = Cluster, shape = Experiment"))
             print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Experiment, shape = Origin)) + 
                 geom_point(data = data, size = 7, alpha = 0.4) + scale_shape(solid = T) + 
                 xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) + 
@@ -321,7 +306,6 @@ plot.expression.heatmap.based.on.FC.marker <- function(measurements, clustering,
                 ]
             if (doMeans) {
                 names <- rownames(measurements.diff.exp)
-                # if (exponent) measurements.diff.exp = exp(measurements.diff.exp)
                 mat <- {
                 }
                 row <- 1
@@ -565,14 +549,13 @@ plot.heatmaps <- function(environment, diff.exp, membership, order = NA, nTopRan
 }
 
 
-#' Visualize cluster correlation heatmap
+#' Visualize Correlation
 #' 
-#' TODO
+#' Plot correlation heatmaps for each pair of datasets.
 #' 
-#' @param environment The environment object
-#' @param work.path TODO
-#' @param similarity TODO
-#' @return TODO
+#' @param environment \code{environment} object
+#' @param work.path where to locate the figures
+#' @param similarity similarity matrix defined in compare.cluster.similarity or get.robust.cluster.similarity
 #' @export
 visualize.cluster.cors.heatmaps <- function(environment, work.path, similarity) {
     
@@ -634,4 +617,47 @@ visualize.cluster.cors.heatmaps <- function(environment, work.path, similarity) 
             dev.off()
         }
     }
+}
+
+#' Plot Similarity Results
+#'
+#' Perform hierarchical clustering and plot cluster similarities according to dendrogram.
+#'
+#' @param environment \code{environment} object
+#' @param similarity similarity matrix defined in compare.cluster.similarity or get.robust.cluster.similarity
+#' @import igraph
+#' @import gplots
+#' @import reshape2
+#' @import RColorBrewer
+#' @export
+plot.cluster.similarity.stats <- function(environment,similarity)
+
+    library("igraph");library("gplots")
+    net <- graph_from_data_frame(d=similarity[similarity$similarity>0.1,c('name1','name2')], directed=F) 
+    deg <- degree(net, mode="all")
+    V(net)$size <- deg
+    l <- layout_with_kk(net)
+
+    library(reshape2);library(RColorBrewer)
+    similarity.summary.df = data.frame(cluster1 = similarity$name1,cluster2 = similarity$name2,coef = similarity$similarity)
+    mirror = similarity.summary.df; cluster1 = mirror$cluster1; cluster2 = mirror$cluster2; mirror$cluster1 = cluster2; mirror$cluster2 = cluster1
+    similarity.summary.df = rbind(similarity.summary.df,mirror)
+    similarity.matrix = acast(similarity.summary.df, cluster1~cluster2, value.var="coef")
+
+    pdf(file.path(environment$work.path,paste('hclust.dist.Cor.FC.pdf',sep='_')),width=20,height=20)
+    similarity.matrix[1:5,1:5]
+    dist(similarity.matrix)
+    hc.dist = hclust(as.dist(1-similarity.matrix))
+    plot(hc.dist)
+    colors = rev(brewer.pal(5, "PuOr"));color.palette = colorRampPalette(colors)
+    hc.dist = hclust(as.dist(1-similarity.matrix))
+    clusters = cutree(hc.dist, k = 8)
+    sort(clusters)
+    clusters.ordered = clusters[match(names(V(net)),names(clusters))]
+    mark.groups = lapply(unique(clusters.ordered),function(c) as.vector(which(clusters.ordered==c)))
+    lapply(unique(clusters.ordered),function(c) names(clusters.ordered[clusters.ordered==c]))
+    plot(net, mark.groups=mark.groups, layout=l)
+    print(heatmap.2(similarity.matrix, col=color.palette, key=T, cexRow=1, cexCol=1, scale = 'none', density.info="none", trace="none",Rowv = as.dendrogram(hc.dist), Colv = as.dendrogram(hc.dist),dendrogram = 'both',cellnote=round(similarity.matrix,1),notecol='white',main='Correlation',margins = c(10,10)))
+    print(heatmap.2(similarity.matrix, col=color.palette, key=T, cexRow=1, cexCol=1, scale = 'none', density.info="none", trace="none",Rowv = T, Colv = T,dendrogram = 'both',cellnote=round(similarity.matrix,1),notecol='white',main='Cor',margins = c(10,10)))
+    dev.off()
 }

@@ -1,16 +1,16 @@
-#' Intialize the project object
+#' Intialize the Project Environment
 #'
+#' Set up a project environment variable mapped to project results folder.
 #'
-#' @param datasets List of dataset code names
-#' @param origins List of dataset tissue origin/condition full name
-#' @param experiments List of experiment design annotations
-#' @param data.path Path to where the data is located
+#' @param datasets list of dataset code names
+#' @param origins list of dataset tissue origin/condition full name
+#' @param experiments list of experiment design annotations
+#' @param data.path path to where the data is located
 #' @param work.path path to where the analysis should create folders and store files
-#' @param marker.genes Set of genes of interest for visualization purposes
-#' @param clear.history Whether you would like to remove any previous project by this name
-#' @param analysis.label Whether you would like to add a specific label to the analysis folder
-#' @param convert.to.mouse.gene.symbols Whether you are using human gene symbols and would like to convert them
-#' to mouse gene symbols
+#' @param marker.genes set of genes of interest for visualization purposes
+#' @param clear.history whether you would like to remove any previous project by this name
+#' @param analysis.label whether you would like to add a specific label to the analysis folder
+#' @param convert.to.mouse.gene.symbols whether you are using human gene symbols and would like to convert them to mouse gene symbols
 #' @return \code{environment} parameter containing file paths and experiment parameters
 #' @export
 initialize.project <- function(datasets, origins, experiments, data.path, work.path, 

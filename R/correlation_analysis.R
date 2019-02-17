@@ -85,18 +85,20 @@ get.clustering.results <- function(clustering.dir, knn.ratio, shuffledKNN) {
         shuffled = shuffled.matches, shuffled.membership = shuffled.membership, shuffled.modularity = shuffled.matches$modularity))
 }
 
-#' Clustering analysis
+#' Distributed Clustering Analysis 
 #'
+#' Perform clustering analysis for a range of hyperparameter (KNN Ratios) values and assess clustering quality relative to simulation analysis of shuffled data.
 #'
-#' @param knn.ratios Range of KNN parameters to scan (corresponding to different resolutions)
-#' @param nShuffleRuns Number of shuffled clustering analyses to perform per KNN threshold
-#' @param shuffleKNN Number of closest KNN shuffled analyses to include in background clustering quality computation
-#' @param loadPreviousKnn Whether to load previous analysis results
-#' @param rerun Whether to rerun
-#' @param deleteCacheWhether to delete cache files
+#' @param environment \code{environment} object
+#' @param knn.ratios range of KNN parameters to scan (corresponding to different resolutions)
+#' @param nShuffleRuns number of shuffled clustering analyses to perform per KNN threshold
+#' @param shuffleKNN number of closest KNN shuffled analyses to include in background clustering quality computation
+#' @param loadPreviousKnn whether to load previous analysis results
+#' @param rerun whether to rerun the analysis rather than load from cache
+#' @param deleteCacheWhether whether to delete cache files
 #' @param mem HPC memory
 #' @param time HPC time
-#' @param plot Whether to plot the clustering qualities compared to shuffled
+#' @param plot whether to plot the clustering qualities compared to shuffled
 #' @return \code{environment} parameter containing clustering assignment and provisional cluster names
 #' @import cccd
 #' @import Rphenograph
@@ -284,4 +286,3 @@ cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuf
 
     return(environment)
 }
-
