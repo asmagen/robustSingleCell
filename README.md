@@ -28,4 +28,4 @@ If you encounter a clear bug, please submit an
 reproducible example.
 
 1.  Magen *et al*. “Single-cell profiling of tumor-reactive CD4+ T-cells
-    reveals unexpected transcriptomic diversity” *bioRxiv 543199*
+    reveals unexpected transcriptomic diversity” [*bioRxiv 543199*](https://doi.org/10.1101/543199)
