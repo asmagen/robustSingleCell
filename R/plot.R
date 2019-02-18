@@ -485,11 +485,10 @@ plot.violin <- function(environment, genes, types, fore1exp1, fore2exp1, fore1ex
 plot.heatmaps <- function(environment, diff.exp, membership, order = NA, nTopRanked = 10,
     label = NA) {
 
-    simple_genes <- ("Cd8a", "Cd4", "Mki67", "Foxp3", "Il2ra", "Bcl6",
+    simple_genes <- c("Cd8a", "Cd4", "Mki67", "Foxp3", "Il2ra", "Bcl6",
                      "Cxcr5", "Cxcr6", "Ifng", "Tbx21", "Id2", "Rora",
                      "Cxcr3", "Tcf7", "Ccr7", "Cxcr4", "Pdcd1", "Ctla4")
-    symbols <- {
-    }
+    symbols <- c()
     for (cluster in unique(diff.exp$cluster)) {
         top.ranked <- diff.exp[diff.exp$cluster == cluster, ]
         top.ranked <- top.ranked[order(top.ranked$fold, decreasing = T), ]
@@ -642,7 +641,7 @@ visualize.cluster.cors.heatmaps <- function(environment, work.path, similarity) 
 #' @param environment \code{environment} object
 #' @param similarity similarity matrix defined in compare.cluster.similarity or get.robust.cluster.similarity
 #' @export
-plot.cluster.similarity.stats <- function(environment, similarity) {
+visualize.cluster.similarity.stats <- function(environment, similarity) {
     net <- igraph::graph_from_data_frame(d = similarity[similarity$similarity >
         0.1, c("name1", "name2")], directed = F)
     deg <- igraph::degree(net, mode = "all")

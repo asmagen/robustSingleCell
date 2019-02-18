@@ -13,13 +13,13 @@ knitr::opts_chunk$set(
   comment = "#>",
   results = "hide",
   message = F,
-  warning = F,
-  
+  warning = F
 )
+library(MagenSingleCell)
 ```
 
 
-We used two replicates of CD44+ T cell data sets from Ciucci 2018 [^1] as an example to demonstrate the use of `MagenSingleCell`. The analysis requires at least 8G of memory on slurm.  We first download the raw 10X data from GEO using `GEOquery`, which can be obtained using the following command if not already installed:
+We used two replicates of CD44+ T cell data sets from Ciucci et al. 2018 [^1] as an example to demonstrate the use of `MagenSingleCell`. The analysis requires at least 8G of memory on slurm.  We first download the raw 10X data from GEO using `GEOquery`, which can be obtained using the following command if not already installed:
 
 ```r
 source("https://bioconductor.org/biocLite.R")
@@ -30,7 +30,7 @@ The two datasets `LCMV1`, `LCMV2` will be downloaded into `~/LCMV`. Each folder 
 
 ```{r download_data, eval = F}
 library(MagenSingleCell)
-MagenSingleCell::downlaod_LCMV(base_dir = "~/LCMV")
+downlaod_LCMV(base_dir = "~/LCMV")
 ```
 
 We will cluster each dataset separately and perform a correlation analysis of the clusters between the two datasets.
@@ -57,7 +57,8 @@ Next, we obtained the highly variable genes. We also compute gene signatures act
 
 ```{r preprocess}
 LCMV1 <- get.variable.genes(LCMV1) 
-exhaustion_markers <- c('Pdcd1','Cd244','Havcr2','Ctla4','Cd160','Lag3','Tigit','Cd96')
+exhaustion_markers <- c('Pdcd1', 'Cd244', 'Havcr2', 'Ctla4', 'Cd160', 'Lag3', 
+                        'Tigit', 'Cd96')
 LCMV1 <- add.confounder.variables (LCMV1,
 	ribosomal.score = ribosomal.score(LCMV1),
 	mitochondrial.score = mitochondrial.score(LCMV1),
@@ -104,7 +105,9 @@ LCMV2 <- initialize.project(datasets = "LCMV2",
                           work.path = "~/LCMV/LCMV_analysis")
 LCMV2 <- read.data(LCMV2, subsample = 1000)
 LCMV2 <- get.variable.genes(LCMV2)
-LCMV2 <- add.confounder.variables (LCMV2, ribosomal.score = ribosomal.score(LCMV2),
+LCMV2 <- add.confounder.variables(
+  LCMV2, 
+  ribosomal.score = ribosomal.score(LCMV2),
   mitochondrial.score = mitochondrial.score(LCMV2),
   cell.cycle.score = cell.cycle.score(LCMV2),
   Exhaustion = controlled.mean.score(LCMV2, exhaustion_markers))
@@ -116,19 +119,105 @@ LCMV2 <- set.cluster.names(LCMV2, names = LCMV2_cluster_names)
 summarize(LCMV2)
 ```
 
+We then initialize the correlation analysis of the two independent run.   
+
+```{r initialize_pooled}
+pooled_env <- initialize.project(datasets = c("LCMV1", "LCMV2"),
+                          origins = rep("CD44+ cells", 2),
+                          experiments = c("Rep1", "Rep2"),
+                          data.path = "~/LCMV/LCMV",
+                          work.path = "~/LCMV/LCMV_analysis")
+pooled_env <- read.preclustered.datasets(pooled_env)
+pooled_env <- add.confounder.variables(
+  pooled_env, 
+  ribosomal.score = ribosomal.score(pooled_env),
+  mitochondrial.score = mitochondrial.score(pooled_env),
+  cell.cycle.score = cell.cycle.score(pooled_env),
+  Exhaustion = controlled.mean.score(pooled_env, exhaustion_markers))
+pooled_env <- PCA(pooled_env, clear.previously.calculated.clustering = F)
+summarize(pooled_env, contrast = "datasets")
+```
+
+We assessed the similarity between pairs of clusters and obtained the robust clusters by finding reproducible clusters across the two replicates.
+
+```{r pooled}
+cluster.similarity <- compare.cluster.similarity(pooled_env)
+similarity <- cluster.similarity$similarity
+map <- cluster.similarity$map
+filtered.similarity <- get.robust.cluster.similarity(
+  pooled_env, similarity, min.sd = qnorm(.9), max.q.val = 0.01, rerun = F
+  )
+robust.clusters <- sort(unique(c(filtered.similarity$cluster1,
+                                 filtered.similarity$cluster2)))
+visualize.cluster.cors.heatmaps(pooled_env, pooled_env$work.path,
+                                filtered.similarity)
+```
+
+Finally, hierarchical clustering was performed and cluster similarities are plotted according to dendrogram.  
+
+```{r summary}
+similarity <- filtered.similarity
+visualize.cluster.similarity.stats(pooled_env, similarity)
+```
+
+
 ### Visualizations 
 
+We used `LCMV2` results to show the visualization output from indiviual analysis from the pipeline. 
 
 <figure>
 <img src="figs/pre_stats.pdf" width="300"> 
 <img src="figs/post_stats.pdf" width="300">
-<figcaption> Mitochondrial score vs UMI for pre (left) and post (right) filtered cells in LCMV2. </figcaption>
+<figcaption> Fig 1. Mitochondrial score vs UMI for pre (left) and post (right) filtered cells in LCMV2. </figcaption>
 </figure>
 
 <figure>
 <img src="figs/PCA.pdf" width="300"> 
-<img src="figs/rotations.pdf" width="300">
-<figcaption>  </figcaption>
+<img src="figs/rotation.pdf" width="300">
+
+<figcaption> Fig 2. First two PCs of LCMV2 dataset and corresponding rotation </figcaption>
+</figure>
+
+<figure>
+<img src="figs/PC1_heatmap.pdf" width="300">
+<img src="figs/PC2_heatmap.pdf" width="300">
+<figcaption> Fig 3. Heatmap visualization of the loadings of the first two PCs </figcaption>
+</figure>
+
+
+<figure>
+<img src="figs/cluster.size.pdf" width="300">
+<figcaption> Fig 4. Size of clusters </figcaption>
+</figure>
+
+<figure>
+<img src="figs/violin.pdf" width="300"> 
+<figcaption> Fig 5. Cell cycle score violin plot </figcaption>
+</figure>
+
+<figure>
+<img src="figs/tsne.pdf" width="300"> 
+<figcaption> Fig 6. t-SNE plot colored by clusters </figcaption>
+</figure>
+
+
+<figure>
+<img src="figs/diff.genes.pdf" width="200"> 
+<figcaption> Fig 7. Heatmap of the canonical markers for T cell subsets </figcaption>
+</figure>
+
+Plots for pooled analysis
+
+<figure>
+<img src="figs/LCMV1_LCMV2_similarity.pdf" width="500"> 
+<figcaption> Fig 8. Correlation between pairs of clusters in the two datasets. </figcaption>
+</figure>
+
+
+<figure>
+<img src="figs/cor_FC.pdf" width="500"> 
+<img src="figs/cor_means.pdf" width="500">
+<figcaption> Fig 9. Correlation among all the clusters in the two datasets </figcaption>
 </figure>
 
 

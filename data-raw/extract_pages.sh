@@ -20,7 +20,7 @@ extract_pages ~/LCMV/LCMV_analysis/LCMV2/not.regressed/confounder.stats.violin.p
 
 extract_pages ~/LCMV/LCMV_analysis/LCMV2/not.regressed/tSNE_perplexity.20.max_iter.10000.pdf figs/tsne.pdf 1
 
-# heatmap todo extract_pages
+extract_pages ~/LCMV/LCMV_analysis/LCMV2/not.regressed/diff.genes.pdf figs/diff.genes.pdf 1
 
 extract_pages ~/LCMV/LCMV_analysis/merged.LCMV1.LCMV2/not.regressed/cross.sample.similarities/LCMV1/LCMV2/LCMV1_to_LCMV2_similarity.heatmap.pdf figs/LCMV1_LCMV2_similarity.pdf 1
 
