@@ -6,8 +6,8 @@ extract_pages () {
 }
 
 
-extract_pages ~/LCMV/LCMV_analysis/LCMV2/LCMV2.pre.filter.dataset.stats.pdf ~/Documents/repos/magensinglecell/vignettes/figs/pre_stats.pdf 3
-extract_pages ~/LCMV/LCMV_analysis/LCMV2/LCMV2.post.filter.dataset.stats.pdf ~/Documents/repos/magensinglecell/vignettes/figs/post_stats.pdf 3
+extract_pages ~/LCMV/LCMV_analysis/LCMV2/LCMV2.pre.filter.dataset.stats.pdf figs/pre_stats.pdf 3
+extract_pages ~/LCMV/LCMV_analysis/LCMV2/LCMV2.post.filter.dataset.stats.pdf figs/post_stats.pdf 3
 
 extract_pages ~/LCMV/LCMV_analysis/LCMV2/not.regressed/all.PCA.pdf figs/PCA.pdf 1
 extract_pages ~/LCMV/LCMV_analysis/LCMV2/not.regressed/Rotation.PCA.pdf figs/rotation.pdf 2
@@ -20,10 +20,10 @@ extract_pages ~/LCMV/LCMV_analysis/LCMV2/not.regressed/confounder.stats.violin.p
 
 extract_pages ~/LCMV/LCMV_analysis/LCMV2/not.regressed/tSNE_perplexity.20.max_iter.10000.pdf figs/tsne.pdf 1
 
-extract_pages ~/LCMV/LCMV_analysis/LCMV2/not.regressed/diff.genes.pdf figs/diff.genes.pdf 1
+extract_pages ~/LCMV/LCMV_analysis/LCMV2/not.regressed/canonical.heatmap.pdf figs/diff.genes.pdf 1
 
 extract_pages ~/LCMV/LCMV_analysis/merged.LCMV1.LCMV2/not.regressed/cross.sample.similarities/LCMV1/LCMV2/LCMV1_to_LCMV2_similarity.heatmap.pdf figs/LCMV1_LCMV2_similarity.pdf 1
 
-extract_pages ~/LCMV/LCMV_analysis/merged.LCMV1.LCMV2/not.regressed/compare.cluster.similarity_pearson/filtered.cluster.similarity.heatmap.Cor.FC.pdf figs/cor_FC.pdf 1
+extract_pages ~/LCMV/LCMV_analysis/merged.LCMV1.LCMV2/not.regressed/hclust.dist.Cor.FC.pdf figs/cor_FC.pdf
 extract_pages ~/LCMV/LCMV_analysis/merged.LCMV1.LCMV2/not.regressed/compare.cluster.similarity_pearson/filtered.cluster.similarity.heatmap.Cor.means.pdf figs/cor_means.pdf 1
 

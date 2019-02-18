@@ -28,7 +28,7 @@ biocLite("GEOquery")
 
 The two datasets `LCMV1`, `LCMV2` will be downloaded into `~/LCMV`. Each folder will contain the `matrix.mtx`, `gene.tsv`, `barcode.tsv` files as in 10X genomics format.
 
-```{r download_data, eval = F}
+```{r download_data}
 library(MagenSingleCell)
 downlaod_LCMV(base_dir = "~/LCMV")
 ```
@@ -95,6 +95,14 @@ LCMV1 <- set.cluster.names(LCMV1, names = LCMV1_cluster_names)
 summarize(LCMV1)
 ```
 
+```{r plot_LCMV1, include = F}
+canonical_genes <- c("Cd8a", "Cd4", "Mki67", "Foxp3", "Il2ra", "Bcl6",
+                     "Cxcr5", "Cxcr6", "Ifng", "Tbx21", "Id2", "Rora",
+                     "Cxcr3", "Tcf7", "Ccr7", "Cxcr4", "Pdcd1", "Ctla4")
+MagenSingleCell:::plot.simple.heatmap(LCMV1, name = "canonical", markers = canonical_genes)
+```
+
+
 We repeat the same procedure for `LCMV2` dataset.
 
 ```{r LCMV_2}
@@ -117,6 +125,10 @@ LCMV2 <- cluster.analysis(LCMV2)
 LCMV2_cluster_names <- get.cluster.names(LCMV2, types, min.fold = 1.5, max.Qval = 1e-3)
 LCMV2 <- set.cluster.names(LCMV2, names = LCMV2_cluster_names)
 summarize(LCMV2)
+```
+
+```{r plot_LCMV2, include = F}
+MagenSingleCell:::plot.simple.heatmap(LCMV2, name = "canonical", markers = canonical_genes)
 ```
 
 We then initialize the correlation analysis of the two independent run.   
@@ -160,63 +172,66 @@ similarity <- filtered.similarity
 visualize.cluster.similarity.stats(pooled_env, similarity)
 ```
 
+```{bash include = F}
+bash ../data-raw/extract_pages.sh
+```
 
 ### Visualizations 
 
 We used `LCMV2` results to show the visualization output from indiviual analysis from the pipeline. 
 
+
 <figure>
-<img src="figs/pre_stats.pdf" width="300"> 
-<img src="figs/post_stats.pdf" width="300">
+  <img src="figs/pre_stats.pdf"> 
+  <img src="figs/post_stats.pdf">
 <figcaption> Fig 1. Mitochondrial score vs UMI for pre (left) and post (right) filtered cells in LCMV2. </figcaption>
 </figure>
 
-<figure>
-<img src="figs/PCA.pdf" width="300"> 
-<img src="figs/rotation.pdf" width="300">
 
+<figure>
+<img src="figs/PCA.pdf"> 
+<img src="figs/rotation.pdf">
 <figcaption> Fig 2. First two PCs of LCMV2 dataset and corresponding rotation </figcaption>
 </figure>
 
+
 <figure>
-<img src="figs/PC1_heatmap.pdf" width="300">
-<img src="figs/PC2_heatmap.pdf" width="300">
+<img src="figs/PC1_heatmap.pdf">
+<img src="figs/PC2_heatmap.pdf">
 <figcaption> Fig 3. Heatmap visualization of the loadings of the first two PCs </figcaption>
 </figure>
 
 
 <figure>
-<img src="figs/cluster.size.pdf" width="300">
+<img src="figs/cluster.size.pdf">
 <figcaption> Fig 4. Size of clusters </figcaption>
 </figure>
 
 <figure>
-<img src="figs/violin.pdf" width="300"> 
+<img src="figs/violin.pdf"> 
 <figcaption> Fig 5. Cell cycle score violin plot </figcaption>
 </figure>
 
 <figure>
-<img src="figs/tsne.pdf" width="300"> 
+<img src="figs/tsne.pdf"> 
 <figcaption> Fig 6. t-SNE plot colored by clusters </figcaption>
 </figure>
 
 
 <figure>
-<img src="figs/diff.genes.pdf" width="200"> 
+<img src="figs/diff.genes.pdf"> 
 <figcaption> Fig 7. Heatmap of the canonical markers for T cell subsets </figcaption>
 </figure>
 
 Plots for pooled analysis
 
 <figure>
-<img src="figs/LCMV1_LCMV2_similarity.pdf" width="500"> 
+<img src="figs/LCMV1_LCMV2_similarity.pdf"> 
 <figcaption> Fig 8. Correlation between pairs of clusters in the two datasets. </figcaption>
 </figure>
 
-
 <figure>
-<img src="figs/cor_FC.pdf" width="500"> 
-<img src="figs/cor_means.pdf" width="500">
+<img src="figs/cor_FC.pdf" width = "600"> 
 <figcaption> Fig 9. Correlation among all the clusters in the two datasets </figcaption>
 </figure>
 

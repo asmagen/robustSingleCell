@@ -28,7 +28,7 @@ plot.PCA <- function(environment, quantile, order) {
         names(v[v <= q[1] | v >= q[2]])
     })
     pdf(file.path(work.path, "Rotation.PCA.pdf"))
-    data <- data.frame(gene = colnames(Rotation), Rot = t(Rotation))
+    data <- data.frame(gene = colnames(Rotation), Rotation = t(Rotation))
     for (row in seq(nrow(Rotation) - 1)) {
         if (typeof(drivers) == "list") {
             gene.set <- as.vector(unlist(drivers[c(row, row + 1)]))
@@ -223,34 +223,34 @@ plot.tSNE <- function(environment, tSNE.job, perplexity, max_iter, membership = 
             head(data)
 
             pdf(file.path(environment$work.path, paste("tSNE_perplexity", perplexity,
-                "max_iter", max_iter, "pdf", sep = ".")), width = 10, height = 10)
+                "max_iter", max_iter, "pdf", sep = ".")), width = 13, height = 10)
             print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Cluster,
                 shape = Origin)) + geom_point(data = data, size = 4, alpha = 0.6) +
                 scale_shape(solid = T) + xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) +
-                theme(legend.position = "bottom") + ggtitle("color = Cluster, shap = Origin"))
+                theme(legend.position = "bottom") )
             print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Cluster,
                 shape = Experiment)) + geom_point(data = data, size = 7, alpha = 0.4) +
                 scale_shape(solid = T) + xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) +
-                theme(legend.position = "bottom") + ggtitle("color = Cluster, shape = Experiment"))
+                theme(legend.position = "bottom") )
             print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Experiment,
                 shape = Origin)) + geom_point(data = data, size = 7, alpha = 0.4) +
                 scale_shape(solid = T) + xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) +
-                theme(legend.position = "bottom") + ggtitle("color = Experiment, shape = Origin") +
+                theme(legend.position = "bottom") +
                 scale_color_brewer(palette = "Set2"))
             print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Origin, shape = Experiment)) +
                 geom_point(data = data, size = 7, alpha = 0.4) + scale_shape(solid = T) +
                 xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) +
-                theme(legend.position = "bottom") + ggtitle("color = Origin, shape = Experiment") +
+                theme(legend.position = "bottom")  +
                 scale_color_brewer(palette = "Set2"))
             print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Origin, shape = Origin)) +
                 geom_point(data = data, size = 7, alpha = 0.4) + scale_shape(solid = T) +
                 xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) +
-                theme(legend.position = "bottom") + ggtitle("color = Origin, shape = Origin") +
+                theme(legend.position = "bottom")  +
                 scale_color_brewer(palette = "Set2"))
             print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Experiment,
                 shape = Experiment)) + geom_point(data = data, size = 7, alpha = 0.4) +
                 scale_shape(solid = T) + xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) +
-                theme(legend.position = "bottom") + ggtitle("color = Experiment, shape = Experiment") +
+                theme(legend.position = "bottom")  +
                 scale_color_brewer(palette = "Set2"))
 
             if (ncol(environment$confounders) > 0) {
@@ -281,8 +281,7 @@ plot.expression.heatmap.based.on.FC.marker <- function(measurements, clustering,
     gene.list, counts = F, order = NA, RowSideColors = NA, scale = "row", save = NA,
     filter.diff.exp = T, cellnote = T, exponent = F, doMeans = T, srtCol = 45,
     multiplication = 100, rounding = 0, breaks = 50, key = T, sort.rows = T,
-    sort.cols = "Cd4", Rowv = F, Colv = F, dendrogram = "none") {
-    browser()
+    sort.cols = T, Rowv = F, Colv = F, dendrogram = "none", main.remove = T) {
 
     colors <- c("#d60c0c", "#ffb1ad", "#f4f4f4", "#aed4fc", "#0050ba")  #c('#d73027','#fc8d59','#fee090','#e0f3f8','#91bfdb','#4575b4')
     colors <- colors[length(colors):1]  #red should correspond to high
@@ -319,13 +318,8 @@ plot.expression.heatmap.based.on.FC.marker <- function(measurements, clustering,
                   mat <- rbind(mat, averages)
                 }
                 rownames(mat) <- names
-                if (is.character(sort.cols) || sort.cols == T) { 
-                  if (sort.cols %in% rownames(mat)) {
-                     col_order <- order(mat[sort.cols,])
-                     mat <- mat[, col_order]
-                  } else {
+                if (sort.cols) {
                      mat <- mat[, order(colnames(mat))]
-                  }
                 }
             } else {
                 mat <- measurements.diff.exp
@@ -491,9 +485,6 @@ plot.violin <- function(environment, genes, types, fore1exp1, fore2exp1, fore1ex
 plot.heatmaps <- function(environment, diff.exp, membership, order = NA, nTopRanked = 10,
     label = NA) {
 
-    simple_genes <- c("Cd8a", "Cd4", "Mki67", "Foxp3", "Il2ra", "Bcl6",
-                     "Cxcr5", "Cxcr6", "Ifng", "Tbx21", "Id2", "Rora",
-                     "Cxcr3", "Tcf7", "Ccr7", "Cxcr4", "Pdcd1", "Ctla4")
     symbols <- c()
     for (cluster in unique(diff.exp$cluster)) {
         top.ranked <- diff.exp[diff.exp$cluster == cluster, ]
@@ -512,11 +503,10 @@ plot.heatmaps <- function(environment, diff.exp, membership, order = NA, nTopRan
         dir.create(work.path, showWarnings = F)
         file.name <- paste(label, file.name, sep = ".")
     }
+
+
     pdf(file = file.path(work.path, file.name), width = length(unique(clustering))/2,
         height = length(symbols)^(1/1.5))
-    plot.expression.heatmap.based.on.FC.marker(environment$normalized, clustering,
-                                               gene.list = list(markers = simple_genes), order = order, filter.diff.exp = T,
-                                               cellnote = T, doMeans = T, exponent = T, multiplication = 10, rounding = 0)
     plot.expression.heatmap.based.on.FC.marker(environment$normalized, clustering,
         gene.list = list(markers = symbols), order = order, filter.diff.exp = T,
         cellnote = T, doMeans = T, exponent = T, multiplication = 10, rounding = 0)
@@ -629,7 +619,7 @@ visualize.cluster.cors.heatmaps <- function(environment, work.path, similarity) 
                 cexRow = 1, cexCol = 1, srtCol = 45, scale = "none", density.info = "none",
                 trace = "none", Rowv = T, Colv = T, dendrogram = "both", margins = c(15,
                   15), cellnote = round(similarity.matrix, 1), notecol = "white",
-                main = "Cluster FC Correlations"))
+                main = "Pearson Correlation Between Clusters’ FC Vectors"))
             print(heatmap.2(ocl.similarity.matrix, col = color.palette, key = T,
                 cexRow = 1, cexCol = 1, srtCol = 45, scale = "none", density.info = "none",
                 trace = "none", Rowv = F, Colv = F, dendrogram = "none", margins = c(15,
@@ -686,7 +676,7 @@ visualize.cluster.similarity.stats <- function(environment, similarity) {
     print(gplots::heatmap.2(similarity.matrix, col = color.palette, key = T,
         cexRow = 1, cexCol = 1, scale = "none", density.info = "none", trace = "none",
         Rowv = as.dendrogram(hc.dist), Colv = as.dendrogram(hc.dist), dendrogram = "both",
-        cellnote = round(similarity.matrix, 1), notecol = "white", main = "Correlation",
+        cellnote = round(similarity.matrix, 1), notecol = "white", main = "Pearson Correlation Between Clusters’ FC Vectors",
         margins = c(10, 10)))
     print(gplots::heatmap.2(similarity.matrix, col = color.palette, key = T,
         cexRow = 1, cexCol = 1, scale = "none", density.info = "none", trace = "none",
