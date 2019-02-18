@@ -51,8 +51,8 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = qnor
         }
         dir.create(work.path, showWarnings = T, recursive = T)
         
-        plot.data <- data.frame(correlation = match.significance.stats$cor.val, SD = match.significance.stats$sd.dist, 
-            origin = match.significance.stats$origin)
+        plot.data <- data.frame(correlation = match.significance.stats$cor.val, 
+            SD = match.significance.stats$sd.dist, origin = match.significance.stats$origin)
         pdf(file.path(work.path, "cluster.matching.similarity.histogram.pdf"))
         print(ggplot(plot.data, aes(x = correlation, fill = origin)) + geom_density(alpha = 0.5) + 
             theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
@@ -61,7 +61,8 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = qnor
         print(ggplot(plot.data, aes(x = SD, fill = origin)) + geom_density(alpha = 0.5) + 
             geom_vline(xintercept = min.sd) + theme(panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(), panel.background = element_blank(), 
-            axis.line = element_line(colour = "black")) + ylab("Density") + theme_classic(base_size = 25))
+            axis.line = element_line(colour = "black")) + ylab("Density") + 
+            theme_classic(base_size = 25))
         print(ggplot(plot.data, aes(x = correlation)) + geom_density(alpha = 0.5) + 
             theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
                 panel.background = element_blank(), axis.line = element_line(colour = "black")) + 
@@ -80,8 +81,8 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = qnor
         robust.cluster.similarity <- robust.cluster.similarity[order(robust.cluster.similarity$origin, 
             robust.cluster.similarity$similarity.1, decreasing = T), ]
         summary(robust.cluster.similarity)
-        print(robust.cluster.similarity[1:min(nrow(robust.cluster.similarity), 5), 
-            ])
+        print(robust.cluster.similarity[1:min(nrow(robust.cluster.similarity), 
+            5), ])
         write.csv(robust.cluster.similarity, file = file.path(work.path, "robust.cluster.similarity.csv"))
         
         robust.clusters <- unique(c(robust.cluster.similarity$cluster1, robust.cluster.similarity$cluster2))
@@ -106,7 +107,8 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = qnor
         mirror$cluster2 <- cluster1
         similarity.summary.df <- rbind(similarity.summary.df, mirror)
         head(similarity.summary.df)
-        similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, value.var = "coef")
+        similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, 
+            value.var = "coef")
         similarity.matrix[1:10, 1:10]
         hc.dist <- hclust(as.dist(1 - similarity.matrix))
         pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.Cor.FC.pdf", 
@@ -114,9 +116,10 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = qnor
         colors <- rev(brewer.pal(5, "PuOr"))
         color.palette <- colorRampPalette(colors)
         print(heatmap.2(similarity.matrix, col = color.palette, key = T, cexRow = 1, 
-            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = as.dendrogram(hc.dist), 
-            Colv = as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
-                1), notecol = "white", main = "Cor", margins = c(10, 10)))
+            cexCol = 1, scale = "none", density.info = "none", trace = "none", 
+            Rowv = as.dendrogram(hc.dist), Colv = as.dendrogram(hc.dist), dendrogram = "both", 
+            cellnote = round(similarity.matrix, 1), notecol = "white", main = "Cor", 
+            margins = c(10, 10)))
         dev.off()
         
         similarity.summary.df <- data.frame(cluster1 = filtered.cluster.similarity$name1, 
@@ -128,7 +131,8 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = qnor
         mirror$cluster2 <- cluster1
         similarity.summary.df <- rbind(similarity.summary.df, mirror)
         head(similarity.summary.df)
-        similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, value.var = "coef")
+        similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, 
+            value.var = "coef")
         similarity.matrix[1:10, 1:10]
         hc.dist <- hclust(as.dist(1 - similarity.matrix))
         pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.Cor.means.pdf", 
@@ -136,9 +140,10 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = qnor
         colors <- rev(brewer.pal(5, "PuOr"))
         color.palette <- colorRampPalette(colors)
         print(heatmap.2(similarity.matrix, col = color.palette, key = T, cexRow = 1, 
-            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = as.dendrogram(hc.dist), 
-            Colv = as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
-                1), notecol = "white", main = "Cor", margins = c(10, 10)))
+            cexCol = 1, scale = "none", density.info = "none", trace = "none", 
+            Rowv = as.dendrogram(hc.dist), Colv = as.dendrogram(hc.dist), dendrogram = "both", 
+            cellnote = round(similarity.matrix, 1), notecol = "white", main = "Cor", 
+            margins = c(10, 10)))
         dev.off()
         
         similarity.summary.df <- data.frame(cluster1 = filtered.cluster.similarity$name1, 
@@ -150,7 +155,8 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = qnor
         mirror$cluster2 <- cluster1
         similarity.summary.df <- rbind(similarity.summary.df, mirror)
         head(similarity.summary.df)
-        similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, value.var = "coef")
+        similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, 
+            value.var = "coef")
         similarity.matrix[1:10, 1:10]
         hc.dist <- hclust(as.dist(1 - similarity.matrix))
         pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.ocldist.FC.pdf", 
@@ -158,9 +164,10 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = qnor
         colors <- rev(brewer.pal(5, "PuOr"))
         color.palette <- colorRampPalette(colors)
         print(heatmap.2(similarity.matrix, col = color.palette, key = T, cexRow = 1, 
-            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = as.dendrogram(hc.dist), 
-            Colv = as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
-                1), notecol = "white", main = "Cor", margins = c(10, 10)))
+            cexCol = 1, scale = "none", density.info = "none", trace = "none", 
+            Rowv = as.dendrogram(hc.dist), Colv = as.dendrogram(hc.dist), dendrogram = "both", 
+            cellnote = round(similarity.matrix, 1), notecol = "white", main = "Cor", 
+            margins = c(10, 10)))
         dev.off()
         
         similarity.summary.df <- data.frame(cluster1 = filtered.cluster.similarity$name1, 
@@ -172,7 +179,8 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = qnor
         mirror$cluster2 <- cluster1
         similarity.summary.df <- rbind(similarity.summary.df, mirror)
         head(similarity.summary.df)
-        similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, value.var = "coef")
+        similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, 
+            value.var = "coef")
         similarity.matrix[1:10, 1:10]
         hc.dist <- hclust(as.dist(1 - similarity.matrix))
         
@@ -181,9 +189,10 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = qnor
         colors <- rev(brewer.pal(5, "PuOr"))
         color.palette <- colorRampPalette(colors)
         print(heatmap.2(similarity.matrix, col = color.palette, key = T, cexRow = 1, 
-            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = as.dendrogram(hc.dist), 
-            Colv = as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
-                1), notecol = "white", main = "Cor", margins = c(10, 10)))
+            cexCol = 1, scale = "none", density.info = "none", trace = "none", 
+            Rowv = as.dendrogram(hc.dist), Colv = as.dendrogram(hc.dist), dendrogram = "both", 
+            cellnote = round(similarity.matrix, 1), notecol = "white", main = "Cor", 
+            margins = c(10, 10)))
         dev.off()
         
         save(filtered.cluster.similarity, file = cache)
@@ -320,14 +329,15 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
                 diff2.compact <- diff2[diff2$fold > 1.05 | diff2$fold < (1/1.05), 
                   ]
                 diff.compact.genes <- union(diff1.compact$gene, diff2.compact$gene)
-                diff1.compact.strict <- diff1[diff1$fold > 1.15 | diff1$fold < (1/1.15), 
-                  ]
-                diff2.compact.strict <- diff2[diff2$fold > 1.15 | diff2$fold < (1/1.15), 
-                  ]
-                diff.compact.strict.genes <- union(diff1.compact.strict$gene, diff2.compact.strict$gene)
-                similarity <- rbind(similarity, data.frame(cluster1, cluster2, cluster.similarity.function(diff1$fold, 
-                  diff2$fold), cluster.similarity.function(measurements1.means, measurements2.means), 
-                  ocldist, ocldist.FC, jaccard, jaccard2))
+                diff1.compact.strict <- diff1[diff1$fold > 1.15 | diff1$fold < 
+                  (1/1.15), ]
+                diff2.compact.strict <- diff2[diff2$fold > 1.15 | diff2$fold < 
+                  (1/1.15), ]
+                diff.compact.strict.genes <- union(diff1.compact.strict$gene, 
+                  diff2.compact.strict$gene)
+                similarity <- rbind(similarity, data.frame(cluster1, cluster2, 
+                  cluster.similarity.function(diff1$fold, diff2$fold), cluster.similarity.function(measurements1.means, 
+                    measurements2.means), ocldist, ocldist.FC, jaccard, jaccard2))
             }
         }
         head(similarity)
@@ -337,13 +347,14 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
         similarity$Q.val <- p.adjust(similarity$significance, method = "BH")
         similarity$Q.val.1 <- p.adjust(similarity$significance.1, method = "BH")
         
-        similarity <- cbind(map[match(similarity$cluster1, map$membership), 1:5], 
-            map[match(similarity$cluster2, map$membership), 1:5], similarity)
+        similarity <- cbind(map[match(similarity$cluster1, map$membership), 
+            1:5], map[match(similarity$cluster2, map$membership), 1:5], similarity)
         head(similarity)
         colnames(similarity)[1:10] <- c("name1", "origin1", "experiment1", "sample1", 
             "original.membership1", "name2", "origin2", "experiment2", "sample2", 
             "original.membership2")
-        similarity <- similarity[order(similarity$similarity, decreasing = T), ]
+        similarity <- similarity[order(similarity$similarity, decreasing = T), 
+            ]
         write.csv(similarity, row.names = F, file = file.path(work.path, paste(label, 
             "cluster.similarity.csv", sep = "_")))
         
@@ -356,7 +367,8 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
         mirror$cluster2 <- cluster1
         similarity.summary.df <- rbind(similarity.summary.df, mirror)
         head(similarity.summary.df)
-        similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, value.var = "coef")
+        similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, 
+            value.var = "coef")
         similarity.matrix[1:10, 1:10]
         hc.dist <- hclust(as.dist(1 - similarity.matrix))
         pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.Cor.FC.pdf", 
@@ -364,9 +376,10 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
         colors <- rev(brewer.pal(5, "PuOr"))
         color.palette <- colorRampPalette(colors)
         print(heatmap.2(similarity.matrix, col = color.palette, key = T, cexRow = 1, 
-            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = as.dendrogram(hc.dist), 
-            Colv = as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
-                1), notecol = "white", main = "Cor", margins = c(10, 10)))
+            cexCol = 1, scale = "none", density.info = "none", trace = "none", 
+            Rowv = as.dendrogram(hc.dist), Colv = as.dendrogram(hc.dist), dendrogram = "both", 
+            cellnote = round(similarity.matrix, 1), notecol = "white", main = "Cor", 
+            margins = c(10, 10)))
         dev.off()
         
         similarity.summary.df <- data.frame(cluster1 = similarity$name1, cluster2 = similarity$name2, 
@@ -378,7 +391,8 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
         mirror$cluster2 <- cluster1
         similarity.summary.df <- rbind(similarity.summary.df, mirror)
         head(similarity.summary.df)
-        similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, value.var = "coef")
+        similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, 
+            value.var = "coef")
         similarity.matrix[1:10, 1:10]
         hc.dist <- hclust(as.dist(1 - similarity.matrix))
         pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.Cor.means.pdf", 
@@ -386,9 +400,10 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
         colors <- rev(brewer.pal(5, "PuOr"))
         color.palette <- colorRampPalette(colors)
         print(heatmap.2(similarity.matrix, col = color.palette, key = T, cexRow = 1, 
-            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = as.dendrogram(hc.dist), 
-            Colv = as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
-                1), notecol = "white", main = "Cor", margins = c(10, 10)))
+            cexCol = 1, scale = "none", density.info = "none", trace = "none", 
+            Rowv = as.dendrogram(hc.dist), Colv = as.dendrogram(hc.dist), dendrogram = "both", 
+            cellnote = round(similarity.matrix, 1), notecol = "white", main = "Cor", 
+            margins = c(10, 10)))
         dev.off()
         
         similarity.summary.df <- data.frame(cluster1 = similarity$name1, cluster2 = similarity$name2, 
@@ -400,7 +415,8 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
         mirror$cluster2 <- cluster1
         similarity.summary.df <- rbind(similarity.summary.df, mirror)
         head(similarity.summary.df)
-        similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, value.var = "coef")
+        similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, 
+            value.var = "coef")
         similarity.matrix[1:10, 1:10]
         hc.dist <- hclust(as.dist(1 - similarity.matrix))
         pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.ocldist.FC.pdf", 
@@ -408,9 +424,10 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
         colors <- rev(brewer.pal(5, "PuOr"))
         color.palette <- colorRampPalette(colors)
         print(heatmap.2(similarity.matrix, col = color.palette, key = T, cexRow = 1, 
-            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = as.dendrogram(hc.dist), 
-            Colv = as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
-                1), notecol = "white", main = "Cor", margins = c(10, 10)))
+            cexCol = 1, scale = "none", density.info = "none", trace = "none", 
+            Rowv = as.dendrogram(hc.dist), Colv = as.dendrogram(hc.dist), dendrogram = "both", 
+            cellnote = round(similarity.matrix, 1), notecol = "white", main = "Cor", 
+            margins = c(10, 10)))
         dev.off()
         
         similarity.summary.df <- data.frame(cluster1 = similarity$name1, cluster2 = similarity$name2, 
@@ -422,7 +439,8 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
         mirror$cluster2 <- cluster1
         similarity.summary.df <- rbind(similarity.summary.df, mirror)
         head(similarity.summary.df)
-        similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, value.var = "coef")
+        similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, 
+            value.var = "coef")
         similarity.matrix[1:10, 1:10]
         hc.dist <- hclust(as.dist(1 - similarity.matrix))
         pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.ocldist.means.pdf", 
@@ -430,9 +448,10 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
         colors <- rev(brewer.pal(5, "PuOr"))
         color.palette <- colorRampPalette(colors)
         print(heatmap.2(similarity.matrix, col = color.palette, key = T, cexRow = 1, 
-            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = as.dendrogram(hc.dist), 
-            Colv = as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
-                1), notecol = "white", main = "Cor", margins = c(10, 10)))
+            cexCol = 1, scale = "none", density.info = "none", trace = "none", 
+            Rowv = as.dendrogram(hc.dist), Colv = as.dendrogram(hc.dist), dendrogram = "both", 
+            cellnote = round(similarity.matrix, 1), notecol = "white", main = "Cor", 
+            margins = c(10, 10)))
         dev.off()
         
         save(similarity, map, file = cache)

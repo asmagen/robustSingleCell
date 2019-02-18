@@ -40,8 +40,8 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
     environment$PCA <- environment$Rotation <- environment$PCA.path <- NA
     if (clear.previously.calculated.clustering) 
         environment$clustering <- environment$seurat.cluster.association <- NA
-    dir.create(file.path(environment$work.path, "tracking"), showWarnings = F, recursive = T, 
-        mode = "700")
+    dir.create(file.path(environment$work.path, "tracking"), showWarnings = F, 
+        recursive = T, mode = "700")
     print.message("Transitioning to", config, "folder")
     
     environment$res.data.path <- file.path(environment$work.path, "data")
@@ -49,7 +49,8 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
     
     dir.create(environment$res.data.path, showWarnings = F, recursive = T, mode = "700")
     
-    cache <- file.path(environment$res.data.path, paste(config, "PCA.RData", sep = "."))
+    cache <- file.path(environment$res.data.path, paste(config, "PCA.RData", 
+        sep = "."))
     
     if (!rerun && file.exists(cache)) {
         print.message("Loading precomputed")
@@ -63,7 +64,8 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
                 force = T)
         
         unlink(shuffled.PCA.data.path, recursive = T, force = T)
-        dir.create(shuffled.PCA.data.path, showWarnings = F, recursive = T, mode = "700")
+        dir.create(shuffled.PCA.data.path, showWarnings = F, recursive = T, 
+            mode = "700")
         
         raw.data <- environment$counts
         data <- environment$normalized[environment$HVG, ]
@@ -86,8 +88,8 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
             data.perm <- apply(data, 2, sample, replace = FALSE)
             pca.perm <- prcomp(t(data.perm), retx = TRUE, center = T, scale. = T)
             var.perm <- pca.perm$sdev[1:ndf]^2/sum(pca.perm$sdev[1:ndf]^2)
-            save(pca.perm, var.perm, file = file.path(shuffled.PCA.data.path, paste("shuffled.PCA.rep", 
-                rep, "RData", sep = ".")))
+            save(pca.perm, var.perm, file = file.path(shuffled.PCA.data.path, 
+                paste("shuffled.PCA.rep", rep, "RData", sep = ".")))
             return(var.perm)
         }
         

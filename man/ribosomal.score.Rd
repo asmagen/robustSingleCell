@@ -2,20 +2,20 @@
 % Please edit documentation in R/preprocess.R
 \name{ribosomal.score}
 \alias{ribosomal.score}
-\title{Compute ribosomal score}
+\title{Compute Ribosomal Score}
 \usage{
 ribosomal.score(environment, control = T, knn = 10)
 }
 \arguments{
-\item{environment}{The environment object}
+\item{environment}{\code{environment} object}
 
-\item{control}{Whether to subtract the score defined by technically similar genes}
+\item{control}{whether to subtract the score defined by technically similar genes}
 
-\item{knn}{Number of nearest neighbor}
+\item{knn}{number of nearest neighbor}
 }
 \value{
-A vector of ribosomal genes activation score
+a vector of ribosomal genes activation score
 }
 \description{
-Compute ribosomal score
+Compute the activation level of ribosomal genes.
 }

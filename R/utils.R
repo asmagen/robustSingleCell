@@ -1,3 +1,18 @@
+#' Download Example Dataset
+#'
+#' Download two replicates of CD44+ T cell 10X scRNAseq data sets (Ciucci 2018).
+#'
+#' @param base_dir Full path to a directory where data and analysis will be stored
+#' @export
+downlaod_LCMV <- function(base_dir) {
+    dir.create(base_dir)
+    rep1_path <- GEOquery::getGEOSuppFiles("GSM3423794", baseDir = "~/LCMV")
+    rep2_path <- GEOquery::getGEOSuppFiles("GSM3423795", baseDir = "~/LCMV")
+    file.rename("~/LCMV/GSM3423794", "~/LCMV/LCMV1")
+    file.rename("~/LCMV/GSM3423795", "~/LCMV/LCMV2")
+    cat(paste0("Data saved at ", base_dir, "\n"))
+}
+
 capwords <- function(s, strict = FALSE) {
     s <- tolower(s)
     cap <- function(s) paste(toupper(substring(s, 1, 1)), {
@@ -15,7 +30,8 @@ corner <- function(matrix, n = 5, m = 5) {
 get_slurm_out <- function(sjob) {
     
     Sys.sleep(1)
-    queued <- length(system(paste("squeue -hn", sjob$jobname), intern = T)) > 0
+    queued <- length(system(paste("squeue -hn", sjob$jobname), intern = T)) > 
+        0
     while (length(system(paste("squeue -hn", sjob$jobname), intern = T)) > 0) {
         Sys.sleep(1)
     }

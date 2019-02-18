@@ -2,18 +2,18 @@
 % Please edit documentation in R/clustering.R
 \name{set.cluster.names}
 \alias{set.cluster.names}
-\title{Set cluster names}
+\title{Set Cluster Names in Environment}
 \usage{
 set.cluster.names(environment, names)
 }
 \arguments{
-\item{environment}{The environment object}
+\item{environment}{\code{environment} object}
 
-\item{names}{The cluster names}
+\item{names}{cluster names defined in get.cluster.names}
 }
 \value{
-The environment object with cluster named from provided input
+\code{environment} object coded with cluster names
 }
 \description{
-TODO
+Save the cluster names in storage and in the \code{environment} object
 }

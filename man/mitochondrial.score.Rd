@@ -2,20 +2,20 @@
 % Please edit documentation in R/preprocess.R
 \name{mitochondrial.score}
 \alias{mitochondrial.score}
-\title{Compute mitochondrial score}
+\title{Compute Mitochondrial Score}
 \usage{
 mitochondrial.score(environment, control = F, knn = 10)
 }
 \arguments{
-\item{environment}{The environment object}
+\item{environment}{\code{environment} object}
 
-\item{control}{Whether to subtract the score defined by technically similar genes}
+\item{control}{whether to subtract the score defined by technically similar genes}
 
-\item{knn}{Number of nearest neighbor}
+\item{knn}{number of nearest neighbor}
 }
 \value{
-A vector of mitochondrial genes activation score
+a vector of mitochondrial genes activation score
 }
 \description{
-Compute mitochondrial score
+Compute the activation level of mitochondrial genes.
 }

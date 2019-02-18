@@ -2,25 +2,25 @@
 % Please edit documentation in R/clustering.R
 \name{get.cluster.names}
 \alias{get.cluster.names}
-\title{Get names of the clusters}
+\title{Get Cluster Names by Marker Gene Expression}
 \usage{
 get.cluster.names(environment, types, min.fold = 1.25, max.Qval = 0.1,
   print = T)
 }
 \arguments{
-\item{environment}{The environment object}
+\item{environment}{\code{environment} object}
 
-\item{types}{TODO}
+\item{types}{data frame associating cell type or state with marker genes}
 
-\item{min.fold}{TODO}
+\item{min.fold}{minimum fold change to consider a marker as overexpressed}
 
-\item{max.Qval}{TODO}
+\item{max.Qval}{maximum FDR q value to consider a marker as overexpressed}
 
-\item{print}{TODO}
+\item{print}{whether to print output calculations}
 }
 \value{
-TODO
+vector containing assigned cluster name labels
 }
 \description{
-TODO
+Use predefined marker genes to assign clusters with putative cell type or state labels.
 }

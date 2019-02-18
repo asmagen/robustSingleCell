@@ -12,8 +12,8 @@ getDE.limma <- function(Y, group, filter = T) {
     return(topTable)
 }
 
-run.diff.expression <- function(environment, clustering, min.fold, quantile, label, 
-    rerun = F, contrast = "all", contrast.groups = NA) {
+run.diff.expression <- function(environment, clustering, min.fold, quantile, 
+    label, rerun = F, contrast = "all", contrast.groups = NA) {
     
     get.diff.exp.stats <- function(id) {
         t <- Sys.time()
@@ -92,7 +92,8 @@ run.diff.expression <- function(environment, clustering, min.fold, quantile, lab
         
         empirical.diff <- NA
         
-        diff.exp.dir <- file.path(environment$work.path, "diff.exp", label, contrast)
+        diff.exp.dir <- file.path(environment$work.path, "diff.exp", label, 
+            contrast)
         unlink(diff.exp.dir, recursive = T, force = T)
         dir.create(diff.exp.dir, recursive = T)
         limma.diff <- {
@@ -123,7 +124,8 @@ run.diff.expression <- function(environment, clustering, min.fold, quantile, lab
                 
                 diff.exp <- getDE.limma(Y = environment$normalized[, contrast.group.indices], 
                   group = group, filter = F)
-                diff.exp <- diff.exp[order(diff.exp$logFC, decreasing = T), ]
+                diff.exp <- diff.exp[order(diff.exp$logFC, decreasing = T), 
+                  ]
                 diff.exp <- data.frame(gene = rownames(diff.exp), logFC = diff.exp$logFC, 
                   fold = exp(diff.exp$logFC), QValue = diff.exp$QValue, PValue = diff.exp$PValue, 
                   AveExpr = diff.exp$AveExpr)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_data.R
 \name{read.data}
 \alias{read.data}
-\title{Read data from 10X files or a raw data matrix and perform normalization, QC filtering and duplicates removal}
+\title{Read and Preprocess Data}
 \usage{
 read.data(environment, genome = "mm10", min.genes.per.cell = 500,
   max.genes.per.cell.quantile = 0.98,
@@ -12,31 +12,33 @@ read.data(environment, genome = "mm10", min.genes.per.cell = 500,
   subsample = NULL, seed = 0)
 }
 \arguments{
-\item{genome}{Genome annotation}
+\item{environment}{\code{environment} object}
 
-\item{min.genes.per.cell}{Minimum required number of genes per cell}
+\item{genome}{genome annotation}
 
-\item{max.genes.per.cell.quantile}{Upper quantile for number of genes per cell}
+\item{min.genes.per.cell}{minimum required number of genes per cell}
 
-\item{max.UMIs.per.cell.quantile}{Upper quantile for number of UMIs per cell}
+\item{max.genes.per.cell.quantile}{upper quantile for number of genes per cell}
 
-\item{min.cells.per.gene}{Minimum required number of cells per gene}
+\item{max.UMIs.per.cell.quantile}{upper quantile for number of UMIs per cell}
 
-\item{max.mitochondrial.frac}{Maximum fraction of reads mapped to mitochondrial
+\item{min.cells.per.gene}{minimum required number of cells per gene}
+
+\item{max.mitochondrial.frac}{maximum fraction of reads mapped to mitochondrial
 genes per cell}
 
-\item{max.ribosomal.frac}{Maximum fraction of reads mapped to ribosomal genes per cell}
+\item{max.ribosomal.frac}{maximum fraction of reads mapped to ribosomal genes per cell}
 
-\item{cell.filters}{Filtering option for cells based on marker genes}
+\item{cell.filters}{filtering option for cells based on marker genes}
 
-\item{raw.data.matrices}{Logical indicating if data matrices is provided instead of 10X dataset}
+\item{raw.data.matrices}{logical indicating if data matrices is provided instead of 10X dataset}
 
-\item{rerun}{Whether to rerun loading the dataset}
+\item{rerun}{whether to rerun loading the dataset or load from cache}
 
-\item{subsample}{Number of cells to subsample}
+\item{subsample}{number of cells to subsample}
 
-\item{seed}{seed for subsampling}
+\item{seed}{seed for subsampling of cells}
 }
 \description{
-Read data from 10X files or a raw data matrix and perform normalization, QC filtering and duplicates removal
+Read 10X data files or a raw data matrix and perform normalization, QC filtering and duplicates removal.
 }

@@ -35,8 +35,8 @@ get.variable.genes <- function(environment, min.mean = 0.05, min.frac.cells = 0,
             means <- apply(filtered.normalized, 1, function(v) log(mean(exp(v) - 
                 1) + 1))
             frac.cells <- rowSums(filtered.normalized > 0)/ncol(filtered.normalized)
-            vars <- apply(filtered.normalized, 1, function(v) log(var(exp(v) - 1) + 
-                1))
+            vars <- apply(filtered.normalized, 1, function(v) log(var(exp(v) - 
+                1) + 1))
             dispersion <- apply(filtered.normalized, 1, function(v) log(var(exp(v) - 
                 1)/mean(exp(v) - 1)))
             dispersion[is.na(x = dispersion)] <- 0
@@ -59,8 +59,8 @@ get.variable.genes <- function(environment, min.mean = 0.05, min.frac.cells = 0,
             dispersion.scaled[is.na(x = dispersion.scaled)] <- 0
             names(x = dispersion.scaled) <- names(x = means)
             
-            criterion <- means >= min.mean & frac.cells >= min.frac.cells & dispersion.scaled >= 
-                min.dispersion.scaled
+            criterion <- means >= min.mean & frac.cells >= min.frac.cells & 
+                dispersion.scaled >= min.dispersion.scaled
             HVG <- names(means)[criterion]
             print.message("# qualifying genes", length(HVG))
             print.message("Qualifying markers")
@@ -70,8 +70,8 @@ get.variable.genes <- function(environment, min.mean = 0.05, min.frac.cells = 0,
             genes <- c(get.ribo.genes(rownames(normalized)), get.mito.genes(rownames(normalized)))
             print.message("Qualifying Ribosomal & Mitochondrial")
             print(genes[genes %in% HVG])
-            write.csv(HVG, file = file.path(environment$baseline.work.path, paste(dataset, 
-                "VariableGenes.csv", sep = ".")))
+            write.csv(HVG, file = file.path(environment$baseline.work.path, 
+                paste(dataset, "VariableGenes.csv", sep = ".")))
             merged <- unique(c(merged, HVG))
             
         }
@@ -144,7 +144,8 @@ ribosomal.score <- function(environment, control = T, knn = 10) {
 }
 
 get.ribo.genes <- function(genes) {
-    return(genes[c(grep("^Rpl", genes, ignore.case = T), grep("^Rps", genes, ignore.case = T))])
+    return(genes[c(grep("^Rpl", genes, ignore.case = T), grep("^Rps", genes, 
+        ignore.case = T))])
 }
 
 #' Compute Mitochondrial Score
@@ -206,7 +207,8 @@ cell.cycle.score <- function(environment, knn = 10, cc.genes.path = NA) {
     cell.cycle.score <- controlled.mean.score(environment, c(s.genes, g2m.genes), 
         knn)
     
-    print.message("# s.score > 0:", sum(s.score > 0), "fraction", sum(s.score > 0)/length(s.score))
+    print.message("# s.score > 0:", sum(s.score > 0), "fraction", sum(s.score > 
+        0)/length(s.score))
     print.message("# g2m.score > 0:", sum(g2m.score > 0), "fraction", sum(g2m.score > 
         0)/length(g2m.score))
     end(t)
@@ -238,7 +240,8 @@ controlled.mean.score <- function(environment, genes, knn = 10, exclude.missing.
         nExclude <- sum(is.na(genes))
         if (nExclude > 0) {
             if (exclude.missing.genes) {
-                print.message("Excluding", nExclude, "out of", length(genes), "genes not found in the dataset")
+                print.message("Excluding", nExclude, "out of", length(genes), 
+                  "genes not found in the dataset")
                 genes <- genes[genes %in% capwords(rownames(environment$normalized))]
             } else {
                 print.message("Some signature genes are missing in dataset")
@@ -273,7 +276,8 @@ get.technically.similar.genes <- function(environment, knn = 10) {
         HVG.technical.variables <- technical.variables[environment$HVG, ]
         scaled.technical.variables <- apply(technical.variables, 2, scale)
         rownames(scaled.technical.variables) <- rownames(technical.variables)
-        HVG.scaled.technical.variables <- apply(HVG.technical.variables, 2, scale)
+        HVG.scaled.technical.variables <- apply(HVG.technical.variables, 2, 
+            scale)
         rownames(HVG.scaled.technical.variables) <- rownames(HVG.technical.variables)
         
         distances <- as.matrix(dist(scaled.technical.variables))
@@ -294,11 +298,13 @@ background.genes <- function(environment, foreground.genes, knn) {
     
     t <- start(file.path(environment$work.path, "tracking"))
     foreground.genes <- foreground.genes[foreground.genes %in% environment$genes]
-    technically.similar.genes <- get.technically.similar.genes(environment, knn)
+    technically.similar.genes <- get.technically.similar.genes(environment, 
+        knn)
     knns <- technically.similar.genes$knns
     technical.variables <- technically.similar.genes$technical.variables
     
-    background.genes <- unique(setdiff(as.vector(knns[foreground.genes, ]), foreground.genes))
+    background.genes <- unique(setdiff(as.vector(knns[foreground.genes, ]), 
+        foreground.genes))
     print.message("Head foreground.genes technical.variables")
     print(head(technical.variables[foreground.genes, ]))
     print.message("Head background.genes technical.variables")
@@ -309,7 +315,8 @@ background.genes <- function(environment, foreground.genes, knn) {
     return(background.genes)
 }
 
-regress.covariates <- function(environment, regress, data, groups, rerun = F, save = F) {
+regress.covariates <- function(environment, regress, data, groups, rerun = F, 
+    save = F) {
     
     cache <- file.path(environment$res.data.path, paste(paste(colnames(regress), 
         collapse = "+"), "HVG.regressed.covariates.RData", sep = "_"))
@@ -369,7 +376,8 @@ summarize <- function(environment, perplexity = seq(10, 30, 10), max_iter = 1000
         order <- names(cluster.size)[order(cluster.size, decreasing = T)]
     tSNE.job <- run.tSNE(environment, perplexity, max_iter, rerun)
     plot.PCA(environment, quantile = 0.05, order)
-    plot.cluster.stats(environment, membership = environment$cluster.names, order = order)
+    plot.cluster.stats(environment, membership = environment$cluster.names, 
+        order = order)
     if (length(environment$seurat.cluster.association) > 1) 
         tryCatch({
             plot.cluster.stats(environment, membership = environment$seurat.cluster.association, 

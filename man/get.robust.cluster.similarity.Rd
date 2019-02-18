@@ -8,16 +8,19 @@ get.robust.cluster.similarity(environment, similarity,
   min.sd = qnorm(0.95), max.q.val = 0.01, rerun = F)
 }
 \arguments{
-\item{environment}{The environment object}
+\item{environment}{\code{environment} object}
 
-\item{similarity}{TODO}
+\item{similarity}{pearson correlation between clusters' FC vectors defined in compare.cluster.similarity}
 
-\item{min.sd}{TODO}
+\item{min.sd}{minimum standard deviation for cluster reproducibility assessment}
 
-\item{max.q.val}{TODO}
+\item{max.q.val}{maximum q value for cluster correlation cutoff}
 
-\item{rerun}{TODO}
+\item{rerun}{whether to rerun the analysis or load from cache}
+}
+\value{
+filtered cluster similarity matrix
 }
 \description{
-TODO
+Use cross-replicate experiment cluster similarity to remove irreproducible clusters.
 }

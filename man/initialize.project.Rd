@@ -2,35 +2,34 @@
 % Please edit documentation in R/initialize.R
 \name{initialize.project}
 \alias{initialize.project}
-\title{Intialize the project object}
+\title{Intialize the Project Environment}
 \usage{
 initialize.project(datasets, origins, experiments, data.path, work.path,
   marker.genes = NULL, clear.history = F, analysis.label = NA,
   convert.to.mouse.gene.symbols = NULL)
 }
 \arguments{
-\item{datasets}{List of dataset code names}
+\item{datasets}{list of dataset code names}
 
-\item{origins}{List of dataset tissue origin/condition full name}
+\item{origins}{list of dataset tissue origin/condition full name}
 
-\item{experiments}{List of experiment design annotations}
+\item{experiments}{list of experiment design annotations}
 
-\item{data.path}{Path to where the data is located}
+\item{data.path}{path to where the data is located}
 
 \item{work.path}{path to where the analysis should create folders and store files}
 
-\item{marker.genes}{Set of genes of interest for visualization purposes}
+\item{marker.genes}{set of genes of interest for visualization purposes}
 
-\item{clear.history}{Whether you would like to remove any previous project by this name}
+\item{clear.history}{whether you would like to remove any previous project by this name}
 
-\item{analysis.label}{Whether you would like to add a specific label to the analysis folder}
+\item{analysis.label}{whether you would like to add a specific label to the analysis folder}
 
-\item{convert.to.mouse.gene.symbols}{Whether you are using human gene symbols and would like to convert them
-to mouse gene symbols}
+\item{convert.to.mouse.gene.symbols}{whether you are using human gene symbols and would like to convert them to mouse gene symbols}
 }
 \value{
 \code{environment} parameter containing file paths and experiment parameters
 }
 \description{
-Intialize the project object
+Set up a project environment variable mapped to project results folder.
 }

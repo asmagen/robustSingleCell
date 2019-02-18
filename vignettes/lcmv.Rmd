@@ -1,9 +1,6 @@
 ---
 title: "Introduction to MagenSingleCell"
-author: "Meng Wang"
-date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette:
-  fig_caption: yes
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Introduction to MagenSingleCell}
   %\VignetteEngine{knitr::rmarkdown}
@@ -13,69 +10,129 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  results = "hide",
+  message = F,
+  warning = F,
+  
 )
 ```
 
 
-## Data set
+We used two replicates of CD44+ T cell data sets from Ciucci 2018 [^1] as an example to demonstrate the use of `MagenSingleCell`. The analysis requires at least 8G of memory on slurm.  We first download the raw 10X data from GEO using `GEOquery`, which can be obtained using the following command if not already installed:
 
-The example data set comes from Ciucci 2018[^1]. Two replicates of CD44+ cells were available from [GSM3423794](https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSM3423794) and [GSM3423795](https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSM3423795). 
-
-```{r}
-dir.create("~/Downloads/LMCV")
-rep1_path <- GEOquery::getGEOSuppFiles("GSM3423794", baseDir = "~/Downloads/LCMV")
-rep2_path <- GEOquery::getGEOSuppFiles("GSM3423795", baseDir = "~/Downloads/LCMV")
-file.rename("~/Downloads/LCMV/GSM3423794", "~/Downloads/LCMV/LCMV1")
-file.rename("~/Downloads/LCMV/GSM3423795", "~/Downloads/LCMV/LCMV2")
+```r
+source("https://bioconductor.org/biocLite.R")
+biocLite("GEOquery")
 ```
 
+The two datasets `LCMV1`, `LCMV2` will be downloaded into `~/LCMV`. Each folder will contain the `matrix.mtx`, `gene.tsv`, `barcode.tsv` files as in 10X genomics format.
+
+```{r download_data, eval = F}
+library(MagenSingleCell)
+MagenSingleCell::downlaod_LCMV(base_dir = "~/LCMV")
+```
+
+We will cluster each dataset separately and perform a correlation analysis of the clusters between the two datasets.
+
+## Individual analysis of LCMV1 and LCMV2
+
+First, we set up the directory where the analysis results will be stored. 
 
 ```{r initialize}
-library(MagenSingleCell)
-Exhaustion <- c('Pdcd1','Cd244','Havcr2','Ctla4','Cd160','Lag3','Tigit','Cd96')
-env <- initialize.project(datasets = c("LCMV1", "LCMV2"), 
-                          origins = rep("CD44+ cells", 2),
-                          experiments = c("Rep1", "Rep2"),
-                          data.path = "~/Downloads/LCMV",
-                          work.path = "~/Downloads/LCMV_analysis",
-                          marker.genes = unique(marker_genes$symbol))
+LCMV1 <- initialize.project(datasets = "LCMV1", 
+                          origins = "CD44+ cells",
+                          experiments = "Rep1",
+                          data.path = "~/LCMV/LCMV1",
+                          work.path = "~/LCMV/LCMV_analysis")
 ```
 
-## Read data
+`read.data` function reads the data in 10X genomics format. We randomly downsampled the datasets to 1000 cells to shorten the running time. In addition, the function performs quality filtering as in *Magen et al 2018* [^2]. 
 
-The `read.data` function reads the data in 10X genomics format (`matrix.mtx`, `gene.tsv`, `barcode.tsv`)
-
-```{r}
-env <- read.data(env, subsample = 1000)
+```{r read_LCMV1}
+LCMV1 <- read.data(LCMV1, subsample = 1000)
 ```
 
-## Preprocess data
+Next, we obtained the highly variable genes. We also compute gene signatures activation for signatures of interest, which are used for confounder correction. 
 
-```{r}
-env <- get.variable.genes(env) 
-env <- add.confounder.variables (env,
-	ribosomal.score = ribosomal.score(env),
-	mitochondrial.score = mitochondrial.score(env),
-	cell.cycle.score = cell.cycle.score(env),
-	Exhaustion = controlled.mean.score(env, Exhaustion))
-
+```{r preprocess}
+LCMV1 <- get.variable.genes(LCMV1) 
+exhaustion_markers <- c('Pdcd1','Cd244','Havcr2','Ctla4','Cd160','Lag3','Tigit','Cd96')
+LCMV1 <- add.confounder.variables (LCMV1,
+	ribosomal.score = ribosomal.score(LCMV1),
+	mitochondrial.score = mitochondrial.score(LCMV1),
+	cell.cycle.score = cell.cycle.score(LCMV1),
+	Exhaustion = controlled.mean.score(LCMV1, exhaustion_markers))
 ```
 
-## PCA
+`PCA` function performed PCA after a simulation analysis of shuffled data to determine the appropriate number of PCs. 
 
-```{r}
-env <- MagenSingleCell::PCA(env)
+```{r PCA}
+LCMV1 <- PCA(LCMV1)
 ```
 
-## clustering
+We performed clustering analysis for a range of clustering resolutions. 
 
-```{r}
-env <- cluster.analysis(env)
+```{r cluster}
+LCMV1 <- cluster.analysis(LCMV1)
 ```
 
-## Differential expression and visualizations
+The clusters are then annotatedby customized set of marker genes. `summarize` function performs differential expression analysis, computes tSNE and visualizes the results in the analysis folder. 
+
+```{r annotation}
+types = rbind(
+                data.frame(type='Tfh',gene=c('Tcf7','Cxcr5','Bcl6')),
+                data.frame(type='Th1',gene=c('Cxcr6','Ifng','Tbx21')),
+                data.frame(type='Tcmp',gene=c('Ccr7','Bcl2','Tcf7')),
+                data.frame(type='Treg',gene=c('Foxp3','Il2ra')),
+                data.frame(type='Tmem',gene=c('Il7r','Ccr7')),
+                data.frame(type='CD8',gene=c('Cd8a')),
+                data.frame(type='Cycle',gene=c('Mki67','Top2a','Birc5'))
+)
+LCMV1_cluster_names = get.cluster.names(LCMV1, types)
+LCMV1 <- set.cluster.names(LCMV1, names = LCMV1_cluster_names)
+summarize(LCMV1)
+```
+
+We repeat the same procedure for `LCMV2` dataset.
+
+```{r LCMV_2}
+LCMV2 <- initialize.project(datasets = "LCMV2",
+                          origins = "CD44+ cells",
+                          experiments = "Rep2",
+                          data.path = "~/LCMV/LCMV2",
+                          work.path = "~/LCMV/LCMV_analysis")
+LCMV2 <- read.data(LCMV2, subsample = 1000)
+LCMV2 <- get.variable.genes(LCMV2)
+LCMV2 <- add.confounder.variables (LCMV2, ribosomal.score = ribosomal.score(LCMV2),
+  mitochondrial.score = mitochondrial.score(LCMV2),
+  cell.cycle.score = cell.cycle.score(LCMV2),
+  Exhaustion = controlled.mean.score(LCMV2, exhaustion_markers))
+
+LCMV2 <- PCA(LCMV2)
+LCMV2 <- cluster.analysis(LCMV2)
+LCMV2_cluster_names <- get.cluster.names(LCMV2, types)
+LCMV2 <- set.cluster.names(LCMV2, names = LCMV2_cluster_names)
+summarize(LCMV2)
+```
+
+### Visualizations 
 
 
+<figure>
+<img src="figs/pre_stats.pdf" width="300"> 
+<img src="figs/post_stats.pdf" width="300">
+<figcaption> Mitochondrial score vs UMI for pre (left) and post (right) filtered cells in LCMV2. </figcaption>
+</figure>
 
-[^1] Ciucci, Thomas, et al. "The Emergence and Functional Fitness of Memory CD4+ T Cells Require the Transcription Factor Thpok." _Immunity_ 50.1 (2019): 91-105.
+<figure>
+<img src="figs/PCA.pdf" width="300"> 
+<img src="figs/rotations.pdf" width="300">
+<figcaption>  </figcaption>
+</figure>
+
+
+[^1]: Ciucci, Thomas, et al. "The Emergence and Functional Fitness of Memory CD4+ T Cells Require the Transcription Factor Thpok." _Immunity_ 50.1 (2019): 91-105.
+
+
+[^2]: Magen *et al*. “Single-cell profiling of tumor-reactive CD4<sup>+</sup> T-cells reveals unexpected transcriptomic diversity” [*bioRxiv 543199*](https://doi.org/10.1101/543199)

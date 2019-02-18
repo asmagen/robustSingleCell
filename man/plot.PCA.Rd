@@ -2,17 +2,17 @@
 % Please edit documentation in R/plot.R
 \name{plot.PCA}
 \alias{plot.PCA}
-\title{Plot PCA results as cell embedding in 2D space and annotation of gene loadings}
+\title{Plot PCA results}
 \usage{
 \method{plot}{PCA}(environment, quantile, order)
 }
 \arguments{
-\item{environment}{The environment object}
+\item{environment}{\code{environment} object}
 
-\item{quantile}{quantile}
+\item{quantile}{quantile of PCA loadings for which to define top genes driving PCs}
 
-\item{order}{order}
+\item{order}{ordering by which to plot the in heatmap of top genes driving PCs}
 }
 \description{
-Plot PCA results as cell embedding in 2D space and annotation of gene loadings
+Plot the results obtained from PCA analysis as cell embedding in 2D space and annotation of gene loadings
 }

@@ -38,10 +38,10 @@ read.10x.data <- function(path) {
 #' @param seed seed for subsampling of cells
 #' @export
 #' @import ggplot2
-read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, max.genes.per.cell.quantile = 0.98, 
-    max.UMIs.per.cell.quantile = 0.98, min.cells.per.gene = 1, max.mitochondrial.frac = 0.1, 
-    max.ribosomal.frac = NA, cell.filters = NA, raw.data.matrices = NA, rerun = F, 
-    subsample = NULL, seed = 0) {
+read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, 
+    max.genes.per.cell.quantile = 0.98, max.UMIs.per.cell.quantile = 0.98, min.cells.per.gene = 1, 
+    max.mitochondrial.frac = 0.1, max.ribosomal.frac = NA, cell.filters = NA, 
+    raw.data.matrices = NA, rerun = F, subsample = NULL, seed = 0) {
     # browser()
     cache <- file.path(environment$baseline.data.path, "data.RData")
     
@@ -70,17 +70,18 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
                 measurements <- raw.data.matrices[[dataset]]
             }
             if (!is.null(subsample) & subsample < ncol(measurements)) {
-                measurements <- measurements[, sample(seq(ncol(measurements)), subsample)]
+                measurements <- measurements[, sample(seq(ncol(measurements)), 
+                  subsample)]
             }
             colnames(measurements) <- rep(environment$datasets[environment$datasets == 
                 dataset], ncol(measurements))
             dataset.labels <- rep(paste(environment$origins[environment$datasets == 
-                dataset], " (", environment$experiments[environment$datasets == dataset], 
-                ")", sep = ""), ncol(measurements))
+                dataset], " (", environment$experiments[environment$datasets == 
+                dataset], ")", sep = ""), ncol(measurements))
             origins <- rep(environment$origins[environment$datasets == dataset], 
                 ncol(measurements))
-            experiments <- rep(environment$experiments[environment$datasets == dataset], 
-                ncol(measurements))
+            experiments <- rep(environment$experiments[environment$datasets == 
+                dataset], ncol(measurements))
             cat(dim(measurements))
             # corner(measurements) measurements = measurements[,measurements['Cd4',]>0]
             
@@ -146,7 +147,8 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
                 matched.conditions <- rep(T, ncol(measurements))
                 for (gene in filter.genes) {
                   matched.conditions <- matched.conditions & ((measurements[gene, 
-                    ] > 0) == dataset.filters$expressed[dataset.filters$gene == gene])  #check if matching condition
+                    ] > 0) == dataset.filters$expressed[dataset.filters$gene == 
+                    gene])  #check if matching condition
                 }
                 sum.not.matching <- sum(matched.conditions)
                 print.message("# not qualify dataset.filters", sum.not.matching, 
@@ -245,8 +247,8 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
                 print(gene)
                 indices <- which(rownames(counts) == gene)
                 print(rownames(counts)[indices])
-                rownames(counts)[indices] <- paste(rownames(counts)[indices], seq(length(indices)), 
-                  sep = ".")
+                rownames(counts)[indices] <- paste(rownames(counts)[indices], 
+                  seq(length(indices)), sep = ".")
                 print(rownames(counts)[indices])
             }
         }
@@ -258,7 +260,8 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
         print.message("Normalized")
         corner(normalized)
         
-        t <- start(file.path(environment$work.path, "tracking"), append = T, split = T)
+        t <- start(file.path(environment$work.path, "tracking"), append = T, 
+            split = T)
         duplicated.indices <- duplicated(t(counts[genes.filter, ])) | duplicated(t(counts[genes.filter, 
             ]), fromLast = T)
         if (sum(duplicated.indices) > 0) {
@@ -309,7 +312,8 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
 #' @param recursive recursive path search
 #' @param rerun whether to rerun the reading process or load from cache
 #' @export
-read.preclustered.datasets <- function(environment, path = NA, recursive = T, rerun = F) {
+read.preclustered.datasets <- function(environment, path = NA, recursive = T, 
+    rerun = F) {
     
     cache <- file.path(environment$baseline.data.path, "preclustered.datasets.RData")
     
@@ -359,7 +363,8 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
                 for (row in seq(length(data.files))) print.message(row, dirname(dirname(data.files[row])))
                 file.index <- as.numeric(readline(prompt = "Select clustering: "))
             }
-            print.message("Loading", dirname(dirname(data.files[file.index])), "\n")
+            print.message("Loading", dirname(dirname(data.files[file.index])), 
+                "\n")
             load(data.files[file.index])
             if (length(merged.clustering) == 0) {
                 min <- 0
@@ -369,33 +374,37 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
             
             # names(clustering) str(clustering$shuffled.membership)
             # str(clustering$shuffled.membership[[1]])
-            # apply(clustering$shuffled.membership[[1]]$memberships,1,table) membership =
-            # clustering$shuffled.membership[[2]]$memberships[2,] limma.diff = {} for(
+            # apply(clustering$shuffled.membership[[1]]$memberships,1,table) membership
+            # = clustering$shuffled.membership[[2]]$memberships[2,] limma.diff = {} for(
             # cluster in seq(length(unique(membership))) ) { print.message('cluster
             # =',cluster)
             
             # group = membership == cluster group = factor(group)
             
-            # diff.exp = getDE.limma( Y = normalized, group = group, filter = F ) diff.exp =
-            # diff.exp[order(diff.exp$logFC,decreasing=T),] diff.exp =
+            # diff.exp = getDE.limma( Y = normalized, group = group, filter = F )
+            # diff.exp = diff.exp[order(diff.exp$logFC,decreasing=T),] diff.exp =
             # data.frame(gene=rownames(diff.exp),logFC=diff.exp$logFC,fold=exp(diff.exp$logFC),QValue=diff.exp$QValue,PValue=diff.exp$PValue,AveExpr=diff.exp$AveExpr)
-            # limma.diff = rbind(limma.diff,data.frame(cluster=cluster,diff.exp[,c(1,3,4)]))
-            # } limma.diff = limma.diff[order(limma.diff$fold,decreasing=T),]
-            # head(limma.diff) lcdif[lcdif$gene=='Foxp3',] lndif[lndif$gene=='Foxp3',] res={}
-            # for(i in seq(length(unique(lcdif$cluster)))){ for(j in
+            # limma.diff =
+            # rbind(limma.diff,data.frame(cluster=cluster,diff.exp[,c(1,3,4)])) }
+            # limma.diff = limma.diff[order(limma.diff$fold,decreasing=T),]
+            # head(limma.diff) lcdif[lcdif$gene=='Foxp3',] lndif[lndif$gene=='Foxp3',]
+            # res={} for(i in seq(length(unique(lcdif$cluster)))){ for(j in
             # seq(length(unique(lndif$cluster)))){ lc=lcdif[lcdif$cluster == i,]
-            # ln=lndif[lndif$cluster == j,] match = match(ln$gene,lc$gene) head(lc[match,])
-            # head(ln) ccc=cor.test(lc$fold[match],ln$fold,method='spearman') res =
+            # ln=lndif[lndif$cluster == j,] match = match(ln$gene,lc$gene)
+            # head(lc[match,]) head(ln)
+            # ccc=cor.test(lc$fold[match],ln$fold,method='spearman') res =
             # rbind(res,data.frame(ccc$estimate,ccc$p.value)) } } head(res)
             # res[order(res$ccc.estimate),]
             
-            merged.clustering <- c(merged.clustering, clustering$membership + min)
+            merged.clustering <- c(merged.clustering, clustering$membership + 
+                min)
             merged.original.clustering <- c(merged.original.clustering, clustering$membership)
             
             # index = 1 merged.shuffled.clustering[[]] for (index in
             # seq(length(clustering$shuffled.membership))) { v =
-            # clustering$shuffled.membership[[index]] shuffled.membership = v$memberships[2,]
-            # if (length(shuffled.membership) == length(clustering$membership)) }
+            # clustering$shuffled.membership[[index]] shuffled.membership =
+            # v$memberships[2,] if (length(shuffled.membership) ==
+            # length(clustering$membership)) }
             
             load(file.path(dirname(data.files[file.index]), "main.all.diff.exp.RData"))
             if (!is.null(environment$convert.to.mouse.gene.symbols) && environment$convert.to.mouse.gene.symbols[sample.index] == 
@@ -410,9 +419,10 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
                   1]), 2]
                 limma.all <- limma.all[!is.na(limma.all$gene), ]
                 intersect.genes <- intersect(unique(limma.all$gene), unique(merged.diff.exp$gene))
-                limma.all <- limma.all[limma.all$gene %in% intersect.genes, ]
-                merged.diff.exp <- merged.diff.exp[merged.diff.exp$gene %in% intersect.genes, 
+                limma.all <- limma.all[limma.all$gene %in% intersect.genes, 
                   ]
+                merged.diff.exp <- merged.diff.exp[merged.diff.exp$gene %in% 
+                  intersect.genes, ]
             }
             limma.all <- cbind(dataset, origin, experiment, limma.all)
             merged.diff.exp <- rbind(merged.diff.exp, limma.all)
@@ -443,24 +453,24 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
                 counts <- counts[!is.na(rownames(counts)), ]
                 intersect.genes <- intersect(rownames(counts), rownames(merged.counts))
                 counts <- counts[rownames(counts) %in% intersect.genes, ]
-                merged.counts <- merged.counts[rownames(merged.counts) %in% intersect.genes, 
-                  ]
+                merged.counts <- merged.counts[rownames(merged.counts) %in% 
+                  intersect.genes, ]
                 counts <- counts[match(rownames(merged.counts), rownames(counts)), 
                   ]
                 
-                rownames(normalized) <- mouse.gene.names[match(human.genes, mouse.gene.names[, 
-                  1]), 2]
+                rownames(normalized) <- mouse.gene.names[match(human.genes, 
+                  mouse.gene.names[, 1]), 2]
                 normalized <- normalized[!is.na(rownames(normalized)), ]
                 intersect.genes <- intersect(rownames(normalized), rownames(merged.normalized))
                 normalized <- normalized[rownames(normalized) %in% intersect.genes, 
                   ]
                 merged.normalized <- merged.normalized[rownames(merged.normalized) %in% 
                   intersect.genes, ]
-                normalized <- normalized[match(rownames(merged.normalized), rownames(normalized)), 
-                  ]
+                normalized <- normalized[match(rownames(merged.normalized), 
+                  rownames(normalized)), ]
             }
-            if (length(merged.counts) > 1 && sum(rownames(merged.counts) != rownames(counts)) > 
-                0) 
+            if (length(merged.counts) > 1 && sum(rownames(merged.counts) != 
+                rownames(counts)) > 0) 
                 stop("Feature genes mismatch - need to correct dataset binding matching")
             merged.counts <- cbind(merged.counts, counts)
             merged.normalized <- cbind(merged.normalized, normalized)
@@ -483,7 +493,8 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
                 genes.filter <- genes.filter[names(genes.filter) %in% intersect.genes]
                 union.genes.filter <- union.genes.filter[names(union.genes.filter) %in% 
                   intersect.genes]
-                genes.filter <- genes.filter[match(names(union.genes.filter), names(genes.filter))]
+                genes.filter <- genes.filter[match(names(union.genes.filter), 
+                  names(genes.filter))]
             }
             if (length(union.genes.filter) == 0) {
                 union.genes.filter <- genes.filter
@@ -491,14 +502,15 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
                 union.genes.filter <- union.genes.filter | genes.filter
             }
             
-            dataset.genes <- rownames(merged.counts)[apply(merged.counts, 1, sd) > 
-                0]
+            dataset.genes <- rownames(merged.counts)[apply(merged.counts, 1, 
+                sd) > 0]
         }
         
         # merged.HVG[!merged.HVG%in%rownames(normalized[genes.filter,])]
         # sum(genes.filter)
         merged.HVG <- merged.HVG[merged.HVG %in% rownames(counts)]
-        union.genes.filter <- union.genes.filter[names(union.genes.filter) %in% rownames(counts)]
+        union.genes.filter <- union.genes.filter[names(union.genes.filter) %in% 
+            rownames(counts)]
         
         print.message("dim(merged.normalized)")
         print(dim(merged.normalized))
