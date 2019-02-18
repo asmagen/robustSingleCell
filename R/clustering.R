@@ -56,7 +56,7 @@ get.cluster.names.with.diff <- function(cluster.diff, types, print) {
     if (print) 
         print(table)
     if (sum(table > 0) == 0) 
-        return(NA)
+        return("Unknown")
     table <- table[table > 0]
     cluster.name <- names(table)
     

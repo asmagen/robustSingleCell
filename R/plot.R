@@ -281,7 +281,8 @@ plot.expression.heatmap.based.on.FC.marker <- function(measurements, clustering,
     gene.list, counts = F, order = NA, RowSideColors = NA, scale = "row", save = NA,
     filter.diff.exp = T, cellnote = T, exponent = F, doMeans = T, srtCol = 45,
     multiplication = 100, rounding = 0, breaks = 50, key = T, sort.rows = T,
-    sort.cols = T, Rowv = F, Colv = F, dendrogram = "none") {
+    sort.cols = "Cd4", Rowv = F, Colv = F, dendrogram = "none") {
+    browser()
 
     colors <- c("#d60c0c", "#ffb1ad", "#f4f4f4", "#aed4fc", "#0050ba")  #c('#d73027','#fc8d59','#fee090','#e0f3f8','#91bfdb','#4575b4')
     colors <- colors[length(colors):1]  #red should correspond to high
@@ -304,8 +305,7 @@ plot.expression.heatmap.based.on.FC.marker <- function(measurements, clustering,
             # genes = c(markers,genes)
             genes <- genes[genes %in% rownames(measurements)]
 
-            measurements.diff.exp <- measurements[match(genes, rownames(measurements)),
-                ]
+            measurements.diff.exp <- measurements[match(genes, rownames(measurements)), ]
             if (doMeans) {
                 names <- rownames(measurements.diff.exp)
                 mat <- {
@@ -319,8 +319,14 @@ plot.expression.heatmap.based.on.FC.marker <- function(measurements, clustering,
                   mat <- rbind(mat, averages)
                 }
                 rownames(mat) <- names
-                if (sort.cols)
-                  mat <- mat[, order(colnames(mat))]
+                if (is.character(sort.cols) || sort.cols == T) { 
+                  if (sort.cols %in% rownames(mat)) {
+                     col_order <- order(mat[sort.cols,])
+                     mat <- mat[, col_order]
+                  } else {
+                     mat <- mat[, order(colnames(mat))]
+                  }
+                }
             } else {
                 mat <- measurements.diff.exp
             }
