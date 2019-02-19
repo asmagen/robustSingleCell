@@ -19,7 +19,7 @@ library(MagenSingleCell)
 ```
 
 
-We used two replicates of CD44+ T cell data sets from Ciucci et al. 2018 [^1] as an example to demonstrate the use of `MagenSingleCell`. The analysis requires at least 8G of memory on slurm.  We first download the raw 10X data from GEO using `GEOquery`, which can be obtained using the following command if not already installed:
+We used two replicates of CD44<sup>+</sup> T cell data sets from Ciucci et al. 2018 [^1] as an example to demonstrate the use of `MagenSingleCell`. The analysis requires at least 8G of memory on *slurm* [^2] high performance computing workload manager.  We first download the raw 10X data from GEO using `GEOquery`, which can be obtained using the following command if not already installed:
 
 ```r
 source("https://bioconductor.org/biocLite.R")
@@ -33,11 +33,11 @@ library(MagenSingleCell)
 downlaod_LCMV(base_dir = "~/LCMV")
 ```
 
-We will cluster each dataset separately and perform a correlation analysis of the clusters between the two datasets.
+We cluster each dataset separately to account for dataset-specific technical and biological differences. Then, we measure the transcriptional similarity and divergence between the clusters identified in the two datasets using correlation analysis.
 
 ## Individual analysis of LCMV1 and LCMV2
 
-First, we set up the directory where the analysis results will be stored. 
+First, we set up the directory where the results of the analysis will be stored. 
 
 ```{r initialize}
 LCMV1 <- initialize.project(datasets = "LCMV1", 
@@ -47,13 +47,13 @@ LCMV1 <- initialize.project(datasets = "LCMV1",
                           work.path = "~/LCMV/LCMV_analysis")
 ```
 
-`read.data` function reads the data in 10X genomics format. We randomly downsampled the datasets to 1000 cells to shorten the running time. In addition, the function performs quality filtering as in *Magen et al 2018* [^2]. 
+`read.data` function reads the data in 10X genomics format and performs quality filtering as described in *Magen et al 2018* [^3]. We randomly downsampled the datasets to 1000 cells to shorten the running time in this example.
 
 ```{r read_LCMV1}
 LCMV1 <- read.data(LCMV1, subsample = 1000)
 ```
 
-Next, we obtained the highly variable genes. We also compute gene signatures activation for signatures of interest, which are used for confounder correction. 
+Next, we identify highly variable genes on which we base the PCA and clustering analyses. We also compute the activation of gene sets of interest, such as cell cycle genes, which can be used for confounder correction using the `regress` parameter in the PCA analysis.
 
 ```{r preprocess}
 LCMV1 <- get.variable.genes(LCMV1) 
@@ -72,13 +72,13 @@ LCMV1 <- add.confounder.variables (LCMV1,
 LCMV1 <- PCA(LCMV1)
 ```
 
-We performed clustering analysis for a range of clustering resolutions. 
+We perform clustering analysis for a range of clustering resolutions. The analysis is repeated multiple times over shuffled data to estimate the appropriate clustering resolution and control for false discovery of clusters, as described in *Magen et al 2018* [^3].
 
 ```{r cluster}
 LCMV1 <- cluster.analysis(LCMV1)
 ```
 
-The clusters are then annotatedby customized set of marker genes. `summarize` function performs differential expression analysis, computes tSNE and visualizes the results in the analysis folder. 
+The clusters are then annotated by customized set of marker genes which the users should adapt to their own data. `summarize` function performs differential expression analysis, computes tSNE and visualizes the results in the analysis folder. 
 
 ```{r annotation}
 types = rbind(
@@ -95,13 +95,14 @@ LCMV1 <- set.cluster.names(LCMV1, names = LCMV1_cluster_names)
 summarize(LCMV1)
 ```
 
+We plot a heatmap containing selected marker genes of interest for initial evaluation.
+
 ```{r plot_LCMV1, include = F}
 canonical_genes <- c("Cd8a", "Cd4", "Mki67", "Foxp3", "Il2ra", "Bcl6",
                      "Cxcr5", "Cxcr6", "Ifng", "Tbx21", "Id2", "Rora",
                      "Cxcr3", "Tcf7", "Ccr7", "Cxcr4", "Pdcd1", "Ctla4")
 MagenSingleCell:::plot.simple.heatmap(LCMV1, name = "canonical", markers = canonical_genes)
 ```
-
 
 We repeat the same procedure for `LCMV2` dataset.
 
@@ -125,13 +126,12 @@ LCMV2 <- cluster.analysis(LCMV2)
 LCMV2_cluster_names <- get.cluster.names(LCMV2, types, min.fold = 1.5, max.Qval = 1e-3)
 LCMV2 <- set.cluster.names(LCMV2, names = LCMV2_cluster_names)
 summarize(LCMV2)
-```
 
-```{r plot_LCMV2, include = F}
+{r plot_LCMV2, include = F}
 MagenSingleCell:::plot.simple.heatmap(LCMV2, name = "canonical", markers = canonical_genes)
 ```
 
-We then initialize the correlation analysis of the two independent run.   
+We then initialize the correlation analysis of the two independent runs, providing the information of which analyses folders should be used to pull the data for integration.
 
 ```{r initialize_pooled}
 pooled_env <- initialize.project(datasets = c("LCMV1", "LCMV2"),
@@ -150,7 +150,7 @@ pooled_env <- PCA(pooled_env, clear.previously.calculated.clustering = F)
 summarize(pooled_env, contrast = "datasets")
 ```
 
-We assessed the similarity between pairs of clusters and obtained the robust clusters by finding reproducible clusters across the two replicates.
+We assessed the similarity between pairs of clusters as described in *Magen et al 2018* [^3] and identify reproducible clusters across the two replicates.
 
 ```{r pooled}
 cluster.similarity <- compare.cluster.similarity(pooled_env)
@@ -165,7 +165,7 @@ visualize.cluster.cors.heatmaps(pooled_env, pooled_env$work.path,
                                 filtered.similarity)
 ```
 
-Finally, hierarchical clustering was performed and cluster similarities are plotted according to dendrogram.  
+Finally, the Pearson correlations between clusters are visualized as a heatmap ordered by hierarchical clustering.
 
 ```{r summary}
 similarity <- filtered.similarity
@@ -238,5 +238,6 @@ Plots for pooled analysis
 
 [^1]: Ciucci, Thomas, et al. "The Emergence and Functional Fitness of Memory CD4+ T Cells Require the Transcription Factor Thpok." _Immunity_ 50.1 (2019): 91-105.
 
+[^2]: [slurm](https://slurm.schedmd.com)
 
-[^2]: Magen *et al*. “Single-cell profiling of tumor-reactive CD4<sup>+</sup> T-cells reveals unexpected transcriptomic diversity” [*bioRxiv 543199*](https://doi.org/10.1101/543199)
+[^3]: Magen *et al*. “Single-cell profiling of tumor-reactive CD4<sup>+</sup> T-cells reveals unexpected transcriptomic diversity” [*bioRxiv 543199*](https://doi.org/10.1101/543199)
