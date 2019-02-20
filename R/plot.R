@@ -302,7 +302,7 @@ plot.expression.heatmap.based.on.FC.marker <- function(measurements, clustering,
                 next
             if (length(genes) == 1)
                 genes <- rep(genes, 2)
-            # genes = c(markers,genes)
+
             genes <- genes[genes %in% rownames(measurements)]
 
             measurements.diff.exp <- measurements[match(genes, rownames(measurements)), ]
@@ -373,13 +373,13 @@ plot.expression.heatmap.based.on.FC.marker <- function(measurements, clustering,
                   scale = scale, key = key, cexRow = 1, cexCol = 1, density.info = "none",
                   trace = "none", srtCol = srtCol, adjCol = c(1, 1), Rowv = Rowv,
                   Colv = Colv, margins = c(8, 5), dendrogram = dendrogram, main = titles[list.row],
-                  RowSideColors = RowSideColors, cellnote = cellnote, notecol = "white")  #100*round((2^others)-1,2), breaks = breaks
+                  RowSideColors = RowSideColors, cellnote = cellnote, notecol = "white")
             } else {
                 plots[[titles[list.row]]] <- heatmap.2(as.matrix(others), col = color.palette,
                   scale = scale, key = key, cexRow = 1, cexCol = 1, density.info = "none",
                   trace = "none", srtCol = srtCol, adjCol = c(1, 1), Rowv = Rowv,
                   Colv = Colv, margins = c(8, 5), dendrogram = dendrogram, main = titles[list.row],
-                  RowSideColors = RowSideColors)  # breaks = breaks
+                  RowSideColors = RowSideColors)
             }
 
             if (!is.na(save)) {
@@ -394,7 +394,7 @@ plot.expression.heatmap.based.on.FC.marker <- function(measurements, clustering,
 plot.simple.heatmap <- function(environment, name, path = NA, markers, membership = NA,
     normalized = NA, order = NA, width = 5, height = 5, scale = "row", RowSideColors = NA,
     counts = F, filter.diff.exp = F, cellnote = F, key = F, save = NA, sort.rows = T,
-    sort.cols = T, Colv = F, Rowv = F, dendrogram = "none") {
+    sort.cols = T, Colv = F, Rowv = F, dendrogram = "none", main = NA) {
 
     if (is.na(path))
         path <- environment$work.path
@@ -410,7 +410,9 @@ plot.simple.heatmap <- function(environment, name, path = NA, markers, membershi
     if (length(order) == 1 && is.na(order))
         order <- names(cluster.size)[order(cluster.size, decreasing = T)]
 
-    plot.expression.heatmap.based.on.FC.marker(normalized, membership, gene.list = list(markers = markers),
+    gene.list <- list(markers = markers)
+    if (!is.null(main)) names(gene.list) <- main
+    plot.expression.heatmap.based.on.FC.marker(normalized, membership, gene.list = gene.list,
         scale = scale, RowSideColors = RowSideColors, counts = counts, order = order,
         filter.diff.exp = filter.diff.exp, cellnote = cellnote, doMeans = T,
         exponent = ifelse(counts, F, T), multiplication = ifelse(counts, 100,
@@ -657,7 +659,7 @@ visualize.cluster.similarity.stats <- function(environment, similarity) {
         value.var = "coef")
 
     grDevices::pdf(file.path(environment$work.path, paste("hclust.dist.Cor.FC.pdf", sep = "_")),
-        width = 20, height = 20)
+        width = 30, height = 30)
     similarity.matrix[1:5, 1:5]
     stats::dist(similarity.matrix)
     hc.dist = stats::hclust(stats::as.dist(1 - similarity.matrix))
@@ -666,7 +668,6 @@ visualize.cluster.similarity.stats <- function(environment, similarity) {
     color.palette = grDevices::colorRampPalette(colors)
     hc.dist = stats::hclust(stats::as.dist(1 - similarity.matrix))
     clusters = stats::cutree(hc.dist, k = 8)
-    # sort(clusters)
 
     clusters.ordered = clusters[match(names(igraph::V(net)), names(clusters))]
     mark.groups = lapply(unique(clusters.ordered), function(c) as.vector(which(clusters.ordered ==
@@ -675,13 +676,12 @@ visualize.cluster.similarity.stats <- function(environment, similarity) {
         c]))
     plot(net, mark.groups = mark.groups, layout = l)
     print(gplots::heatmap.2(similarity.matrix, col = color.palette, key = T,
-        cexRow = 1, cexCol = 1, scale = "none", density.info = "none", trace = "none",
+        cexRow = 3.5, cexCol = 3.5, scale = "none", density.info = "none", trace = "none",
         Rowv = stats::as.dendrogram(hc.dist), Colv = stats::as.dendrogram(hc.dist), dendrogram = "both",
-        cellnote = round(similarity.matrix, 1), notecol = "white", main = "Pearson Correlation Between Cluster FC",
-        margins = c(10, 10)))
+        notecol = "white", main = "", keysize = 1,
+        margins = c(30, 30))) # cellnote = round(similarity.matrix, 1), notecex = 2,
     print(gplots::heatmap.2(similarity.matrix, col = color.palette, key = T,
-        cexRow = 1, cexCol = 1, scale = "none", density.info = "none", trace = "none",
-        Rowv = T, Colv = T, dendrogram = "both", cellnote = round(similarity.matrix,
-            1), notecol = "white", main = "Cor", margins = c(10, 10)))
+        cexRow = 3.5, cexCol = 3.5, scale = "none", density.info = "none", trace = "none", keysize = 1,
+        Rowv = T, Colv = T, dendrogram = "both", notecol = "white", main = "", margins = c(30, 30))) # cellnote = round(similarity.matrix, 1), notecex = 2, main = "Pearson Correlation Between Cluster FC"
     grDevices::dev.off()
 }

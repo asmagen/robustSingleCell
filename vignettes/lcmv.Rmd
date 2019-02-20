@@ -1,8 +1,8 @@
 ---
-title: "Introduction to MagenSingleCell"
+title: "Introduction to robustSingleCell"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction to MagenSingleCell}
+  %\VignetteIndexEntry{Introduction to robustSingleCell}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -20,7 +20,7 @@ library(MagenSingleCell)
 ```
 
 
-We used two replicates of CD44<sup>+</sup> T cell data sets from Ciucci et al. 2018 [^1] as an example to demonstrate the use of `MagenSingleCell`. The analysis requires at least 8G of memory on *slurm* [^2] high performance computing workload manager.  We first download the raw 10X data from GEO using `GEOquery`, which can be obtained using the following command if not already installed:
+We used two replicates of CD44<sup>+</sup> T cell data sets from Ciucci et al. 2018 [^1] as an example to demonstrate the use of `robustSingleCell`. The analysis requires at least 8G of memory on *slurm* [^2] high performance computing workload manager.  We first download the raw 10X data from GEO using `GEOquery`, which can be obtained using the following command if not already installed:
 
 ```r
 source("https://bioconductor.org/biocLite.R")
@@ -30,7 +30,7 @@ biocLite("GEOquery")
 The two datasets `LCMV1`, `LCMV2` will be downloaded into `~/LCMV`. Each folder will contain the `matrix.mtx`, `gene.tsv`, `barcode.tsv` files as in 10X genomics format.
 
 ```{r download_data}
-library(MagenSingleCell)
+library(robustSingleCell)
 download_LCMV(base_dir = "~/LCMV")
 ```
 
@@ -61,7 +61,7 @@ Next, we identify highly variable genes on which we base the PCA and clustering 
 LCMV1 <- get.variable.genes(LCMV1) 
 exhaustion_markers <- c('Pdcd1', 'Cd244', 'Havcr2', 'Ctla4', 'Cd160', 'Lag3', 
                         'Tigit', 'Cd96')
-LCMV1 <- add.confounder.variables (LCMV1,
+LCMV1 <- add.confounder.variables(LCMV1,
 	ribosomal.score = ribosomal.score(LCMV1),
 	mitochondrial.score = mitochondrial.score(LCMV1),
 	cell.cycle.score = cell.cycle.score(LCMV1),
@@ -115,10 +115,11 @@ types = rbind(
                 data.frame(type='Treg',gene=c('Foxp3','Il2ra')),
                 data.frame(type='Tmem',gene=c('Il7r','Ccr7')),
                 data.frame(type='CD8',gene=c('Cd8a')),
+                data.frame(type='CD4', gene = c("Cd4")),
                 data.frame(type='Cycle',gene=c('Mki67','Top2a','Birc5'))
 )
 summarize(LCMV1)
-LCMV1_cluster_names <- get.cluster.names(LCMV1, types, min.fold = 1.5, max.Qval = 1e-3)
+LCMV1_cluster_names <- get.cluster.names(LCMV1, types, min.fold = 1.0, max.Qval = 0.01)
 LCMV1 <- set.cluster.names(LCMV1, names = LCMV1_cluster_names)
 summarize(LCMV1)
 ```
@@ -164,11 +165,15 @@ LCMV2 <- add.confounder.variables(
 LCMV2 <- PCA(LCMV2)
 LCMV2 <- cluster.analysis(LCMV2)
 summarize(LCMV2)
-LCMV2_cluster_names <- get.cluster.names(LCMV2, types, min.fold = 1.5, max.Qval = 1e-3)
+LCMV2_cluster_names <- get.cluster.names(LCMV2, types, min.fold = 1.0, max.Qval = 0.01)
 LCMV2 <- set.cluster.names(LCMV2, names = LCMV2_cluster_names)
 summarize(LCMV2)
 ```
 
+```{r plotLCMV1, include = F}
+robustSingleCell:::plot.simple.heatmap(LCMV2, name = "canonical", markers = canonical_genes,
+                                       main = "Expression of marker genes")
+```
 
 We then initialize the correlation analysis of the two independent runs, providing the information of which analyses folders should be used to pull the data for integration.
 
