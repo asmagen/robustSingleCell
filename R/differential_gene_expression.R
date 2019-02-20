@@ -31,8 +31,7 @@ run.diff.expression <- function(environment, clustering, min.fold, quantile,
 
         cat(label, id, "\n")
 
-        stats <- {
-        }
+        stats <- {}
         for (cluster in sort(unique(clustering))) {
 
             cat("cluster", cluster, "\n")
@@ -58,10 +57,8 @@ run.diff.expression <- function(environment, clustering, min.fold, quantile,
         shuffled.stats <- stats[stats$label == "shuffled", ]
         print(utils::head(shuffled.stats))
         genes <- genes[job.portions == job.portion]
-        results <- {
-        }
-        empirical.diff <- {
-        }
+        results <- { }
+        empirical.diff <- { }
         for (gene in genes) {
             real <- real.stats[real.stats$gene == gene, ]
             real <- real[real$fold >= min.fold, ]
@@ -96,8 +93,7 @@ run.diff.expression <- function(environment, clustering, min.fold, quantile,
             contrast)
         unlink(diff.exp.dir, recursive = T, force = T)
         dir.create(diff.exp.dir, recursive = T)
-        limma.diff <- {
-        }
+        limma.diff <- { }
 
         if (contrast == "all") {
             contrast.groups <- rep(1, length(membership))
