@@ -619,7 +619,7 @@ visualize.cluster.cors.heatmaps <- function(environment, work.path, similarity) 
                 cexRow = 1, cexCol = 1, srtCol = 45, scale = "none", density.info = "none",
                 trace = "none", Rowv = T, Colv = T, dendrogram = "both", margins = c(15,
                   15), cellnote = round(similarity.matrix, 1), notecol = "white",
-                main = "Pearson Correlation Between Clusters’ FC Vectors"))
+                main = "Pearson Correlation Between Cluster FC"))
             print(heatmap.2(ocl.similarity.matrix, col = color.palette, key = T,
                 cexRow = 1, cexCol = 1, srtCol = 45, scale = "none", density.info = "none",
                 trace = "none", Rowv = F, Colv = F, dendrogram = "none", margins = c(15,
@@ -676,7 +676,7 @@ visualize.cluster.similarity.stats <- function(environment, similarity) {
     print(gplots::heatmap.2(similarity.matrix, col = color.palette, key = T,
         cexRow = 1, cexCol = 1, scale = "none", density.info = "none", trace = "none",
         Rowv = as.dendrogram(hc.dist), Colv = as.dendrogram(hc.dist), dendrogram = "both",
-        cellnote = round(similarity.matrix, 1), notecol = "white", main = "Pearson Correlation Between Clusters’ FC Vectors",
+        cellnote = round(similarity.matrix, 1), notecol = "white", main = "Pearson Correlation Between Cluster FC",
         margins = c(10, 10)))
     print(gplots::heatmap.2(similarity.matrix, col = color.palette, key = T,
         cexRow = 1, cexCol = 1, scale = "none", density.info = "none", trace = "none",

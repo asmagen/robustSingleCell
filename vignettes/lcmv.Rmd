@@ -90,6 +90,7 @@ types = rbind(
                 data.frame(type='CD8',gene=c('Cd8a')),
                 data.frame(type='Cycle',gene=c('Mki67','Top2a','Birc5'))
 )
+summarize(LCMV1)
 LCMV1_cluster_names <- get.cluster.names(LCMV1, types, min.fold = 1.5, max.Qval = 1e-3)
 LCMV1 <- set.cluster.names(LCMV1, names = LCMV1_cluster_names)
 summarize(LCMV1)
@@ -123,6 +124,7 @@ LCMV2 <- add.confounder.variables(
 
 LCMV2 <- PCA(LCMV2)
 LCMV2 <- cluster.analysis(LCMV2)
+summarize(LCMV2)
 LCMV2_cluster_names <- get.cluster.names(LCMV2, types, min.fold = 1.5, max.Qval = 1e-3)
 LCMV2 <- set.cluster.names(LCMV2, names = LCMV2_cluster_names)
 summarize(LCMV2)
