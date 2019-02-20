@@ -98,7 +98,7 @@ summarize(LCMV1)
 
 We plot a heatmap containing selected marker genes of interest for initial evaluation.
 
-```{r plot_LCMV1, include = F}
+```{r plotLCMV1, include = F}
 canonical_genes <- c("Cd8a", "Cd4", "Mki67", "Foxp3", "Il2ra", "Bcl6",
                      "Cxcr5", "Cxcr6", "Ifng", "Tbx21", "Id2", "Rora",
                      "Cxcr3", "Tcf7", "Ccr7", "Cxcr4", "Pdcd1", "Ctla4")
@@ -128,8 +128,9 @@ summarize(LCMV2)
 LCMV2_cluster_names <- get.cluster.names(LCMV2, types, min.fold = 1.5, max.Qval = 1e-3)
 LCMV2 <- set.cluster.names(LCMV2, names = LCMV2_cluster_names)
 summarize(LCMV2)
+```
 
-{r plot_LCMV2, include = F}
+```{r plotLCMV2, include = F}
 MagenSingleCell:::plot.simple.heatmap(LCMV2, name = "canonical", markers = canonical_genes)
 ```
 
