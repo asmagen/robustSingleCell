@@ -1,9 +1,9 @@
-MagenSingleCell
+robustSingleCell
 ================
 
 ### Overview
 
-MagenSingleCell is a robust clustering and similarity measurement method
+robustSingleCell is a robust clustering and similarity measurement method
 designed for single-cell data analysis \[1\].
 
 ### Installation and tutorial
@@ -19,12 +19,12 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 devtools::install("JinmiaoChenLab/Rphenograph")
 BiocManager::install("limma")
 
-devtools::install_github("asmagen/magensinglecell")
+devtools::install_github("asmagen/robustSingleCell")
 ```
 
 This pipeline currently only supports [slurm](https://slurm.schedmd.com)
 for parallel batch jobs. See a tutorial at
-<https://asmagen.github.io/MagenSingleCell>.
+<https://asmagen.github.io/robustSingleCell>.
 
 ### Getting help
 
