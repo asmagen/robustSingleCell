@@ -29,7 +29,7 @@ for parallel batch jobs. See a tutorial at
 ### Getting help
 
 If you encounter a clear bug, please submit an
-[issue](https://github.com/asmagen/MagenSingleCell/issues) with
+[issue](https://github.com/asmagen/robustSingleCell/issues) with
 reproducible example.
 
 ### Reference
