@@ -19,6 +19,7 @@ knitr::opts_chunk$set(
 library(MagenSingleCell)
 ```
 
+<<<<<<< HEAD
 
 We used two replicates of CD44<sup>+</sup> T cell data sets from Ciucci et al. 2018 [^1] as an example to demonstrate the use of `robustSingleCell`. The analysis requires at least 8G of memory on *slurm* [^2] high performance computing workload manager.  We first download the raw 10X data from GEO using `GEOquery`, which can be obtained using the following command if not already installed:
 
@@ -34,6 +35,8 @@ library(robustSingleCell)
 download_LCMV(base_dir = "~/LCMV")
 ```
 
+<h3>Independent Dataset Analysis</h3>
+
 We cluster each dataset separately to account for dataset-specific technical and biological differences. Then, we measure the transcriptional similarity and divergence between the clusters identified in the two datasets using correlation analysis.
 
 ## Individual analysis of LCMV1 and LCMV2
@@ -48,14 +51,13 @@ LCMV1 <- initialize.project(datasets = "LCMV1",
                           work.path = "~/LCMV/LCMV_analysis")
 ```
 
-`read.data` function reads the data in 10X genomics format and performs quality filtering as described in *Magen et al 2018* [^3]. We randomly downsampled the datasets to 1000 cells to shorten the running time in this example. 
+`read.data` function reads the data in 10X genomics format and performs quality filtering as described in *Magen et al 2018* [^3]. We randomly downsampled the datasets to 1000 cells to shorten the simplify this example.
 
 ```{r read_LCMV1}
 LCMV1 <- read.data(LCMV1, subsample = 1000)
 ```
 
-
-Next, we identify highly variable genes on which we base the PCA and clustering analyses. We also compute the activation of gene sets of interest, such as cell cycle genes, which can be used for confounder correction using the `regress` parameter in the PCA analysis. Figure 1 shows the mitochondrial score vs UMI number pre and post filtering. Figure 2 shows the violin plot for the cell cycle score. 
+Next, we identify highly variable genes on which we base the PCA and clustering analyses. We also compute the activation of gene sets of interest, such as cell cycle genes, which can be used for confounder correction using the `regress` parameter in the PCA analysis.
 
 ```{r preprocess}
 LCMV1 <- get.variable.genes(LCMV1) 
@@ -68,44 +70,34 @@ LCMV1 <- add.confounder.variables(LCMV1,
 	Exhaustion = controlled.mean.score(LCMV1, exhaustion_markers))
 ```
 
+Figure 1 shows the mitochondrial score versus number of UMIs, pre and post filtering.
+
 <figure>
   <img src="figs/pre_stats.pdf"> 
   <img src="figs/post_stats.pdf">
-<figcaption> Fig 1. Mitochondrial score vs UMI for pre (top) and post (bottom) filtered cells. </figcaption>
+<figcaption> Fig 1. Mitochondrial genes score vs. number of UMIs for pre (top) and post (bottom) quality control filtering.</figcaption>
 </figure>
 
-<figure>
-<img src="figs/violin.pdf"> 
-<figcaption> Fig 2. Cell cycle score violin plot </figcaption>
-</figure>
-
-`PCA` function performed PCA after a simulation analysis of shuffled data to determine the appropriate number of PCs. Figure 3 and 4 visualizes the first two PCs, their rotation and loadings. 
+The `PCA` function performs multiple simulation analyses of shuffled data to determine the appropriate number of PCs.
 
 ```{r PCA}
 LCMV1 <- PCA(LCMV1)
 ```
 
-<figure>
-<img src="figs/PCA.pdf"> 
-<img src="figs/rotation.pdf">
-<figcaption> Fig 3. First two PCs and corresponding rotation </figcaption>
-</figure>
-
-
-<figure>
-<img src="figs/PC1_heatmap.pdf">
-<img src="figs/PC2_heatmap.pdf">
-<figcaption> Fig 4. Heatmap visualization of the loadings of the first two PCs </figcaption>
-</figure>
-
-We perform clustering analysis for a range of clustering resolutions. The analysis is repeated multiple times over shuffled data to estimate the appropriate clustering resolution and control for false discovery of clusters, as described in *Magen et al 2018*. 
+We then perform clustering analysis for a range of clustering resolutions.
 
 ```{r cluster}
 LCMV1 <- cluster.analysis(LCMV1)
 ```
 
+The analysis is repeated multiple times over shuffled data to estimate the appropriate clustering resolution and control for false discovery of clusters, as described in *Magen et al 2018*. The summary of this analysis is presented in Figure 2.
 
-The clusters are then annotated by customized set of marker genes which the users should adapt to their own data. `summarize` function performs differential expression analysis, computes tSNE and visualizes the results in the analysis folder. Figure 5 shows the tSNE visualization of the clusters. 
+<figure>
+<img src="figs/Clustering.modularity.pdf">
+<figcaption> Fig 2. Bar plot shows the clustering modularity of the original data versus shuffled data across multiple clustering resolutions. Numbers on top represent the fold change of original versus shuffled analysis for each resolution. </figcaption>
+</figure>
+
+The `summarize` function which performs differential expression analysis, computes tSNE and visualizes the results in the analysis folder. After differential expression analysis, `get.cluster.names` assigns clusters with names using a customized set of marker genes which users should adapt to their own data.
 
 ```{r annotation}
 types = rbind(
@@ -124,13 +116,42 @@ LCMV1 <- set.cluster.names(LCMV1, names = LCMV1_cluster_names)
 summarize(LCMV1)
 ```
 
+Figure 3 shows violin plots indicating the activation of the cell cycle genes. 
+
+<figure>
+<img src="figs/violin.pdf"> 
+<figcaption> Fig 3. Violin plot pf cell cycle score.</figcaption>
+</figure>
+
+Figure 4 places individual cells on a two dimensional grid corresponding to the scores of the first two PCs (note that the PCA figures are created in the next step via `summarize` function below).
+
+<figure>
+<img src="figs/PCA.pdf"> 
+<figcaption> Fig 4. Single cells placement on a 2D grid corresponding to the first two PCs.</figcaption>
+</figure>
+
+The genes driving the PCs are visualized in figure 5 according to the PCA loadings after removing the lowly ranked genes.
+
+<figure>
+<img src="figs/rotation.pdf">
+<figcaption> Fig 5. Top ranked genes contribution to PC1 and PC2 scores.</figcaption>
+</figure>
+
+The average expression of genes driving the PCs can be visualized as a heatmap visualized in figure 6 according to the PCA loadings after removing the lowly ranked genes.
+
+<figure>
+<img src="figs/PC1_heatmap.pdf" width="500">
+<figcaption> Fig 6. Heatmap shows loadings of the first PC.</figcaption>
+</figure>
+
+Figure 7 shows the tSNE visualization of the cells, color coded by cluster assignment. 
 
 <figure>
 <img src="figs/tsne.pdf" width="500"> 
-<figcaption> Fig 5. t-SNE plot colored by clusters </figcaption>
+<figcaption> Fig 7. t-SNE plot colored by cluster assignment.</figcaption>
 </figure>
 
-We can also visualize the heatmap of canonical T cells markers as follows for initial evaluation.
+We can also visualize the average expression of selected T cells marker genes for initial evaluation (Figure 8).
 
 ```{r plotLCMV1}
 canonical_genes <- c("Cd8a", "Cd4", "Mki67", "Foxp3", "Il2ra", "Bcl6",
@@ -140,11 +161,10 @@ MagenSingleCell:::plot.simple.heatmap(LCMV1, name = "canonical", markers = canon
 ```
 
 <figure>
-<img src="figs/diff.genes.pdf"> 
-<figcaption> Fig 6. Heatmap of the canonical markers for T cell subsets </figcaption>
+<img src="figs/diff.genes.pdf" width="500"> 
+<figcaption> Fig 8. Heatmap shows row-normalized average expression of selected marker genes per cluster.</figcaption>
 </figure>
-
-
+	
 We repeat the same procedure for `LCMV2` dataset.
 
 ```{r LCMV_2}
@@ -170,12 +190,15 @@ LCMV2 <- set.cluster.names(LCMV2, names = LCMV2_cluster_names)
 summarize(LCMV2)
 ```
 
+
 ```{r plotLCMV1, include = F}
 robustSingleCell:::plot.simple.heatmap(LCMV2, name = "canonical", markers = canonical_genes,
                                        main = "Expression of marker genes")
 ```
 
-We then initialize the correlation analysis of the two independent runs, providing the information of which analyses folders should be used to pull the data for integration.
+<h3>Dataset Integration by Correlation Analysis</h3>
+
+We then initialize the aggregate analysis of the two independent runs, providing the information of which analyses folders should be used to pull the data for integration.
 
 ```{r initialize_pooled}
 pooled_env <- initialize.project(datasets = c("LCMV1", "LCMV2"),
@@ -194,7 +217,7 @@ pooled_env <- PCA(pooled_env, clear.previously.calculated.clustering = F)
 summarize(pooled_env, contrast = "datasets")
 ```
 
-We assessed the similarity between pairs of clusters as described in *Magen et al 2018* and identify reproducible clusters across the two replicates. Figure 7 shows the correlation heatmap of clusters across replicates
+We assessed the similarity between pairs of clusters and identify reproducible subpopulations across the two replicates. Figure 9 shows the correlation between clusters' FC vectors across replicates (as described in *Magen et al 2018*).
 
 ```{r pooled}
 cluster.similarity <- compare.cluster.similarity(pooled_env)
@@ -209,25 +232,25 @@ visualize.cluster.cors.heatmaps(pooled_env, pooled_env$work.path,
                                 filtered.similarity)
 ```
 
-
 <figure>
 <img src="figs/LCMV1_LCMV2_similarity.pdf"> 
-<figcaption> Fig 7. Correlation between pairs of clusters in the two datasets. </figcaption>
+<figcaption> Fig 9. Correlation between clusters' FC vectors across the two replicates.</figcaption>
 </figure>
 
-Finally, the Pearson correlations between clusters are visualized as a heatmap ordered by hierarchical clustering, shown in Figure 8.
+Finally, the cluster similarity between all clusters integrated by this analysis is shown in Figure 10. Unlike the simplified example shown here, this analysis is typically used for estimating subpopulation similarity and divergence across multiple tissue-origins or experimental settings, including corresponding pre-clinical to clinical datasets as described in *Magen et al 2018*.
 
 ```{r summary}
 similarity <- filtered.similarity
 visualize.cluster.similarity.stats(pooled_env, similarity)
 ```
 
-
 <figure>
-<img src="figs/cor_FC.pdf" width = "900"> 
-<figcaption> Fig 8. Correlation among all the clusters in the two datasets </figcaption>
+<img src="figs/cor_FC.pdf" width = "1000"> 
+<figcaption> Fig 10. Correlation among all the clusters in the two datasets.</figcaption>
 </figure>
 
+
+References:
 
 [^1]: Ciucci, Thomas, et al. "The Emergence and Functional Fitness of Memory CD4+ T Cells Require the Transcription Factor Thpok." _Immunity_ 50.1 (2019): 91-105.
 
