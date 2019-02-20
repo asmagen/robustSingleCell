@@ -6,12 +6,12 @@
 #' @return a matrix of genes by cells
 #' @export
 read.10x.data <- function(path) {
-    barcode.path <- list.files(path, pattern = "barcodes.tsv", full = T)
-    features.path <- list.files(path, pattern = "genes.tsv", full = T)
-    matrix.path <- list.files(path, pattern = "matrix.mtx", full = T)
+    barcode.path <- list.files(path, pattern = "barcodes.tsv", full.names = T)
+    features.path <- list.files(path, pattern = "genes.tsv", full.names = T)
+    matrix.path <- list.files(path, pattern = "matrix.mtx", full.names = T)
     mat <- Matrix::readMM(file = matrix.path)
-    feature.names <- read.delim(features.path, header = FALSE, stringsAsFactors = FALSE)
-    barcode.names <- read.delim(barcode.path, header = FALSE, stringsAsFactors = FALSE)
+    feature.names <- utils::read.delim(features.path, header = FALSE, stringsAsFactors = FALSE)
+    barcode.names <- utils::read.delim(barcode.path, header = FALSE, stringsAsFactors = FALSE)
     colnames(mat) <- barcode.names$V1
     rownames(mat) <- feature.names$V2
     return(mat)
@@ -91,9 +91,9 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500,
                 ]), Ribosomal.frac = colSums(measurements[get.ribo.genes(rownames(measurements)),
                 ])/colSums(measurements), Mitochondrial.frac = colSums(measurements[get.mito.genes(rownames(measurements)),
                 ])/colSums(measurements))
-            print(head(data))
+            print(utils::head(data))
 
-            pdf(file.path(environment$baseline.work.path, paste(dataset, "pre.filter.dataset.stats.pdf",
+            grDevices::pdf(file.path(environment$baseline.work.path, paste(dataset, "pre.filter.dataset.stats.pdf",
                 sep = ".")))
             for (ind1 in seq(length(colnames(data)) - 1)) {
                 for (ind2 in (ind1 + 1):(length(colnames(data)))) {
@@ -102,7 +102,7 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500,
                   print(ggplot(data, aes_string(v1, v2)) + geom_point())
                 }
             }
-            dev.off()
+            grDevices::dev.off()
 
             print.message("Original dimensions")
             print(dim(measurements))
@@ -110,14 +110,14 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500,
             genes.per.cell <- colSums(measurements > 0)
             print.message("Original genes.per.cell")
             print(summary(genes.per.cell))
-            print(quantile(genes.per.cell, seq(0.01, 1, 0.01)))
+            print(stats::quantile(genes.per.cell, seq(0.01, 1, 0.01)))
             UMIs.per.cell <- colSums(measurements)
             print.message("Original UMIs.per.cell")
             print(summary(UMIs.per.cell))
-            print(quantile(UMIs.per.cell, seq(0.01, 1, 0.01)))
-            max.genes.per.cell <- quantile(genes.per.cell, max.genes.per.cell.quantile)
+            print(stats::quantile(UMIs.per.cell, seq(0.01, 1, 0.01)))
+            max.genes.per.cell <- stats::quantile(genes.per.cell, max.genes.per.cell.quantile)
             print.message("max.genes.per.cell", max.genes.per.cell)
-            max.UMIs.per.cell <- quantile(UMIs.per.cell, max.UMIs.per.cell.quantile)
+            max.UMIs.per.cell <- stats::quantile(UMIs.per.cell, max.UMIs.per.cell.quantile)
             print.message("max.UMIs.per.cell", max.UMIs.per.cell)
             print.message("max.mitochondrial.frac", max.mitochondrial.frac)
 
@@ -171,11 +171,11 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500,
             genes.per.cell <- colSums(measurements > 0)
             print.message("Filtered genes.per.cell")
             print(summary(genes.per.cell))
-            print(quantile(genes.per.cell, seq(0.01, 1, 0.01)))
+            print(stats::quantile(genes.per.cell, seq(0.01, 1, 0.01)))
             UMIs.per.cell <- colSums(measurements)
             print.message("Filtered UMIs.per.cell")
             print(summary(UMIs.per.cell))
-            print(quantile(UMIs.per.cell, seq(0.01, 1, 0.01)))
+            print(stats::quantile(UMIs.per.cell, seq(0.01, 1, 0.01)))
 
             data <- data.frame(nUMI = colSums(measurements), nGenes = colSums(measurements >
                 0), Ribosomal = colMeans(measurements[get.ribo.genes(rownames(measurements)),
@@ -184,8 +184,8 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500,
                 ])/colSums(measurements), Mitochondrial.frac = colSums(measurements[get.mito.genes(rownames(measurements)),
                 ])/colSums(measurements))
 
-            print(head(data))
-            pdf(file.path(environment$baseline.work.path, paste(dataset, "post.filter.dataset.stats.pdf",
+            print(utils::head(data))
+            grDevices::pdf(file.path(environment$baseline.work.path, paste(dataset, "post.filter.dataset.stats.pdf",
                 sep = ".")))
             for (ind1 in seq(length(colnames(data)) - 1)) {
                 for (ind2 in (ind1 + 1):(length(colnames(data)))) {
@@ -194,7 +194,7 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500,
                   print(ggplot(data, aes_string(v1, v2)) + geom_point())
                 }
             }
-            dev.off()
+            grDevices::dev.off()
 
             if (length(merged) == 1 && is.na(merged)) {
                 merged <- measurements
@@ -234,11 +234,11 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500,
         genes.per.cell <- colSums(counts[genes.filter, ] > 0)
         print.message("Aggregated dataset genes.per.cell")
         print(summary(genes.per.cell))
-        print(quantile(genes.per.cell, seq(0.01, 1, 0.01)))
+        print(stats::quantile(genes.per.cell, seq(0.01, 1, 0.01)))
         UMIs.per.cell <- colSums(counts[genes.filter, ])
         print.message("Aggregated dataset UMIs.per.cell")
         print(summary(UMIs.per.cell))
-        print(quantile(UMIs.per.cell, seq(0.01, 1, 0.01)))
+        print(stats::quantile(UMIs.per.cell, seq(0.01, 1, 0.01)))
 
         rownames <- data.frame(old = rownames(counts))
         if (sum(duplicated(rownames(counts))) > 0) {
@@ -372,39 +372,9 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T,
                 min <- max(merged.clustering)
             }
 
-            # names(clustering) str(clustering$shuffled.membership)
-            # str(clustering$shuffled.membership[[1]])
-            # apply(clustering$shuffled.membership[[1]]$memberships,1,table) membership
-            # = clustering$shuffled.membership[[2]]$memberships[2,] limma.diff = {} for(
-            # cluster in seq(length(unique(membership))) ) { print.message('cluster
-            # =',cluster)
-
-            # group = membership == cluster group = factor(group)
-
-            # diff.exp = getDE.limma( Y = normalized, group = group, filter = F )
-            # diff.exp = diff.exp[order(diff.exp$logFC,decreasing=T),] diff.exp =
-            # data.frame(gene=rownames(diff.exp),logFC=diff.exp$logFC,fold=exp(diff.exp$logFC),QValue=diff.exp$QValue,PValue=diff.exp$PValue,AveExpr=diff.exp$AveExpr)
-            # limma.diff =
-            # rbind(limma.diff,data.frame(cluster=cluster,diff.exp[,c(1,3,4)])) }
-            # limma.diff = limma.diff[order(limma.diff$fold,decreasing=T),]
-            # head(limma.diff) lcdif[lcdif$gene=='Foxp3',] lndif[lndif$gene=='Foxp3',]
-            # res={} for(i in seq(length(unique(lcdif$cluster)))){ for(j in
-            # seq(length(unique(lndif$cluster)))){ lc=lcdif[lcdif$cluster == i,]
-            # ln=lndif[lndif$cluster == j,] match = match(ln$gene,lc$gene)
-            # head(lc[match,]) head(ln)
-            # ccc=cor.test(lc$fold[match],ln$fold,method='spearman') res =
-            # rbind(res,data.frame(ccc$estimate,ccc$p.value)) } } head(res)
-            # res[order(res$ccc.estimate),]
-
             merged.clustering <- c(merged.clustering, clustering$membership +
                 min)
             merged.original.clustering <- c(merged.original.clustering, clustering$membership)
-
-            # index = 1 merged.shuffled.clustering[[]] for (index in
-            # seq(length(clustering$shuffled.membership))) { v =
-            # clustering$shuffled.membership[[index]] shuffled.membership =
-            # v$memberships[2,] if (length(shuffled.membership) ==
-            # length(clustering$membership)) }
 
             load(file.path(dirname(data.files[file.index]), "main.all.diff.exp.RData"))
             if (!is.null(environment$convert.to.mouse.gene.symbols) && environment$convert.to.mouse.gene.symbols[sample.index] ==

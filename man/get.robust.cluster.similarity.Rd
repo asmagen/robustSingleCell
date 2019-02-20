@@ -5,7 +5,7 @@
 \title{Get Robust Cluster Similarity}
 \usage{
 get.robust.cluster.similarity(environment, similarity,
-  min.sd = qnorm(0.95), max.q.val = 0.01, rerun = F)
+  min.sd = stats::qnorm(0.95), max.q.val = 0.01, rerun = F)
 }
 \arguments{
 \item{environment}{\code{environment} object}

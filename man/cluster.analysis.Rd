@@ -16,19 +16,19 @@ cluster.analysis(environment, knn.ratios = c(0.01, 0.05, 0.1),
 
 \item{nShuffleRuns}{number of shuffled clustering analyses to perform per KNN threshold}
 
+\item{shuffledKNN}{number of closest KNN shuffled analyses to include in background clustering quality computation}
+
 \item{loadPreviousKnn}{whether to load previous analysis results}
 
 \item{rerun}{whether to rerun the analysis rather than load from cache}
+
+\item{deleteCache}{whether to delete cache files}
 
 \item{mem}{HPC memory}
 
 \item{time}{HPC time}
 
 \item{plot}{whether to plot the clustering qualities compared to shuffled}
-
-\item{shuffleKNN}{number of closest KNN shuffled analyses to include in background clustering quality computation}
-
-\item{deleteCacheWhether}{whether to delete cache files}
 }
 \value{
 \code{environment} parameter containing clustering assignment and provisional cluster names
