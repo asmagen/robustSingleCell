@@ -1,8 +1,5 @@
 # MagenSingleCell
 
-MagenSingleCell
-================
-
 The package has been renamed and migrated to [*robustSingleCell*](https://github.com/asmagen/robustSingleCell).
 
 Magen *et al*. “Single-cell profiling of tumor-reactive
