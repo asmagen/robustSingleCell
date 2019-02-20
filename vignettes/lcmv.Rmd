@@ -30,7 +30,7 @@ The two datasets `LCMV1`, `LCMV2` will be downloaded into `~/LCMV`. Each folder 
 
 ```{r download_data}
 library(MagenSingleCell)
-downlaod_LCMV(base_dir = "~/LCMV")
+download_LCMV(base_dir = "~/LCMV")
 ```
 
 We cluster each dataset separately to account for dataset-specific technical and biological differences. Then, we measure the transcriptional similarity and divergence between the clusters identified in the two datasets using correlation analysis.
@@ -43,7 +43,7 @@ First, we set up the directory where the results of the analysis will be stored.
 LCMV1 <- initialize.project(datasets = "LCMV1", 
                           origins = "CD44+ cells",
                           experiments = "Rep1",
-                          data.path = "~/LCMV/LCMV1",
+                          data.path = "~/LCMV/",
                           work.path = "~/LCMV/LCMV_analysis")
 ```
 
@@ -110,7 +110,7 @@ We repeat the same procedure for `LCMV2` dataset.
 LCMV2 <- initialize.project(datasets = "LCMV2",
                           origins = "CD44+ cells",
                           experiments = "Rep2",
-                          data.path = "~/LCMV/LCMV2",
+                          data.path = "~/LCMV/",
                           work.path = "~/LCMV/LCMV_analysis")
 LCMV2 <- read.data(LCMV2, subsample = 1000)
 LCMV2 <- get.variable.genes(LCMV2)
@@ -137,7 +137,7 @@ We then initialize the correlation analysis of the two independent runs, providi
 pooled_env <- initialize.project(datasets = c("LCMV1", "LCMV2"),
                           origins = rep("CD44+ cells", 2),
                           experiments = c("Rep1", "Rep2"),
-                          data.path = "~/LCMV/LCMV",
+                          data.path = "~/LCMV/",
                           work.path = "~/LCMV/LCMV_analysis")
 pooled_env <- read.preclustered.datasets(pooled_env)
 pooled_env <- add.confounder.variables(
