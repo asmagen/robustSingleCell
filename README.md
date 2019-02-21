@@ -16,7 +16,6 @@ if(!require(devtools))
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 
-devtools::install("JinmiaoChenLab/Rphenograph")
 BiocManager::install("limma")
 BiocManager::install("grimbough/biomaRt")
 

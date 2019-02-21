@@ -122,4 +122,3 @@ find_neighbors <- function(data, k) {
     nearest <- nn2(data, data, k, searchtype = "standard")
     return(nearest[[1]])
 }
-80
