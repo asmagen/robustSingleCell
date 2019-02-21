@@ -191,7 +191,7 @@ summarize(LCMV2)
 ```
 
 
-```{r plotLCMV1, include = F}
+```{r plotLCMV2, include = F}
 robustSingleCell:::plot.simple.heatmap(LCMV2, name = "canonical", markers = canonical_genes,
                                        main = "Expression of marker genes")
 ```
@@ -245,12 +245,10 @@ visualize.cluster.similarity.stats(pooled_env, similarity)
 ```
 
 <figure>
-<img src="figs/cor_FC.pdf" width = "1000"> 
+<img src="figs/cor_FC.pdf" width = "500"> 
 <figcaption> Fig 10. Correlation among all the clusters in the two datasets.</figcaption>
 </figure>
 
-
-References:
 
 [^1]: Ciucci, Thomas, et al. "The Emergence and Functional Fitness of Memory CD4+ T Cells Require the Transcription Factor Thpok." _Immunity_ 50.1 (2019): 91-105.
 

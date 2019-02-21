@@ -8,8 +8,8 @@ download_LCMV <- function(base_dir) {
     dir.create(base_dir)
     rep1_path <- GEOquery::getGEOSuppFiles("GSM3423794", baseDir = "~/LCMV")
     rep2_path <- GEOquery::getGEOSuppFiles("GSM3423795", baseDir = "~/LCMV")
-    file.rename("~/LCMV/GSM3423794", "~/LCMV/LCMV1")
-    file.rename("~/LCMV/GSM3423795", "~/LCMV/LCMV2")
+    file.rename("~/LCMV/GSM3423795", "~/LCMV/LCMV1")
+    file.rename("~/LCMV/GSM3423794", "~/LCMV/LCMV2")
     cat(paste0("Data saved at ", base_dir, "\n"))
 }
 
