@@ -4,9 +4,9 @@ Title: Robust Clustering of Single Cell RNA-Seq Data
 Version: 0.1.0
 Authors@R: 
   c(
+    person("Assaf", "Magen", email = "assaf.magen@nih.gov", role = "aut"),
     person("Meng", "Wang", email = "szmamie@live.com", role = c("aut", "cre"), 
-    comment = c(ORCID = "0000-0002-3453-7805")), 
-    person("Assaf", "Magen", email = "assaf.magen@nih.gov", role = "aut")
+    comment = c(ORCID = "0000-0002-3453-7805"))
   )
 Description: A robust clustering method for single cell RNA-seq by correlation analysis 
   from Magen et al. (2019) <doi:10.1101/543199>. 
@@ -18,7 +18,6 @@ Imports:
   Matrix,
   limma,
   biomaRt,
-  Rphenograph,
   dplyr,
   ggplot2,
   reshape2,
@@ -31,9 +30,13 @@ Imports:
   rslurm,
   Rtsne,
   igraph,
-  scales
-License: MIT + file LICENSE
+  scales,
+  RANN,
+  Rcpp
+LinkingTo: Rcpp
+License: Artistic-2.0 + file LICENSE
 URL: https://github.com/asmagen/robustSingleCell
+BugsReport: https://github.com/asmagen/robustSingleCell/issues
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1

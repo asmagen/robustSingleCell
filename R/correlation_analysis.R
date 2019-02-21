@@ -24,7 +24,7 @@ cluster <- function(knn.ratio, label, path, data.path, nPCs) {
     # <- igraph::cluster_louvain(igraph::graph.data.frame(relations, directed =
     # FALSE))
     
-    res <- Rphenograph::Rphenograph(t(PCA), k = floor(knn.ratio * ncol(PCA)))
+    res <- Rphenograph(t(PCA), k = floor(knn.ratio * ncol(PCA)))
     community <- res[[2]]
     modularity <- igraph::modularity(community)
     membership <- igraph::membership(community)
@@ -101,7 +101,6 @@ get.clustering.results <- function(clustering.dir, knn.ratio, shuffledKNN) {
 #' @param plot whether to plot the clustering qualities compared to shuffled
 #' @return \code{environment} parameter containing clustering assignment and provisional cluster names
 #' @import cccd
-#' @import Rphenograph
 #' @export
 cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuffleRuns = 10, 
     shuffledKNN = 10, loadPreviousKnn = T, rerun = F, deleteCache = F, mem = "4GB", 
@@ -286,3 +285,4 @@ cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuf
     
     return(environment)
 }
+80

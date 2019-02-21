@@ -4,7 +4,7 @@ robustSingleCell
 ### Overview
 
 robustSingleCell is a robust clustering and similarity measurement method
-designed for single-cell data analysis \[1\].
+designed for single-cell data analysis from Magen et al. (2019) \[1\].
 
 ### Installation and tutorial
 
@@ -23,9 +23,8 @@ BiocManager::install("grimbough/biomaRt")
 devtools::install_github("asmagen/robustSingleCell")
 ```
 
-This pipeline currently only supports [slurm](https://slurm.schedmd.com)
-for parallel batch jobs. See a tutorial at
-<https://asmagen.github.io/robustSingleCell>.
+This pipeline currently supports [slurm](https://slurm.schedmd.com)
+for parallel batch jobs. 
 
 ### Getting help
 
