@@ -35,8 +35,8 @@ initialize.project <- function(datasets, origins, experiments, data.path, work.p
     if (clear.history) 
         unlink(environment$work.path, recursive = T, force = T)
     dir.create(environment$work.path, showWarnings = F, recursive = T, mode = "700")
-    dir.create(file.path(environment$work.path, "tracking"), showWarnings = F, 
-        recursive = T, mode = "700")
+    dir.create(file.path(environment$work.path, "tracking"), showWarnings = F, recursive = T, 
+        mode = "700")
     environment$baseline.data.path <- environment$res.data.path <- file.path(environment$work.path, 
         "data")
     dir.create(environment$res.data.path, showWarnings = F, recursive = T, mode = "700")
