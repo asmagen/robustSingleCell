@@ -1,10 +1,15 @@
 Package: robustSingleCell
 Type: Package
-Title: Robust clustering of single cell RNA-seq data
+Title: Robust Clustering of Single Cell RNA-Seq Data
 Version: 0.1.0
-Author: Assaf Magen <assaf.magen@nih.gov>, Meng Wang <szmamie@live.com>
-Maintainer: Meng Wang <szmamie@live.com>
-Description: A robust clustering method for single cell RNA-seq by correlation analysis.
+Authors@R: 
+  c(
+    person("Meng", "Wang", email = "szmamie@live.com", role = c("aut", "cre"), 
+    comment = c(ORCID = "0000-0002-3453-7805")), 
+    person("Assaf", "Magen", email = "assaf.magen@nih.gov", role = "aut")
+  )
+Description: A robust clustering method for single cell RNA-seq by correlation analysis 
+  from Magen et al. (2019) <doi:10.1101/543199>. 
 Depends: R (>= 3.2.0)
 Imports:
   utils,
@@ -24,7 +29,6 @@ Imports:
   ggpubr,
   cccd,
   rslurm,
-  grid,
   Rtsne,
   igraph,
   scales
