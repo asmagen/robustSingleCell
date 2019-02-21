@@ -17,10 +17,10 @@
 get.robust.cluster.similarity <- function(environment, similarity, min.sd = stats::qnorm(0.95),
     max.q.val = 0.01, rerun = F) {
 
-    cache <- file.path(environment$res.data.path, "filtered.cluster.similarity.RData")
+    cache <- file.path(environment$res.data.path, "filtered.cluster.similarity.rds")
     if (!rerun && file.exists(cache)) {
         print.message("Loading precomputed similarity")
-        load(cache)
+        filtered.cluster.similarity <- readRDS(cache)
     } else {
         print.message("Computing")
 
@@ -195,7 +195,7 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = stat
             margins = c(10, 10)))
         grDevices::dev.off()
 
-        save(filtered.cluster.similarity, file = cache)
+        saveRDS(filtered.cluster.similarity, file = cache)
     }
 
     return(filtered.cluster.similarity)
@@ -218,14 +218,17 @@ pearson.correlation <- function(diff1, diff2) {
 #' @param rerun whether to rerun the analysis or load from cache
 #' @return pairwise cluster similarity measures
 #' @export
-compare.cluster.similarity <- function(environment, diff.exp.file = "main.datasets.diff.exp.RData",
+compare.cluster.similarity <- function(environment, diff.exp.file = "main.datasets.diff.exp.rds",
     cluster.similarity.function = pearson.correlation, label = "pearson", rerun = F) {
 
-    cache <- file.path(environment$res.data.path, paste(label, "cluster.similarity.RData",
+    cache <- file.path(environment$res.data.path, paste(label, "cluster.similarity.rds",
         sep = "."))
     if (!rerun && file.exists(cache)) {
         print.message("Loading precomputed similarity")
-        load(cache)
+        precomputed <- readRDS(cache)
+        similarity = precomputed$similarity
+        map = precomputed$map
+        rm(precomputed)
     } else {
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"), split = F)
@@ -239,7 +242,8 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
         }
         dir.create(work.path, showWarnings = T, recursive = T)
 
-        load(file.path(environment$work.path, "data", diff.exp.file))
+        precomputed <- readRDS(file.path(environment$work.path, "data", diff.exp.file))
+        limma.all <- precomputed$limma.all
         final.diff <- limma.all
         utils::head(final.diff)
         configs <- apply(final.diff, 1, function(v) paste(c(v[1], v[2]), collapse = "_"))
@@ -454,7 +458,7 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
             margins = c(10, 10)))
         grDevices::dev.off()
 
-        save(similarity, map, file = cache)
+        saveRDS(list(similarity = similarity, map = map), file = cache)
         end(t)
     }
 

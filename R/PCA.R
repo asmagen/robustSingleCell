@@ -49,12 +49,15 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
 
     dir.create(environment$res.data.path, showWarnings = F, recursive = T, mode = "700")
 
-    cache <- file.path(environment$res.data.path, paste(config, "PCA.RData",
+    cache <- file.path(environment$res.data.path, paste(config, "PCA.rds",
         sep = "."))
 
     if (!rerun && file.exists(cache)) {
         print.message("Loading precomputed")
-        load(cache)
+        precomputed <- readRDS(cache)
+        PCA = precomputed$PCA
+        Rotation = precomputed$Rotation
+        rm(precomputed)
     } else {
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"))
@@ -88,8 +91,8 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
             data.perm <- apply(data, 2, sample, replace = FALSE)
             pca.perm <- stats::prcomp(t(data.perm), retx = TRUE, center = T, scale. = T)
             var.perm <- pca.perm$sdev[1:ndf]^2/sum(pca.perm$sdev[1:ndf]^2)
-            save(pca.perm, var.perm, file = file.path(shuffled.PCA.data.path,
-                paste("shuffled.PCA.rep", rep, "RData", sep = ".")))
+            saveRDS(list(pca.perm = pca.perm, var.perm = var.perm), file = file.path(shuffled.PCA.data.path,
+                paste("shuffled.PCA.rep", rep, "rds", sep = ".")))
             return(var.perm)
         }
 
@@ -153,7 +156,7 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
         print.message("Rotation")
         corner(Rotation)
 
-        save(PCA, Rotation, file = cache)
+        saveRDS(list(PCA = PCA, Rotation = Rotation), file = cache)
 
         end(t)
     }

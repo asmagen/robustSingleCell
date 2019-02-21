@@ -12,11 +12,11 @@
 get.variable.genes <- function(environment, min.mean = 0.05, min.frac.cells = 0,
     min.dispersion.scaled = 1, rerun = F) {
 
-    cache <- file.path(environment$baseline.data.path, "HVG.RData")
+    cache <- file.path(environment$baseline.data.path, "HVG.rds")
 
     if (!rerun & file.exists(cache)) {
         print.message("Loading precomputed")
-        load(cache)
+        HVG <- readRDS(cache)
     } else {
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"))
@@ -54,7 +54,7 @@ get.variable.genes <- function(environment, min.mean = 0.05, min.frac.cells = 0,
             bins <- cut(x = means, breaks = num.bin)
             names(x = bins) <- names(x = means)
             mean_y <- tapply(dispersion, bins, mean)
-            sd_y <- tapply(dispersion, bins, sd)
+            sd_y <- tapply(dispersion, bins, stats::sd)
             dispersion.scaled <- (dispersion - mean_y[as.numeric(x = bins)])/sd_y[as.numeric(x = bins)]
             dispersion.scaled[is.na(x = dispersion.scaled)] <- 0
             names(x = dispersion.scaled) <- names(x = means)
@@ -86,7 +86,7 @@ get.variable.genes <- function(environment, min.mean = 0.05, min.frac.cells = 0,
         print.message("Overall qualifying Ribosomal & Mitochondrial")
         print(genes[genes %in% HVG])
 
-        save(HVG, file = cache)
+        saveRDS(HVG, file = cache)
 
         end(t)
     }
@@ -262,17 +262,20 @@ controlled.mean.score <- function(environment, genes, knn = 10, exclude.missing.
 get.technically.similar.genes <- function(environment, knn = 10) {
 
     t <- start(file.path(environment$work.path, "tracking"))
-    cache <- file.path(environment$baseline.data.path, paste(knn, "technical.background.genes.distances.RData",
+    cache <- file.path(environment$baseline.data.path, paste(knn, "technical.background.genes.distances.rds",
         sep = "."))
 
     if (file.exists(cache)) {
         print.message("Loading precomputed")
-        load(cache)
+        precomputed <- readRDS(cache)
+        knns <- precomputed$knns
+        technical.variables <- precomputed$technical.variables
+        rm(precomputed)
     } else {
         print.message("Computing")
 
         technical.variables <- data.frame(means = rowMeans(environment$normalized),
-            vars = apply(environment$normalized, 1, var))
+            vars = apply(environment$normalized, 1, stats::var))
         HVG.technical.variables <- technical.variables[environment$HVG, ]
         scaled.technical.variables <- apply(technical.variables, 2, scale)
         rownames(scaled.technical.variables) <- rownames(technical.variables)
@@ -287,7 +290,8 @@ get.technically.similar.genes <- function(environment, knn = 10) {
             gene.dist <- distances[environment$genes[index], ]
             knns[index, ] <- names(gene.dist[order(gene.dist)[2:(knn + 1)]])
         }
-        save(knns, technical.variables, file = cache)
+        saveRDS(list(knns = knns, technical.variables = technical.variables),
+                file = cache)
     }
     end(t)
 
@@ -319,11 +323,11 @@ regress.covariates <- function(environment, regress, data, groups, rerun = F,
     save = F) {
 
     cache <- file.path(environment$res.data.path, paste(paste(colnames(regress),
-        collapse = "+"), "HVG.regressed.covariates.RData", sep = "_"))
+        collapse = "+"), "HVG.regressed.covariates.rds", sep = "_"))
 
     if (!rerun && file.exists(cache)) {
         print.message("Loading precomputed")
-        load(cache)
+        corrected <- readRDS(cache)
     } else {
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"))
@@ -347,7 +351,7 @@ regress.covariates <- function(environment, regress, data, groups, rerun = F,
             }
         }
         if (save)
-            save(corrected, file = cache)
+            saveRDS(corrected, file = cache)
         end(t)
     }
 

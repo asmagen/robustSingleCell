@@ -15,73 +15,78 @@ getDE.limma <- function(Y, group, filter = T) {
 run.diff.expression <- function(environment, clustering, min.fold, quantile,
     label, rerun = F, contrast = "all", contrast.groups = NA) {
 
-    get.diff.exp.stats <- function(id) {
-        t <- Sys.time()
-        if (is.na(id)) {
-            label <- "real"
-            clustering <- as.vector(membership)
-        } else {
-            label <- "shuffled"
-            clustering <- as.vector(unlist(shuffled.membership[[id]]))
-        }
+    # get.diff.exp.stats <- function(id) {
+    #     t <- Sys.time()
+    #     if (is.na(id)) {
+    #         label <- "real"
+    #         clustering <- as.vector(membership)
+    #     } else {
+    #         label <- "shuffled"
+    #         clustering <- as.vector(unlist(shuffled.membership[[id]]))
+    #     }
+    #
+    #     fold <- function(v, group) {
+    #         exp(mean(v[group == T]) - mean(v[group == F]))
+    #     }
+    #
+    #     cat(label, id, "\n")
+    #
+    #     stats <- {}
+    #     for (cluster in sort(unique(clustering))) {
+    #
+    #         cat("cluster", cluster, "\n")
+    #         tt <- Sys.time()
+    #         group <- factor(clustering == cluster)
+    #
+    #         stats <- rbind(stats, data.frame(cluster = cluster, gene = rownames(matrix),
+    #             fold = apply(matrix, 1, fold, group)))
+    #
+    #         print(Sys.time() - tt)
+    #     }
+    #
+    #     stats <- cbind(label, stats)
+    #
+    #     print(Sys.time() - t)
+    #     return(stats)
+    # }
 
-        fold <- function(v, group) {
-            exp(mean(v[group == T]) - mean(v[group == F]))
-        }
+    # summarize.diff.exp.stats <- function(job.portion, min.fold, quantile) {
+    #
+    #     real.stats <- stats[stats$label == "real", ]
+    #     print(utils::head(real.stats))
+    #     shuffled.stats <- stats[stats$label == "shuffled", ]
+    #     print(utils::head(shuffled.stats))
+    #     genes <- genes[job.portions == job.portion]
+    #     results <- { }
+    #     empirical.diff <- { }
+    #     for (gene in genes) {
+    #         real <- real.stats[real.stats$gene == gene, ]
+    #         real <- real[real$fold >= min.fold, ]
+    #         if (nrow(real) == 0)
+    #             next
+    #         shuffled <- shuffled.stats$fold[shuffled.stats$gene == gene]
+    #         # quantile(shuffled,seq(0.01,1,0.01));quantile(shuffled,0.95);real
+    #         significant <- real[real$fold >= quantile(shuffled, quantile), ]
+    #         empirical.diff <- rbind(empirical.diff, significant)
+    #     }
+    #     rownames(empirical.diff) <- NULL
+    #     empirical.diff <- empirical.diff[order(empirical.diff$fold, decreasing = T),
+    #         ]
+    #     print(utils::head(empirical.diff))
+    #     return(empirical.diff)
+    # }
 
-        cat(label, id, "\n")
-
-        stats <- {}
-        for (cluster in sort(unique(clustering))) {
-
-            cat("cluster", cluster, "\n")
-            tt <- Sys.time()
-            group <- factor(clustering == cluster)
-
-            stats <- rbind(stats, data.frame(cluster = cluster, gene = rownames(matrix),
-                fold = apply(matrix, 1, fold, group)))
-
-            print(Sys.time() - tt)
-        }
-
-        stats <- cbind(label, stats)
-
-        print(Sys.time() - t)
-        return(stats)
-    }
-
-    summarize.diff.exp.stats <- function(job.portion, min.fold, quantile) {
-
-        real.stats <- stats[stats$label == "real", ]
-        print(utils::head(real.stats))
-        shuffled.stats <- stats[stats$label == "shuffled", ]
-        print(utils::head(shuffled.stats))
-        genes <- genes[job.portions == job.portion]
-        results <- { }
-        empirical.diff <- { }
-        for (gene in genes) {
-            real <- real.stats[real.stats$gene == gene, ]
-            real <- real[real$fold >= min.fold, ]
-            if (nrow(real) == 0)
-                next
-            shuffled <- shuffled.stats$fold[shuffled.stats$gene == gene]
-            # quantile(shuffled,seq(0.01,1,0.01));quantile(shuffled,0.95);real
-            significant <- real[real$fold >= quantile(shuffled, quantile), ]
-            empirical.diff <- rbind(empirical.diff, significant)
-        }
-        rownames(empirical.diff) <- NULL
-        empirical.diff <- empirical.diff[order(empirical.diff$fold, decreasing = T),
-            ]
-        print(utils::head(empirical.diff))
-        return(empirical.diff)
-    }
-
-    cache <- file.path(environment$res.data.path, paste(label, contrast, "diff.exp.RData",
+    cache <- file.path(environment$res.data.path, paste(label, contrast, "diff.exp.rds",
         sep = "."))
 
     if (!rerun && file.exists(cache)) {
         print.message("Loading precomputed")
-        load(cache)
+        precomputed <- readRDS(cache)
+        final.diff = precomputed$final.diff
+        limma.diff = precomputed$limma.diff
+        empirical.diff = precomputed$empirical.diff
+        limma.all = precomputed$limma.all
+        rm(precomputed)
     } else {
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"), split = T)
@@ -146,7 +151,9 @@ run.diff.expression <- function(environment, clustering, min.fold, quantile,
         utils::write.csv(limma.diff, file = file.path(diff.exp.dir, "limma.diff.csv"))
         utils::write.csv(final.diff, file = file.path(diff.exp.dir, "final.diff.csv"))
 
-        save(final.diff, limma.diff, empirical.diff, limma.all, file = cache)
+        saveRDS(list(final.diff = final.diff, limma.diff = limma.diff,
+                     empirical.diff = empirical.diff, limma.all = limma.all),
+                file = cache)
         end(t)
     }
 

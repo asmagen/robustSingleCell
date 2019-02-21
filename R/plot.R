@@ -214,8 +214,8 @@ plot.tSNE <- function(environment, tSNE.job, perplexity, max_iter, membership = 
         perplexity <- configs[row, 1]
         max_iter <- configs[row, 2]
         tryCatch({
-            load(file.path(environment$res.data.path, "tSNEs", paste(perplexity,
-                max_iter, "tSNE.RData", sep = ".")))
+            tSNE <- readRDS(file.path(environment$res.data.path, "tSNEs", paste(perplexity,
+                max_iter, "tSNE.rds", sep = ".")))
 
             duplicated.indices <- duplicated(t(environment$PCA))
             data <- data.frame(Cluster = factor(membership[!duplicated.indices]),
@@ -224,7 +224,7 @@ plot.tSNE <- function(environment, tSNE.job, perplexity, max_iter, membership = 
             utils::head(data)
 
             grDevices::pdf(file.path(environment$work.path, paste("tSNE_perplexity", perplexity,
-                "max_iter", max_iter, "pdf", sep = ".")), width = 13, height = 10)
+                "max_iter", max_iter, "pdf", sep = ".")), width = 15, height = 10)
             print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Cluster,
                 shape = Origin)) + geom_point(data = data, size = 4, alpha = 0.6) +
                 scale_shape(solid = T) + xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) +

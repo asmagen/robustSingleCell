@@ -6,13 +6,15 @@ cluster <- function(knn.ratio, label, path, data.path, nPCs) {
     if (length(grep("shuffled", label)) > 0) {
         rep <- strsplit(as.character(label), split = "[.]")[[1]][2]
         file <- file.path(path, "shuffled.PCA", paste("shuffled.PCA.rep", rep,
-            "RData", sep = "."))
+            "rds", sep = "."))
         if (!file.exists(file))
             print.message("Shuffled PCA file", rep, "does not exist [Change PCA or clustering parameters]")
-        load(file)
+        precomputed <- readRDS(file)
+        pca.perm <- precomputed$pca.perm
         PCA <- t(pca.perm$x)[seq(as.numeric(nPCs)), ]
     } else {
-        load(file.path(data.path))
+        precomputed <- readRDS(file.path(data.path))
+        PCA <- precomputed$PCA
     }
 
     # neighborMatrix <- find_neighbors(t(PCA), k = floor(knn.ratio * ncol(PCA)))[,
@@ -34,16 +36,15 @@ cluster <- function(knn.ratio, label, path, data.path, nPCs) {
     memberships <- community$memberships
     nclusters <- length(unique(membership))
 
-    clustering <- list(modularity = modularity, memberships = memberships, membership = membership,
-        knn.ratio = knn.ratio, nclusters = nclusters)
+    clustering <- list(modularity = modularity, memberships = memberships, membership = membership, knn.ratio = knn.ratio, nclusters = nclusters)
 
-    save(clustering, file = file.path(path, "clustering", paste(label, knn.ratio,
-        "RData", sep = ".")))
+    saveRDS(clustering, file = file.path(path, "clustering", paste(label, knn.ratio,
+        "rds", sep = ".")))
 }
 
 get.clustering.results <- function(clustering.dir, knn.ratio, shuffledKNN) {
 
-    shuffled.result.files <- list.files(clustering.dir, pattern = paste("shuffled.*.*.RData",
+    shuffled.result.files <- list.files(clustering.dir, pattern = paste("shuffled.*.*.rds",
         sep = ""))
     shuffled.result.files
     nshuffled <- length(shuffled.result.files)
@@ -52,18 +53,18 @@ get.clustering.results <- function(clustering.dir, knn.ratio, shuffledKNN) {
     rep <- 1
     shuffled.membership <- list()
     for (rep in seq(nshuffled)) {
-        load(file.path(clustering.dir, shuffled.result.files[rep]))
+        clustering <- readRDS(file.path(clustering.dir, shuffled.result.files[rep]))
         shuffled <- rbind(shuffled, unlist(clustering[c(1, 4, 5)]))
         shuffled.membership[[rep]] <- as.vector(clustering[2])
     }
     shuffled <- as.data.frame(shuffled)
 
     real.clustering.file <- file.path(clustering.dir, paste("real", knn.ratio,
-        "RData", sep = "."))
+        "rds", sep = "."))
     if (!file.exists(real.clustering.file))
         cat("\nERROR: Couldn't find real clustering file knn.ratio =", knn.ratio,
             "\nCHECK FOR FAILED JOBS\n\n\n")
-    load(real.clustering.file)
+    clustering <- readRDS(real.clustering.file)
     membership <- clustering$membership
     nFinalClusters <- length(unique(membership))
     memberships <- clustering$memberships
@@ -112,7 +113,7 @@ cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuf
     time = "0:15:00", plot = T) {
 
     clustering.dir <- file.path(environment$res.data.path, "clustering")
-    shuffled.result.files <- list.files(clustering.dir, pattern = paste("shuffled.*.*.RData",
+    shuffled.result.files <- list.files(clustering.dir, pattern = paste("shuffled.*.*.rds",
         sep = ""))
     shuffled.result.files
 
@@ -125,7 +126,7 @@ cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuf
         data.path, nPCs = nrow(environment$PCA)), data.frame(expand.grid(knn.ratio = extended.knn.ratios,
         label = paste("shuffled", seq(nShuffleRuns), sep = ".")), path, data.path,
         nPCs = nrow(environment$PCA)))
-    cache <- file.path(environment$res.data.path, "clustering.RData")
+    cache <- file.path(environment$res.data.path, "clustering.rds")
     sjob <- NA
 
     if (rerun || !dir.exists(clustering.dir)) {
@@ -158,12 +159,12 @@ cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuf
 
     if (loadPreviousKnn && file.exists(cache)) {
         print.message("Loading precomputed")
-        load(cache)
+        clustering <- readRDS(cache)
     } else {
         t <- start(file.path(environment$work.path, "tracking"), name = "KNN.stats",
             split = T)
 
-        nResults <- length(list.files(clustering.dir, pattern = paste("*.RData",
+        nResults <- length(list.files(clustering.dir, pattern = paste("*.rds",
             sep = "")))
         if (nResults < nrow(params)) {
             cat("\nERROR: Found just", nResults, "shuffled clusterings instead of",
@@ -275,14 +276,15 @@ cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuf
         if (length(files) > 0) {
             file.copy(files, dir)
             file.remove(files)
-            file.remove(c(list.files(environment$res.data.path, pattern = "*.diff.exp.RData",
-                full.names = T), file.path(environment$res.data.path, c("main.diff.exp.RData",
-                "clustering.RData", "homogeneity.RData", "Seurat.RData"))),
+            file.remove(c(list.files(environment$res.data.path, pattern = "*.diff.exp.rds",
+                full.names = T),
+                file.path(environment$res.data.path, c("main.diff.exp.rds",
+                "clustering.rds", "homogeneity.rds", "Seurat.rds"))),
                 showWarnings = F)
         }
         unlink(file.path(environment$work.path, "diff.exp"), recursive = T,
             force = T)
-        save(clustering, file = cache)
+        saveRDS(clustering, file = cache)
         end(t)
     }
 

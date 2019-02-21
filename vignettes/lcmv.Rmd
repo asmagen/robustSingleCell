@@ -16,10 +16,9 @@ knitr::opts_chunk$set(
   warning = F,
   eval = F
 )
-library(MagenSingleCell)
+library(robustSingleCell)
 ```
 
-<<<<<<< HEAD
 
 We used two replicates of CD44<sup>+</sup> T cell data sets from Ciucci et al. 2018 [^1] as an example to demonstrate the use of `robustSingleCell`. The analysis requires at least 8G of memory on *slurm* [^2] high performance computing workload manager.  We first download the raw 10X data from GEO using `GEOquery`, which can be obtained using the following command if not already installed:
 
@@ -34,8 +33,6 @@ The two datasets `LCMV1`, `LCMV2` will be downloaded into `~/LCMV`. Each folder 
 library(robustSingleCell)
 download_LCMV(base_dir = "~/LCMV")
 ```
-
-<h3>Independent Dataset Analysis</h3>
 
 We cluster each dataset separately to account for dataset-specific technical and biological differences. Then, we measure the transcriptional similarity and divergence between the clusters identified in the two datasets using correlation analysis.
 
@@ -97,6 +94,8 @@ The analysis is repeated multiple times over shuffled data to estimate the appro
 <figcaption> Fig 2. Bar plot shows the clustering modularity of the original data versus shuffled data across multiple clustering resolutions. Numbers on top represent the fold change of original versus shuffled analysis for each resolution. </figcaption>
 </figure>
 
+We select the appropriate resolution, typically the one where there is more than two (2) fold change modularity difference relative to the shuffled analysis.
+
 The `summarize` function which performs differential expression analysis, computes tSNE and visualizes the results in the analysis folder. After differential expression analysis, `get.cluster.names` assigns clusters with names using a customized set of marker genes which users should adapt to their own data.
 
 ```{r annotation}
@@ -153,11 +152,11 @@ Figure 7 shows the tSNE visualization of the cells, color coded by cluster assig
 
 We can also visualize the average expression of selected T cells marker genes for initial evaluation (Figure 8).
 
-```{r plotLCMV1}
+```{r plotLCMV1, include = F}
 canonical_genes <- c("Cd8a", "Cd4", "Mki67", "Foxp3", "Il2ra", "Bcl6",
                      "Cxcr5", "Cxcr6", "Ifng", "Tbx21", "Id2", "Rora",
                      "Cxcr3", "Tcf7", "Ccr7", "Cxcr4", "Pdcd1", "Ctla4")
-MagenSingleCell:::plot.simple.heatmap(LCMV1, name = "canonical", markers = canonical_genes)
+robustSingleCell:::plot.simple.heatmap(LCMV1, name = "canonical", markers = canonical_genes)
 ```
 
 <figure>
@@ -192,11 +191,11 @@ summarize(LCMV2)
 
 
 ```{r plotLCMV2, include = F}
-robustSingleCell:::plot.simple.heatmap(LCMV2, name = "canonical", markers = canonical_genes,
-                                       main = "Expression of marker genes")
+robustSingleCell:::plot.simple.heatmap(LCMV2, name = "canonical", markers = canonical_genes, main = "Expression of marker genes")
 ```
 
-<h3>Dataset Integration by Correlation Analysis</h3>
+
+## Dataset Integration by Correlation Analysis
 
 We then initialize the aggregate analysis of the two independent runs, providing the information of which analyses folders should be used to pull the data for integration.
 

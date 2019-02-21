@@ -43,11 +43,19 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500,
     max.mitochondrial.frac = 0.1, max.ribosomal.frac = NA, cell.filters = NA,
     raw.data.matrices = NA, rerun = F, subsample = NULL, seed = 0) {
     # browser()
-    cache <- file.path(environment$baseline.data.path, "data.RData")
+    cache <- file.path(environment$baseline.data.path, "data.rds")
 
     if (!rerun & file.exists(cache)) {
         print.message("Loading precomputed")
-        load(cache)
+        precomputed <- readRDS(cache)
+        genes.filter = precomputed$genes.filter
+        counts = precomputed$counts
+        normalized = precomputed$normalized
+        dataset.labels = precomputed$dataset.labels
+        origins = precomputed$origins
+        experiments = precomputed$experiments
+        criteria = precomputed$criteria
+        rm(precomputed)
     } else {
 
         print.message("Computing")
@@ -276,8 +284,10 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500,
         }
         end(t)
 
-        save(genes.filter, counts, normalized, dataset.labels, origins, experiments,
-            criteria, file = cache)
+        saveRDS(list(genes.filter = genes.filter, counts = counts,
+                  normalized = normalized, dataset.labels = dataset.labels,
+                  origins = origins, experiments = experiments,
+                  criteria = criteria), file = cache)
 
         end(t)
     }
@@ -315,11 +325,13 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500,
 read.preclustered.datasets <- function(environment, path = NA, recursive = T,
     rerun = F) {
 
-    cache <- file.path(environment$baseline.data.path, "preclustered.datasets.RData")
+    cache <- file.path(environment$baseline.data.path, "preclustered.datasets.rds")
 
     if (!rerun & file.exists(cache)) {
         print.message("Loading precomputed")
-        load(cache)
+        precomputed <- readRDS(cache)
+
+        rm(precomputed)
     } else {
 
         print.message("Computing")
@@ -356,7 +368,7 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T,
             dataset <- environment$datasets[sample.index]
             origin <- environment$origins[sample.index]
             experiment <- environment$experiments[sample.index]
-            data.files <- list.files(path = file.path(path, dataset), pattern = "clustering.RData",
+            data.files <- list.files(path = file.path(path, dataset), pattern = "clustering.rds",
                 full.names = T, recursive = recursive)
             file.index <- 1
             if (length(data.files) > 1) {
@@ -365,7 +377,8 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T,
             }
             print.message("Loading", dirname(dirname(data.files[file.index])),
                 "\n")
-            load(data.files[file.index])
+            clustering <- readRDS(data.files[file.index])
+
             if (length(merged.clustering) == 0) {
                 min <- 0
             } else {
@@ -376,9 +389,9 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T,
                 min)
             merged.original.clustering <- c(merged.original.clustering, clustering$membership)
 
-            load(file.path(dirname(data.files[file.index]), "main.all.diff.exp.RData"))
-            if (!is.null(environment$convert.to.mouse.gene.symbols) && environment$convert.to.mouse.gene.symbols[sample.index] ==
-                T) {
+            precomputed <- readRDS(file.path(dirname(data.files[file.index]), "main.all.diff.exp.rds"))
+            limma.all <- precomputed$limma.all
+            if (!is.null(environment$convert.to.mouse.gene.symbols) && environment$convert.to.mouse.gene.symbols[sample.index] == T) {
                 print.message("Converting from human to mouse genes")
                 human.genes <- toupper(limma.all$gene)
                 mouse.gene.names <- convertHumanGeneList(human.genes)
@@ -397,7 +410,7 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T,
             limma.all <- cbind(dataset, origin, experiment, limma.all)
             merged.diff.exp <- rbind(merged.diff.exp, limma.all)
             base.path <- dirname(dirname(dirname(data.files[file.index])))
-            load(file.path(base.path, "data/HVG.RData"))
+            HVG <- readRDS(file.path(base.path, "data/HVG.rds"))
             if (!is.null(environment$convert.to.mouse.gene.symbols) && environment$convert.to.mouse.gene.symbols[sample.index] ==
                 T) {
                 human.genes <- toupper(HVG)
@@ -408,7 +421,12 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T,
                 HVG <- unique(mouse.gene.names[, 2])
             }
             merged.HVG <- unique(c(merged.HVG, HVG))
-            load(file.path(base.path, "data/data.RData"))
+            precomputed <- readRDS(file.path(base.path, "data/data.rds"))
+            counts <- precomputed$counts
+            normalized <- precomputed$normalized
+            genes.filter <- precomputed$genes.filter
+            rm(precomputed)
+
             colnames(counts) <- colnames(normalized) <- rep(dataset, ncol(normalized))
             if (!is.null(environment$convert.to.mouse.gene.symbols) && environment$convert.to.mouse.gene.symbols[sample.index] ==
                 T) {
@@ -447,7 +465,10 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T,
             merged.dataset.labels <- c(merged.dataset.labels, rep(dataset, ncol(normalized)))
             merged.origins <- c(merged.origins, rep(origin, ncol(normalized)))
             merged.experiments <- c(merged.experiments, rep(experiment, ncol(normalized)))
-            load(file.path(dirname(data.files[file.index]), "cluster.names.RData"))
+            precomputed <- readRDS(file.path(dirname(data.files[file.index]), "cluster.names.rds"))
+            cluster.names <- precomputed$cluster.names
+            rm(precomputed)
+
             merged.cluster.names <- c(merged.cluster.names, cluster.names)
             if (!is.null(environment$convert.to.mouse.gene.symbols) && environment$convert.to.mouse.gene.symbols[sample.index] ==
                 T) {
@@ -473,7 +494,7 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T,
             }
 
             dataset.genes <- rownames(merged.counts)[apply(merged.counts, 1,
-                sd) > 0]
+                stats::sd) > 0]
         }
 
         # merged.HVG[!merged.HVG%in%rownames(normalized[genes.filter,])]
@@ -499,8 +520,11 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T,
         clustering <- merged.clustering
         cluster.names <- merged.cluster.names
         print.message("Saving")
-        save(genes.filter, counts, normalized, dataset.labels, origins, experiments,
-            HVG, clustering, merged.diff.exp, merged.original.clustering, cluster.names,
+        saveRDS(list(genes.filter = genes.filter, counts = counts, normalized = normalized,
+                     dataset.labels = dataset.labels, origins = origins,
+                     experiments = experiments, HVG = HVG, clustering = clustering,
+                     merged.diff.exp = merged.diff.exp, merged.original.clustering = merged.original.clustering,
+                     cluster.names = cluster.names),
             file = cache)
 
         end(t)

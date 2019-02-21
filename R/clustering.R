@@ -12,8 +12,8 @@
 get.cluster.names <- function(environment, types, min.fold = 1.25, max.Qval = 0.1,
     print = T) {
 
-    load(file.path(environment$res.data.path, paste("main", "all", "diff.exp.RData",
-        sep = ".")))
+    precomputed <- readRDS(file.path(environment$res.data.path, paste("main", "all", "diff.exp.rds", sep = ".")))
+    limma.all <- precomputed$limma.all
     if (print)
         print(summary(limma.all))
     diff.exp <- limma.all[limma.all$fold > min.fold & limma.all$QValue < max.Qval,
@@ -75,17 +75,16 @@ set.cluster.names <- function(environment, names) {
 
     cluster.name.map <- data.frame(id = seq(length(names)), name = names)
     environment$cluster.names <- cluster.names <- names[environment$clustering$membership]
-    save(cluster.names, cluster.name.map, file = file.path(environment$res.data.path,
-        "cluster.names.RData"))
+    saveRDS(list(cluster.names = cluster.names, cluster.name.map = cluster.name.map),
+            file = file.path(environment$res.data.path, "cluster.names.rds"))
     utils::write.csv(cluster.name.map, file = file.path(environment$work.path, "cluster.name.map.csv"))
     print(table(environment$cluster.names))
     return(environment)
 }
 
 load.cluster.names <- function(environment) {
-
-    load(file.path(environment$res.data.path, "cluster.names.RData"))
-    environment$cluster.names <- cluster.names
+    precomputed <- readRDS(file.path(environment$res.data.path, "cluster.names.rds"))
+    environment$cluster.names <- precomputed$cluster.names
     print(table(environment$cluster.names))
     return(environment)
 }
@@ -100,24 +99,34 @@ remove.cluster.names <- function(environment) {
 filter.cluster.data <- function(environment, remove.clusters) {
     membership <- as.vector(environment$clustering$membership)
     keep <- !membership %in% remove.clusters
-    filter.data(keep)
+    filter.data(environment, keep)
 }
 
 filter.data <- function(environment, keep) {
-    data.file <- file.path(environment$baseline.data.path, "data.RData")
-    load(data.file)
+    data.file <- file.path(environment$baseline.data.path, "data.rds")
+    precomputed <- readRDS(data.file)
+    genes.filter = precomputed$genes.filter
+    counts = precomputed$counts
+    normalized = precomputed$normalized
+    dataset.labels = precomputed$dataset.labels
+    origins = precomputed$origins
+    experiments = precomputed$experiments
+    rm(precomputed)
+
     file.rename(data.file, paste(data.file, format(Sys.time(), "%a_%b_%e_%Y__%H_%M_%S"),
         sep = "---"))
     counts <- counts[, keep]
-    genes.filter <- genes.filter & apply(counts, 1, var) > 0
+    genes.filter <- genes.filter & apply(counts, 1, stats::var) > 0
     normalized <- normalized[, keep]
     dataset.labels <- dataset.labels[keep]
     origins <- origins[keep]
     experiments <- experiments[keep]
     unlink(environment$baseline.data.path, recursive = T, force = T)
     dir.create(environment$baseline.data.path)
-    cache <- file.path(environment$baseline.data.path, "data.RData")
-    save(genes.filter, counts, normalized, dataset.labels, origins, experiments,
+    cache <- file.path(environment$baseline.data.path, "data.rds")
+    saveRDS(list(genes.filter = genes.filter, counts = counts,
+                 normalized = normalized, dataset.labels = dataset.labels,
+                 origins = origins, experiments = experiments),
         file = cache)
     file.rename(environment$work.path, paste(environment$work.path, "pre.filter",
         format(Sys.time(), "%a_%b_%e_%Y__%H_%M_%S"), sep = "_"))
@@ -125,14 +134,25 @@ filter.data <- function(environment, keep) {
 
 filter.robust.clusters <- function(environment, robust.clusters) {
 
-    load(file.path(environment$baseline.data.path, "preclustered.datasets.RData"))
+    precomputed <- readRDS(file.path(environment$baseline.data.path, "preclustered.datasets.rds"))
+    genes.filter = precomputed$genes.filter
+    counts = precomputed$counts
+    normalized = precomputed$normalized
+    dataset.labels = precomputed$dataset.labels
+    origins = precomputed$origins
+    experiments = precomputed$experiments
+    HVG = precomputed$HVG
+    clustering = precomputed$clustering
+    merged.diff.exp = precomputed$merged.diff.exp
+    merged.original.clustering = precomputed$merged.original.clustering
+    rm(precomputed)
 
     membership <- as.vector(environment$clustering$membership)
     keep <- membership %in% robust.clusters
 
     counts <- counts[, keep]
     normalized <- normalized[, keep]
-    genes.filter <- genes.filter & apply(counts, 1, var) > 0
+    genes.filter <- genes.filter & apply(counts, 1, stats::var) > 0
     dataset.labels <- dataset.labels[keep]
     origins <- origins[keep]
     experiments <- experiments[keep]
@@ -146,7 +166,10 @@ filter.robust.clusters <- function(environment, robust.clusters) {
         "data")
     dir.create(new.dir, recursive = T)
 
-    save(genes.filter, counts, normalized, dataset.labels, origins, experiments,
-        HVG, clustering, merged.diff.exp, merged.original.clustering, file = file.path(new.dir,
-            "preclustered.datasets.RData"))
+    saveRDS(list(genes.filter = genes.filter, counts = counts,
+                 normalized = normalized, dataset.labels = dataset.labels,
+                 origins = origins, experiments = experiments,
+                 HVG = HVG, clustering = clustering, merged.diff.exp = merged.diff.exp,
+                 merged.original.clustering = merged.original.clustering),
+        file = file.path(new.dir, "preclustered.datasets.rds"))
 }
