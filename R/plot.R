@@ -1,3 +1,6 @@
+globalVariables(c("Modularity", "Type", "sd", "Fold", "correlation", "SD",
+                  "gene", "clustering", "Dataset", "..count..", "tSNE.1",
+                  "tSNE.2", "Cluster", "Origin", "Experiment", "cell_type"))
 #' Plot PCA results
 #'
 #' Plot the results obtained from PCA analysis as cell embedding in 2D space and annotation of gene loadings
