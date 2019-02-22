@@ -268,9 +268,8 @@ cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuf
         if (length(files) > 0) {
             file.copy(files, dir)
             file.remove(files)
-            file.remove(c(list.files(environment$res.data.path, pattern = "*.diff.exp.rds", 
-                full.names = T), file.path(environment$res.data.path, c("main.diff.exp.rds", 
-                "clustering.rds", "homogeneity.rds", "Seurat.rds"))), showWarnings = F)
+            file.remove(list.files(environment$res.data.path, pattern = "*.diff.exp.rds", 
+                full.names = T))
         }
         unlink(file.path(environment$work.path, "diff.exp"), recursive = T, force = T)
         saveRDS(clustering, file = cache)
@@ -285,4 +284,3 @@ cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuf
     
     return(environment)
 }
-80

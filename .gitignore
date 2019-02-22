@@ -4,3 +4,7 @@ inst/doc
 .RData
 .Ruserdata
 *.DS_Store
+
+# compiled object
+*.o
+*.so

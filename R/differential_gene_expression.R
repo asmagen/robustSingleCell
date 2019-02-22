@@ -119,4 +119,3 @@ run.diff.expression <- function(environment, clustering, min.fold, quantile, lab
     
     return(final.diff)
 }
-80

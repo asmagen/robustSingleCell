@@ -447,4 +447,3 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
     return(list(map = map, similarity = similarity))
 }
 
-80

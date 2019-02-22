@@ -678,4 +678,3 @@ visualize.cluster.similarity.stats <- function(environment, similarity) {
             40)))  # cellnote = round(similarity.matrix, 1), notecex = 2, main = 'Pearson Correlation Between Cluster FC'
     grDevices::dev.off()
 }
-80
