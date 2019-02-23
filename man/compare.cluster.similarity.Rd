@@ -2,27 +2,27 @@
 % Please edit documentation in R/simiarlity.R
 \name{compare.cluster.similarity}
 \alias{compare.cluster.similarity}
-\title{Compare the similarity between clusters}
+\title{Compare Cluster Similarity}
 \usage{
 compare.cluster.similarity(environment,
-  diff.exp.file = "main.datasets.diff.exp.RData",
+  diff.exp.file = "main.datasets.diff.exp.rds",
   cluster.similarity.function = pearson.correlation, label = "pearson",
   rerun = F)
 }
 \arguments{
-\item{environment}{The environment object}
+\item{environment}{\code{environment} object}
 
-\item{diff.exp.file}{TODO}
+\item{diff.exp.file}{name of differential expression results file}
 
-\item{cluster.similarity.function}{TODO}
+\item{cluster.similarity.function}{which similarity function to use (either 'pearson.correlation' or '?') Mamie - there was another similarity function using euclidean distance. Do you know where did it go to? Can you replace the '?' with the name of this other function?}
 
-\item{label}{TOOD}
+\item{label}{name of the similarity measure to use for the results folder}
 
-\item{rerun}{TODO}
+\item{rerun}{whether to rerun the analysis or load from cache}
 }
 \value{
-TODO
+pairwise cluster similarity measures
 }
 \description{
-TODO
+Assess similarity between pairs of clusters.
 }

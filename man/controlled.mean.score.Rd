@@ -2,25 +2,25 @@
 % Please edit documentation in R/preprocess.R
 \name{controlled.mean.score}
 \alias{controlled.mean.score}
-\title{Compute controlled mean gene signatures activation score}
+\title{Compute Controlled Activation Score}
 \usage{
 controlled.mean.score(environment, genes, knn = 10,
   exclude.missing.genes = T, constrain.cell.universe = NA)
 }
 \arguments{
-\item{environment}{The environment object}
+\item{environment}{\code{environment} object}
 
-\item{genes}{The gene list upon which to calculate gene signature activate}
+\item{genes}{gene list upon which to calculate gene signature activate}
 
-\item{knn}{Number of nearest neighbors}
+\item{knn}{number of nearest neighbors}
 
-\item{exclude.missing.genes}{Whether to exclude genes with missing values}
+\item{exclude.missing.genes}{whether to exclude genes with missing values}
 
-\item{constrain.cell.universe}{A binary vector indicating in which subset of cells to calculate the gene signature activation. Default is all cells.}
+\item{constrain.cell.universe}{binary vector indicating in which subset of cells to calculate the gene signature activation. Default is all cells.}
 }
 \value{
-Gene signature activation scores per cell
+gene signature activation scores per cell
 }
 \description{
-Compute controlled mean gene signatures activation score
+Compute mean gene signatures activation scores while controlling for technically similar genes.
 }

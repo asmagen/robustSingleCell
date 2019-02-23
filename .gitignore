@@ -3,3 +3,8 @@ inst/doc
 .Rhistory
 .RData
 .Ruserdata
+*.DS_Store
+
+# compiled object
+*.o
+*.so

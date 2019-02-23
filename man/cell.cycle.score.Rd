@@ -2,20 +2,20 @@
 % Please edit documentation in R/preprocess.R
 \name{cell.cycle.score}
 \alias{cell.cycle.score}
-\title{Compute cell cycle score}
+\title{Compute Cell Cycle Score}
 \usage{
 cell.cycle.score(environment, knn = 10, cc.genes.path = NA)
 }
 \arguments{
-\item{environment}{The environment object}
+\item{environment}{\code{environment} object}
 
-\item{knn}{The number of nearest neighbor}
+\item{knn}{number of nearest neighbor}
 
-\item{cc.genes.path}{Optional; path to defined cell cycle genes. Default uses gene sets defined in Kowalczyk, M. S. et al. Single-cell RNA-seq reveals changes in cell cycle and differentiation programs upon aging of hematopoietic stem cells. Genome Res 25, 1860-1872, doi:10.1101/gr.192237.115 (2015).}
+\item{cc.genes.path}{optional; path to defined cell cycle genes. Default uses gene sets defined in Kowalczyk, M. S. et al. Single-cell RNA-seq reveals changes in cell cycle and differentiation programs upon aging of hematopoietic stem cells. Genome Res 25, 1860-1872, doi:10.1101/gr.192237.115 (2015).}
 }
 \value{
-A matrix of cell cycle genes activation scores (S, G2M and aggregated S/G2M scores, separately)
+a matrix of cell cycle genes activation scores (S, G2M and aggregated S/G2M scores, separately)
 }
 \description{
-Compute cell cycle score
+Compute the activation of cell cycle genes defined in Kowalczyk, M. S. et al.
 }

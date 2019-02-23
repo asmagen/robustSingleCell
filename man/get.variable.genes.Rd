@@ -2,23 +2,25 @@
 % Please edit documentation in R/preprocess.R
 \name{get.variable.genes}
 \alias{get.variable.genes}
-\title{Get highly variable genes by Heteroscedasticity controlled binning}
+\title{Identify Highly Variable Genes}
 \usage{
 get.variable.genes(environment, min.mean = 0.05, min.frac.cells = 0,
   min.dispersion.scaled = 1, rerun = F)
 }
 \arguments{
-\item{min.mean}{Minimum mean expression per gene}
+\item{environment}{\code{environment} object}
 
-\item{min.frac.cells}{Minimum fraction of cells expressing each gene}
+\item{min.mean}{minimum mean expression per gene}
 
-\item{min.dispersion.scaled}{Minimum dispersion value}
+\item{min.frac.cells}{minimum fraction of cells expressing each gene}
 
-\item{rerun}{Whether to rerun}
+\item{min.dispersion.scaled}{minimum dispersion value}
+
+\item{rerun}{whether to rerun the analysis or load from cache}
 }
 \value{
 \code{environment} parameter containing highly variable genes selection
 }
 \description{
-Get highly variable genes by Heteroscedasticity controlled binning
+Get highly variable genes by Heteroscedasticity controlled binning of gene expression measurements within each dataset separately.
 }

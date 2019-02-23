@@ -2,7 +2,7 @@
 % Please edit documentation in R/correlation_analysis.R
 \name{cluster.analysis}
 \alias{cluster.analysis}
-\title{Clustering analysis}
+\title{Distributed Clustering Analysis}
 \usage{
 cluster.analysis(environment, knn.ratios = c(0.01, 0.05, 0.1),
   nShuffleRuns = 10, shuffledKNN = 10, loadPreviousKnn = T,
@@ -10,27 +10,29 @@ cluster.analysis(environment, knn.ratios = c(0.01, 0.05, 0.1),
   plot = T)
 }
 \arguments{
-\item{knn.ratios}{Range of KNN parameters to scan (corresponding to different resolutions)}
+\item{environment}{\code{environment} object}
 
-\item{nShuffleRuns}{Number of shuffled clustering analyses to perform per KNN threshold}
+\item{knn.ratios}{range of KNN parameters to scan (corresponding to different resolutions)}
 
-\item{loadPreviousKnn}{Whether to load previous analysis results}
+\item{nShuffleRuns}{number of shuffled clustering analyses to perform per KNN threshold}
 
-\item{rerun}{Whether to rerun}
+\item{shuffledKNN}{number of closest KNN shuffled analyses to include in background clustering quality computation}
+
+\item{loadPreviousKnn}{whether to load previous analysis results}
+
+\item{rerun}{whether to rerun the analysis rather than load from cache}
+
+\item{deleteCache}{whether to delete cache files}
 
 \item{mem}{HPC memory}
 
 \item{time}{HPC time}
 
-\item{plot}{Whether to plot the clustering qualities compared to shuffled}
-
-\item{shuffleKNN}{Number of closest KNN shuffled analyses to include in background clustering quality computation}
-
-\item{deleteCacheWhether}{to delete cache files}
+\item{plot}{whether to plot the clustering qualities compared to shuffled}
 }
 \value{
 \code{environment} parameter containing clustering assignment and provisional cluster names
 }
 \description{
-Clustering analysis
+Perform clustering analysis for a range of hyperparameter (KNN Ratios) values and assess clustering quality relative to simulation analysis of shuffled data.
 }

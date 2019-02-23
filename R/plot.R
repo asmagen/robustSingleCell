@@ -1,11 +1,16 @@
-#' Plot PCA results as cell embedding in 2D space and annotation of gene loadings
+globalVariables(c("Modularity", "Type", "sd", "Fold", "correlation", "SD", "gene", 
+    "clustering", "Dataset", "..count..", "tSNE.1", "tSNE.2", "Cluster", "Origin", 
+    "Experiment", "cell_type"))
+#' Plot PCA results
 #'
+#' Plot the results obtained from PCA analysis as cell embedding in 2D space and annotation of gene loadings
 #'
-#' @param environment The environment object
-#' @param quantile quantile
-#' @param order order
+#' @param environment \code{environment} object
+#' @param quantile quantile of PCA loadings for which to define top genes driving PCs
+#' @param order ordering by which to plot the in heatmap of top genes driving PCs
 #' @import GGally
 #' @import ggrepel
+#' @importFrom graphics plot
 plot.PCA <- function(environment, quantile, order) {
     
     work.path <- environment$work.path
@@ -26,8 +31,8 @@ plot.PCA <- function(environment, quantile, order) {
         q <- quantile(v, c(quantile, 1 - quantile))
         names(v[v <= q[1] | v >= q[2]])
     })
-    pdf(file.path(work.path, "Rotation.PCA.pdf"))
-    data <- data.frame(gene = colnames(Rotation), Rot = t(Rotation))
+    grDevices::pdf(file.path(work.path, "Rotation.PCA.pdf"))
+    data <- data.frame(gene = colnames(Rotation), Rotation = t(Rotation))
     for (row in seq(nrow(Rotation) - 1)) {
         if (typeof(drivers) == "list") {
             gene.set <- as.vector(unlist(drivers[c(row, row + 1)]))
@@ -49,13 +54,13 @@ plot.PCA <- function(environment, quantile, order) {
             panel.grid.minor = element_blank(), panel.background = element_blank(), 
             axis.line = element_line(colour = "black")))
     }
-    dev.off()
+    grDevices::dev.off()
     
-    pdf(file.path(work.path, "all.PCA.pdf"))
+    grDevices::pdf(file.path(work.path, "all.PCA.pdf"))
     PCA_t <- t(PCA)
     rownames(PCA_t) <- NULL
     data <- data.frame(PCA_t, Cluster = factor(cluster.names), Dataset = factor(dataset))
-    head(data)
+    utils::head(data)
     for (row in seq(nrow(PCA) - 1)) {
         print(ggplot(data, aes_string(x = rownames(PCA)[row], y = rownames(PCA)[row + 
             1], color = "Cluster")) + geom_point() + theme(panel.grid.major = element_blank(), 
@@ -70,12 +75,12 @@ plot.PCA <- function(environment, quantile, order) {
                   panel.background = element_blank(), axis.line = element_line(colour = "black")))
         }
     }
-    dev.off()
+    grDevices::dev.off()
     
     data <- data.frame(PCA_t, Cluster = factor(cluster.names), Dataset = factor(dataset))
-    head(data)
+    utils::head(data)
     rm(PCA_t)
-    pdf(file.path(work.path, "PC.scores.histogram.pdf"), width = 10)
+    grDevices::pdf(file.path(work.path, "PC.scores.histogram.pdf"), width = 10)
     for (row in seq(nrow(PCA) - 1)) {
         print(ggplot(data, aes_string(x = rownames(PCA)[row], fill = "Cluster")) + 
             geom_density(alpha = 0.5) + theme(panel.grid.major = element_blank(), 
@@ -91,9 +96,9 @@ plot.PCA <- function(environment, quantile, order) {
                 ylab("Density") + theme_classic(base_size = 25))
         }
     }
-    dev.off()
+    grDevices::dev.off()
     
-    pdf(file.path(work.path, "PC.scores.heatmap.pdf"), width = 5, height = 8)
+    grDevices::pdf(file.path(work.path, "PC.scores.heatmap.pdf"), width = 5, height = 8)
     for (row in seq(nrow(PCA) - 1)) {
         pc <- environment$Rotation[row, ]
         high <- names(pc[pc > quantile(pc, 0.99)])
@@ -120,7 +125,7 @@ plot.PCA <- function(environment, quantile, order) {
                 cellnote = F)
         }
     }
-    dev.off()
+    grDevices::dev.off()
 }
 
 plot.cluster.stats <- function(environment, membership, label = NA, order = NA) {
@@ -133,7 +138,7 @@ plot.cluster.stats <- function(environment, membership, label = NA, order = NA) 
     }
     if (length(order) == 1 && is.na(order)) 
         order <- order(table(membership), decreasing = T)
-    pdf(file.path(work.path, file.name), width = 8, height = 5)
+    grDevices::pdf(file.path(work.path, file.name), width = 8, height = 5)
     data <- data.frame(clustering = factor(membership, levels = order), Dataset = factor(environment$dataset.labels))
     if (length(unique(environment$dataset.labels)) > 1) {
         print(ggplot(data, aes(clustering, fill = Dataset)) + geom_bar() + scale_fill_brewer(palette = "Set3") + 
@@ -143,8 +148,8 @@ plot.cluster.stats <- function(environment, membership, label = NA, order = NA) 
             byrow = F)))
         print(ggplot(data, aes(clustering, fill = Dataset)) + geom_bar(aes(y = (..count..)/sum(..count..))) + 
             scale_y_continuous(labels = scales::percent) + ylab("relative frequencies") + 
-            scale_fill_brewer(palette = "Set3") + xlab("Cluster ID") + ylab("Number of cells") + 
-            theme_classic(base_size = 15) + theme(legend.position = "bottom") + theme(axis.text.x = element_text(angle = 25, 
+            scale_fill_brewer(palette = "Set3") + xlab("Cluster ID") + theme_classic(base_size = 15) + 
+            theme(legend.position = "bottom") + theme(axis.text.x = element_text(angle = 25, 
             hjust = 1)) + guides(fill = guide_legend(nrow = max(1, floor(length(unique(environment$dataset.labels))/2)), 
             byrow = F)))
         print(ggplot(data, aes(Dataset, fill = clustering)) + geom_bar() + xlab("Cluster ID") + 
@@ -153,9 +158,9 @@ plot.cluster.stats <- function(environment, membership, label = NA, order = NA) 
     }
     for (dataset in unique(environment$dataset.labels)) {
         print(ggplot(data[data$Dataset == dataset, ], aes(clustering)) + geom_bar(aes(y = (..count..)/sum(..count..))) + 
-            scale_y_continuous(labels = scales::percent) + ylab("relative frequencies") + 
+            scale_y_continuous(labels = scales::percent) + ylab("Relative frequencies") + 
             theme(axis.text.x = element_text(angle = 25, hjust = 1)) + xlab("Cluster ID") + 
-            ylab("Number of cells") + ggtitle(dataset) + theme_classic(base_size = 15))
+            ggtitle(dataset) + theme_classic(base_size = 15))
     }
     print(ggplot(data, aes(clustering)) + geom_bar() + theme(axis.text.x = element_text(angle = 25, 
         hjust = 1)))
@@ -163,19 +168,19 @@ plot.cluster.stats <- function(environment, membership, label = NA, order = NA) 
         scale_y_continuous(labels = scales::percent) + ylab("relative frequencies") + 
         theme(axis.text.x = element_text(angle = 25, hjust = 1)))
     
-    dev.off()
+    grDevices::dev.off()
     
     cell.confusion <- table(membership, environment$dataset.labels)
-    write.csv(cell.confusion, file = file.path(environment$work.path, "cell.confusion.csv"))
+    utils::write.csv(cell.confusion, file = file.path(environment$work.path, "cell.confusion.csv"))
     
     confounders <- environment$confounders
     data <- data.frame(clustering = factor(as.vector(membership)), dataset = factor(environment$dataset.labels), 
         confounders)
-    head(data)
+    utils::head(data)
     file.name <- "confounder.stats.violin.pdf"
     if (!is.na(label)) 
         file.name <- paste(label, file.name, sep = ".")
-    pdf(file.path(work.path, file.name))
+    grDevices::pdf(file.path(work.path, file.name))
     for (variable in colnames(confounders)) {
         print(ggplot(data, aes_string("clustering", variable)) + geom_violin(draw_quantiles = c(0.25, 
             0.5, 0.75), scale = "width") + theme(axis.text.x = element_text(angle = 25, 
@@ -188,7 +193,7 @@ plot.cluster.stats <- function(environment, membership, label = NA, order = NA) 
             hjust = 1)) + ggtitle(variable))
     }
     # }
-    dev.off()
+    grDevices::dev.off()
 }
 
 plot.tSNE <- function(environment, tSNE.job, perplexity, max_iter, membership = NA) {
@@ -211,67 +216,48 @@ plot.tSNE <- function(environment, tSNE.job, perplexity, max_iter, membership = 
         perplexity <- configs[row, 1]
         max_iter <- configs[row, 2]
         tryCatch({
-            load(file.path(environment$res.data.path, "tSNEs", paste(perplexity, 
-                max_iter, "tSNE.RData", sep = ".")))
+            tSNE <- readRDS(file.path(environment$res.data.path, "tSNEs", paste(perplexity, 
+                max_iter, "tSNE.rds", sep = ".")))
             
             duplicated.indices <- duplicated(t(environment$PCA))
             data <- data.frame(Cluster = factor(membership[!duplicated.indices]), 
                 Origin = factor(environment$origins[!duplicated.indices]), Experiment = factor(environment$experiments[!duplicated.indices]), 
                 tSNE = tSNE)
-            head(data)
+            utils::head(data)
             
-            pdf(file.path(environment$work.path, paste("tSNE_perplexity", perplexity, 
-                "max_iter", max_iter, "pdf", sep = ".")), width = 10, height = 10)
+            grDevices::pdf(file.path(environment$work.path, paste("tSNE_perplexity", 
+                perplexity, "max_iter", max_iter, "pdf", sep = ".")), width = 15, 
+                height = 10)
             print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Cluster, shape = Origin)) + 
                 geom_point(data = data, size = 4, alpha = 0.6) + scale_shape(solid = T) + 
                 xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) + 
-                theme(legend.position = "bottom") + ggtitle("color = Cluster, shap = Origin"))  # + scale_color_brewer(palette = 'Set2')
-            print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Cluster, shape = Origin)) + 
-                geom_point(data = data, size = 5, alpha = 0.6) + scale_shape(solid = T) + 
-                xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) + 
-                theme(legend.position = "bottom") + ggtitle("color = Cluster, shap = Origin"))  # + scale_color_brewer(palette = 'Set2')
-            print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Cluster, shape = Origin)) + 
-                geom_point(data = data, size = 6, alpha = 0.6) + scale_shape(solid = T) + 
-                xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) + 
-                theme(legend.position = "bottom") + ggtitle("color = Cluster, shap = Origin"))  # + scale_color_brewer(palette = 'Set2')
-            print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Cluster, shape = Origin)) + 
-                geom_point(data = data, size = 7, alpha = 0.4) + scale_shape(solid = T) + 
-                xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) + 
-                theme(legend.position = "bottom") + ggtitle("color = Cluster, shap = Origin"))  # + scale_color_brewer(palette = 'Set2')
-            print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Cluster, shape = Origin)) + 
-                geom_point(data = data, size = 7, alpha = 0.6) + scale_shape(solid = F) + 
-                xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) + 
-                theme(legend.position = "bottom") + ggtitle("color = Cluster, shap = Origin"))  # + scale_color_brewer(palette = 'Set2')
+                theme(legend.position = "bottom"))
             print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Cluster, shape = Experiment)) + 
                 geom_point(data = data, size = 7, alpha = 0.4) + scale_shape(solid = T) + 
                 xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) + 
-                theme(legend.position = "bottom") + ggtitle("color = Cluster, shape = Experiment"))  # + scale_color_brewer(palette = 'Set2')
+                theme(legend.position = "bottom"))
             print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Experiment, shape = Origin)) + 
                 geom_point(data = data, size = 7, alpha = 0.4) + scale_shape(solid = T) + 
                 xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) + 
-                theme(legend.position = "bottom") + ggtitle("color = Experiment, shape = Origin") + 
-                scale_color_brewer(palette = "Set2"))
+                theme(legend.position = "bottom") + scale_color_brewer(palette = "Set2"))
             print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Origin, shape = Experiment)) + 
                 geom_point(data = data, size = 7, alpha = 0.4) + scale_shape(solid = T) + 
                 xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) + 
-                theme(legend.position = "bottom") + ggtitle("color = Origin, shape = Experiment") + 
-                scale_color_brewer(palette = "Set2"))
+                theme(legend.position = "bottom") + scale_color_brewer(palette = "Set2"))
             print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Origin, shape = Origin)) + 
                 geom_point(data = data, size = 7, alpha = 0.4) + scale_shape(solid = T) + 
                 xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) + 
-                theme(legend.position = "bottom") + ggtitle("color = Origin, shape = Origin") + 
-                scale_color_brewer(palette = "Set2"))
+                theme(legend.position = "bottom") + scale_color_brewer(palette = "Set2"))
             print(ggplot(data, aes(x = tSNE.1, y = tSNE.2, color = Experiment, shape = Experiment)) + 
                 geom_point(data = data, size = 7, alpha = 0.4) + scale_shape(solid = T) + 
                 xlab("tSNE 1") + ylab("tSNE 2") + theme_classic(base_size = 20) + 
-                theme(legend.position = "bottom") + ggtitle("color = Experiment, shape = Experiment") + 
-                scale_color_brewer(palette = "Set2"))
+                theme(legend.position = "bottom") + scale_color_brewer(palette = "Set2"))
             
             if (ncol(environment$confounders) > 0) {
                 data <- data.frame(Cluster = factor(membership[!duplicated.indices]), 
                   Origin = factor(environment$origins[!duplicated.indices]), Experiment = factor(environment$experiments[!duplicated.indices]), 
                   environment$confounders, tSNE = tSNE)
-                head(data)
+                utils::head(data)
                 # name = colnames(environment$confounders)[2]
                 for (name in colnames(environment$confounders)) {
                   signature.activation <- data[[name]]
@@ -286,7 +272,7 @@ plot.tSNE <- function(environment, tSNE.job, perplexity, max_iter, membership = 
                 }
             }
         }, error = function(e) e)
-        dev.off()
+        grDevices::dev.off()
     }
 }
 
@@ -294,11 +280,11 @@ plot.expression.heatmap.based.on.FC.marker <- function(measurements, clustering,
     gene.list, counts = F, order = NA, RowSideColors = NA, scale = "row", save = NA, 
     filter.diff.exp = T, cellnote = T, exponent = F, doMeans = T, srtCol = 45, multiplication = 100, 
     rounding = 0, breaks = 50, key = T, sort.rows = T, sort.cols = T, Rowv = F, Colv = F, 
-    dendrogram = "none") {
+    dendrogram = "none", main.remove = T) {
     
     colors <- c("#d60c0c", "#ffb1ad", "#f4f4f4", "#aed4fc", "#0050ba")  #c('#d73027','#fc8d59','#fee090','#e0f3f8','#91bfdb','#4575b4')
     colors <- colors[length(colors):1]  #red should correspond to high
-    color.palette <- colorRampPalette(colors)
+    color.palette <- grDevices::colorRampPalette(colors)
     list.row <- 1
     titles <- names(gene.list)
     plots <- list()
@@ -314,14 +300,13 @@ plot.expression.heatmap.based.on.FC.marker <- function(measurements, clustering,
                 next
             if (length(genes) == 1) 
                 genes <- rep(genes, 2)
-            # genes = c(markers,genes)
+            
             genes <- genes[genes %in% rownames(measurements)]
             
             measurements.diff.exp <- measurements[match(genes, rownames(measurements)), 
                 ]
             if (doMeans) {
                 names <- rownames(measurements.diff.exp)
-                # if (exponent) measurements.diff.exp = exp(measurements.diff.exp)
                 mat <- {
                 }
                 row <- 1
@@ -333,8 +318,9 @@ plot.expression.heatmap.based.on.FC.marker <- function(measurements, clustering,
                   mat <- rbind(mat, averages)
                 }
                 rownames(mat) <- names
-                if (sort.cols) 
+                if (sort.cols) {
                   mat <- mat[, order(colnames(mat))]
+                }
             } else {
                 mat <- measurements.diff.exp
             }
@@ -386,17 +372,17 @@ plot.expression.heatmap.based.on.FC.marker <- function(measurements, clustering,
                   scale = scale, key = key, cexRow = 1, cexCol = 1, density.info = "none", 
                   trace = "none", srtCol = srtCol, adjCol = c(1, 1), Rowv = Rowv, 
                   Colv = Colv, margins = c(8, 5), dendrogram = dendrogram, main = titles[list.row], 
-                  RowSideColors = RowSideColors, cellnote = cellnote, notecol = "white")  #100*round((2^others)-1,2), breaks = breaks
+                  RowSideColors = RowSideColors, cellnote = cellnote, notecol = "white")
             } else {
                 plots[[titles[list.row]]] <- heatmap.2(as.matrix(others), col = color.palette, 
                   scale = scale, key = key, cexRow = 1, cexCol = 1, density.info = "none", 
                   trace = "none", srtCol = srtCol, adjCol = c(1, 1), Rowv = Rowv, 
                   Colv = Colv, margins = c(8, 5), dendrogram = dendrogram, main = titles[list.row], 
-                  RowSideColors = RowSideColors)  # breaks = breaks
+                  RowSideColors = RowSideColors)
             }
             
             if (!is.na(save)) {
-                write.csv(as.matrix(others), file = save)
+                utils::write.csv(as.matrix(others), file = save)
             }
         }, error = function(e) print(e))
     }
@@ -407,12 +393,12 @@ plot.expression.heatmap.based.on.FC.marker <- function(measurements, clustering,
 plot.simple.heatmap <- function(environment, name, path = NA, markers, membership = NA, 
     normalized = NA, order = NA, width = 5, height = 5, scale = "row", RowSideColors = NA, 
     counts = F, filter.diff.exp = F, cellnote = F, key = F, save = NA, sort.rows = T, 
-    sort.cols = T, Colv = F, Rowv = F, dendrogram = "none") {
+    sort.cols = T, Colv = F, Rowv = F, dendrogram = "none", main = NA) {
     
     if (is.na(path)) 
         path <- environment$work.path
-    pdf(file = file.path(path, paste(name, "heatmap.pdf", sep = ".")), width = width, 
-        height = height)
+    grDevices::pdf(file = file.path(path, paste(name, "heatmap.pdf", sep = ".")), 
+        width = width, height = height)
     
     if (is.na(membership)) 
         membership <- environment$cluster.names
@@ -423,7 +409,10 @@ plot.simple.heatmap <- function(environment, name, path = NA, markers, membershi
     if (length(order) == 1 && is.na(order)) 
         order <- names(cluster.size)[order(cluster.size, decreasing = T)]
     
-    plot.expression.heatmap.based.on.FC.marker(normalized, membership, gene.list = list(markers = markers), 
+    gene.list <- list(markers = markers)
+    if (!is.null(main)) 
+        names(gene.list) <- main
+    plot.expression.heatmap.based.on.FC.marker(normalized, membership, gene.list = gene.list, 
         scale = scale, RowSideColors = RowSideColors, counts = counts, order = order, 
         filter.diff.exp = filter.diff.exp, cellnote = cellnote, doMeans = T, exponent = ifelse(counts, 
             F, T), multiplication = ifelse(counts, 100, 10), rounding = 0, key = key, 
@@ -431,11 +420,11 @@ plot.simple.heatmap <- function(environment, name, path = NA, markers, membershi
         dendrogram = dendrogram)
     
     if (key & length(RowSideColors) > 1) {
-        legend("topright", legend = unique(RowSideColors), col = unique(as.numeric(RowSideColors)), 
+        graphics::legend("topright", legend = unique(RowSideColors), col = unique(as.numeric(RowSideColors)), 
             lty = 1, lwd = 5, cex = 0.7)
     }
     
-    dev.off()
+    grDevices::dev.off()
 }
 
 plot.violin <- function(environment, genes, types, fore1exp1, fore2exp1, fore1exp2, 
@@ -475,31 +464,31 @@ plot.violin <- function(environment, genes, types, fore1exp1, fore2exp1, fore1ex
     }
     
     tryCatch({
-        pdf(file.path(path, paste(paste(types, collapse = "_"), "violin.pdf", sep = ".")), 
-            height = height, width = width)
+        grDevices::pdf(file.path(path, paste(paste(types, collapse = "_"), "violin.pdf", 
+            sep = ".")), height = height, width = width)
         print(ggplot(violin.plot.data, aes(x = gene, y = expression, fill = cell_type)) + 
             geom_violin(scale = "width", draw_quantiles = c(0.25, 0.5, 0.75)) + theme_classic(base_size = 15) + 
             theme(axis.text.x = element_text(angle = 25, hjust = 1)) + scale_fill_brewer(palette = palette))
-        dev.off()
+        grDevices::dev.off()
     }, error = function(v) {
-        pdf(file.path(path, paste(paste(types, collapse = "_"), "violin.pdf", sep = ".")), 
-            height = height, width = width)
+        grDevices::pdf(file.path(path, paste(paste(types, collapse = "_"), "violin.pdf", 
+            sep = ".")), height = height, width = width)
         print(ggplot(violin.plot.data, aes(x = gene, y = expression, fill = cell_type)) + 
             geom_violin(scale = "width", draw_quantiles = c(0.5)) + theme_classic(base_size = 15) + 
             theme(axis.text.x = element_text(angle = 25, hjust = 1)) + scale_fill_brewer(palette = palette))
-        dev.off()
+        grDevices::dev.off()
     })
 }
+
 
 plot.heatmaps <- function(environment, diff.exp, membership, order = NA, nTopRanked = 10, 
     label = NA) {
     
-    symbols <- {
-    }
+    symbols <- c()
     for (cluster in unique(diff.exp$cluster)) {
         top.ranked <- diff.exp[diff.exp$cluster == cluster, ]
         top.ranked <- top.ranked[order(top.ranked$fold, decreasing = T), ]
-        symbols <- c(symbols, head(as.vector(top.ranked$gene), nTopRanked))
+        symbols <- c(symbols, utils::head(as.vector(top.ranked$gene), nTopRanked))
     }
     symbols <- unique(symbols)
     symbols
@@ -513,7 +502,9 @@ plot.heatmaps <- function(environment, diff.exp, membership, order = NA, nTopRan
         dir.create(work.path, showWarnings = F)
         file.name <- paste(label, file.name, sep = ".")
     }
-    pdf(file = file.path(work.path, file.name), width = length(unique(clustering))/2, 
+    
+    
+    grDevices::pdf(file = file.path(work.path, file.name), width = length(unique(clustering))/2, 
         height = length(symbols)^(1/1.5))
     plot.expression.heatmap.based.on.FC.marker(environment$normalized, clustering, 
         gene.list = list(markers = symbols), order = order, filter.diff.exp = T, 
@@ -535,13 +526,13 @@ plot.heatmaps <- function(environment, diff.exp, membership, order = NA, nTopRan
         gene.list = list(markers = symbols), order = order, filter.diff.exp = F, 
         scale = "none", cellnote = T, doMeans = T, exponent = T, multiplication = 10, 
         rounding = 0)
-    dev.off()
+    grDevices::dev.off()
     
     extended.genes <- environment$marker.genes
     file.name <- "all.markers.pdf"
     if (length(label) == 1 && !is.na(label)) 
         file.name <- paste(label, file.name, sep = ".")
-    pdf(file = file.path(work.path, file.name), width = length(unique(clustering))/2, 
+    grDevices::pdf(file = file.path(work.path, file.name), width = length(unique(clustering))/2, 
         height = length(extended.genes)^(1/1.5))
     plot.expression.heatmap.based.on.FC.marker(measurements = environment$normalized, 
         clustering, gene.list = list(markers = extended.genes), order = order, filter.diff.exp = T, 
@@ -561,18 +552,17 @@ plot.heatmaps <- function(environment, diff.exp, membership, order = NA, nTopRan
     plot.expression.heatmap.based.on.FC.marker(environment$normalized, clustering, 
         gene.list = list(markers = extended.genes), order = order, filter.diff.exp = F, 
         scale = "none", doMeans = T, exponent = T, multiplication = 10, rounding = 0)
-    dev.off()
+    grDevices::dev.off()
 }
 
 
-#' Visualize cluster correlation heatmap
-#' 
-#' TODO
-#' 
-#' @param environment The environment object
-#' @param work.path TODO
-#' @param similarity TODO
-#' @return TODO
+#' Visualize Correlation
+#'
+#' Plot correlation heatmaps for each pair of datasets.
+#'
+#' @param environment \code{environment} object
+#' @param work.path where to locate the figures
+#' @param similarity similarity matrix defined in compare.cluster.similarity or get.robust.cluster.similarity
 #' @export
 visualize.cluster.cors.heatmaps <- function(environment, work.path, similarity) {
     
@@ -608,8 +598,8 @@ visualize.cluster.cors.heatmaps <- function(environment, work.path, similarity) 
                 coef = sample$similarity)
             similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, 
                 value.var = "coef")
-            write.csv(sample, file = file.path(sub.work.path, paste(file.name, "similarity.csv", 
-                sep = "_")))
+            utils::write.csv(sample, file = file.path(sub.work.path, paste(file.name, 
+                "similarity.csv", sep = "_")))
             similarity.matrix <- t(similarity.matrix)
             
             ocl.similarity.summary.df <- data.frame(cluster1 = sample$name1, cluster2 = sample$name2, 
@@ -618,20 +608,73 @@ visualize.cluster.cors.heatmaps <- function(environment, work.path, similarity) 
                 cluster2, value.var = "coef")
             ocl.similarity.matrix <- t(ocl.similarity.matrix)
             
-            pdf(file.path(sub.work.path, paste(file.name, "similarity.heatmap.pdf", 
+            grDevices::pdf(file.path(sub.work.path, paste(file.name, "similarity.heatmap.pdf", 
                 sep = "_")), width = 10, height = 10)
             colors <- rev(brewer.pal(5, "PuOr"))
-            color.palette <- colorRampPalette(colors)
+            color.palette <- grDevices::colorRampPalette(colors)
             print(heatmap.2(similarity.matrix, col = color.palette, key = T, cexRow = 1, 
                 cexCol = 1, srtCol = 45, scale = "none", density.info = "none", trace = "none", 
-                Rowv = T, Colv = T, dendrogram = "both", margins = c(15, 15), cellnote = round(similarity.matrix, 
-                  1), notecol = "white", main = "Cluster FC Correlations"))
+                Rowv = T, Colv = T, dendrogram = "both", margins = c(17, 17), cellnote = round(similarity.matrix, 
+                  1), notecol = "white", main = "Pearson Correlation Between Cluster FC"))
             print(heatmap.2(ocl.similarity.matrix, col = color.palette, key = T, 
                 cexRow = 1, cexCol = 1, srtCol = 45, scale = "none", density.info = "none", 
-                trace = "none", Rowv = F, Colv = F, dendrogram = "none", margins = c(15, 
-                  15), cellnote = round(ocl.similarity.matrix, 1), notecol = "white", 
+                trace = "none", Rowv = F, Colv = F, dendrogram = "none", margins = c(17, 
+                  17), cellnote = round(ocl.similarity.matrix, 1), notecol = "white", 
                 main = "Cluster mean Euclidean similarity"))
-            dev.off()
+            grDevices::dev.off()
         }
     }
+}
+
+#' Plot Similarity Results
+#'
+#' Perform hierarchical clustering and plot cluster similarities according to dendrogram.
+#'
+#' @param environment \code{environment} object
+#' @param similarity similarity matrix defined in compare.cluster.similarity or get.robust.cluster.similarity
+#' @export
+visualize.cluster.similarity.stats <- function(environment, similarity) {
+    net <- igraph::graph_from_data_frame(d = similarity[similarity$similarity > 0.1, 
+        c("name1", "name2")], directed = F)
+    deg <- igraph::degree(net, mode = "all")
+    igraph::V(net)$size <- deg
+    l <- igraph::layout_with_kk(net)
+    
+    similarity.summary.df <- data.frame(cluster1 = similarity$name1, cluster2 = similarity$name2, 
+        coef = similarity$similarity)
+    mirror <- similarity.summary.df
+    cluster1 <- mirror$cluster1
+    cluster2 <- mirror$cluster2
+    mirror$cluster1 <- cluster2
+    mirror$cluster2 <- cluster1
+    similarity.summary.df <- rbind(similarity.summary.df, mirror)
+    similarity.matrix <- reshape2::acast(similarity.summary.df, cluster1 ~ cluster2, 
+        value.var = "coef")
+    
+    grDevices::pdf(file.path(environment$work.path, paste("hclust.dist.Cor.FC.pdf", 
+        sep = "_")), width = 30, height = 30)
+    similarity.matrix[1:5, 1:5]
+    stats::dist(similarity.matrix)
+    hc.dist <- stats::hclust(stats::as.dist(1 - similarity.matrix))
+    plot(hc.dist)
+    colors <- rev(RColorBrewer::brewer.pal(5, "PuOr"))
+    color.palette <- grDevices::colorRampPalette(colors)
+    hc.dist <- stats::hclust(stats::as.dist(1 - similarity.matrix))
+    clusters <- stats::cutree(hc.dist, k = 8)
+    
+    clusters.ordered <- clusters[match(names(igraph::V(net)), names(clusters))]
+    mark.groups <- lapply(unique(clusters.ordered), function(c) as.vector(which(clusters.ordered == 
+        c)))
+    lapply(unique(clusters.ordered), function(c) names(clusters.ordered[clusters.ordered == 
+        c]))
+    plot(net, mark.groups = mark.groups, layout = l)
+    print(gplots::heatmap.2(similarity.matrix, col = color.palette, key = T, cexRow = 3.5, 
+        cexCol = 3.5, scale = "none", density.info = "none", trace = "none", Rowv = stats::as.dendrogram(hc.dist), 
+        Colv = stats::as.dendrogram(hc.dist), dendrogram = "both", notecol = "white", 
+        main = "", keysize = 1, margins = c(40, 40)))  # cellnote = round(similarity.matrix, 1), notecex = 2,
+    print(gplots::heatmap.2(similarity.matrix, col = color.palette, key = T, cexRow = 3.5, 
+        cexCol = 3.5, scale = "none", density.info = "none", trace = "none", keysize = 1, 
+        Rowv = T, Colv = T, dendrogram = "both", notecol = "white", main = "", margins = c(40, 
+            40)))  # cellnote = round(similarity.matrix, 1), notecex = 2, main = 'Pearson Correlation Between Cluster FC'
+    grDevices::dev.off()
 }

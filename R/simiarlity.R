@@ -1,25 +1,26 @@
 #' Get Robust Cluster Similarity
-#' 
-#' TODO
 #'
-#' @param environment The environment object
-#' @param similarity TODO
-#' @param min.sd TODO
-#' @param max.q.val TODO
-#' @param rerun TODO
+#' Use cross-replicate experiment cluster similarity to remove irreproducible clusters.
+#'
+#' @param environment \code{environment} object
+#' @param similarity pearson correlation between clusters' FC vectors defined in compare.cluster.similarity
+#' @param min.sd minimum standard deviation for cluster reproducibility assessment
+#' @param max.q.val maximum q value for cluster correlation cutoff
+#' @param rerun whether to rerun the analysis or load from cache
+#' @return filtered cluster similarity matrix
 #' @export
 #' @import RColorBrewer
 #' @import reshape2
 #' @import gplots
 #' @import dplyr
 #' @import ggpubr
-get.robust.cluster.similarity <- function(environment, similarity, min.sd = qnorm(0.95), 
+get.robust.cluster.similarity <- function(environment, similarity, min.sd = stats::qnorm(0.95), 
     max.q.val = 0.01, rerun = F) {
     
-    cache <- file.path(environment$res.data.path, "filtered.cluster.similarity.RData")
+    cache <- file.path(environment$res.data.path, "filtered.cluster.similarity.rds")
     if (!rerun && file.exists(cache)) {
         print.message("Loading precomputed similarity")
-        load(cache)
+        filtered.cluster.similarity <- readRDS(cache)
     } else {
         print.message("Computing")
         
@@ -34,9 +35,9 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = qnor
             filtered.similarity <- similarity[filter, ]
             cor.val <- filtered.similarity$similarity
             shapiro.test.p.value <- tryCatch({
-                shapiro.test(cor.val)$p.value
+                stats::shapiro.test(cor.val)$p.value
             }, error = function(v) return(NA))
-            sd.dist <- (cor.val - mean(cor.val))/sd(cor.val)
+            sd.dist <- (cor.val - mean(cor.val))/stats::sd(cor.val)
             match.significance.stats <- rbind(match.significance.stats, data.frame(origin, 
                 cor.val, sd.dist, shapiro.test.p.value, filtered.similarity))
         }
@@ -52,7 +53,7 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = qnor
         
         plot.data <- data.frame(correlation = match.significance.stats$cor.val, SD = match.significance.stats$sd.dist, 
             origin = match.significance.stats$origin)
-        pdf(file.path(work.path, "cluster.matching.similarity.histogram.pdf"))
+        grDevices::pdf(file.path(work.path, "cluster.matching.similarity.histogram.pdf"))
         print(ggplot(plot.data, aes(x = correlation, fill = origin)) + geom_density(alpha = 0.5) + 
             theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
                 panel.background = element_blank(), axis.line = element_line(colour = "black")) + 
@@ -69,7 +70,7 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = qnor
             theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
                 panel.background = element_blank(), axis.line = element_line(colour = "black")) + 
             ylab("Density") + theme_classic(base_size = 25))
-        dev.off()
+        grDevices::dev.off()
         
         sum(match.significance.stats$sd.dist >= min.sd)/length(match.significance.stats$sd.dist)
         criteria <- match.significance.stats$sd.dist >= min.sd & match.significance.stats$Q.val.1 <= 
@@ -81,7 +82,7 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = qnor
         summary(robust.cluster.similarity)
         print(robust.cluster.similarity[1:min(nrow(robust.cluster.similarity), 5), 
             ])
-        write.csv(robust.cluster.similarity, file = file.path(work.path, "robust.cluster.similarity.csv"))
+        utils::write.csv(robust.cluster.similarity, file = file.path(work.path, "robust.cluster.similarity.csv"))
         
         robust.clusters <- unique(c(robust.cluster.similarity$cluster1, robust.cluster.similarity$cluster2))
         nclusters.overall <- length(unique(c(similarity$cluster1, similarity$cluster2)))
@@ -94,7 +95,8 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = qnor
         
         print(filtered.cluster.similarity[1:min(nrow(filtered.cluster.similarity), 
             5), ])
-        write.csv(filtered.cluster.similarity, file = file.path(work.path, "filtered.cluster.similarity.csv"))
+        utils::write.csv(filtered.cluster.similarity, file = file.path(work.path, 
+            "filtered.cluster.similarity.csv"))
         
         similarity.summary.df <- data.frame(cluster1 = filtered.cluster.similarity$name1, 
             cluster2 = filtered.cluster.similarity$name2, coef = filtered.cluster.similarity$similarity)
@@ -104,19 +106,19 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = qnor
         mirror$cluster1 <- cluster2
         mirror$cluster2 <- cluster1
         similarity.summary.df <- rbind(similarity.summary.df, mirror)
-        head(similarity.summary.df)
+        utils::head(similarity.summary.df)
         similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, value.var = "coef")
         similarity.matrix[1:10, 1:10]
-        hc.dist <- hclust(as.dist(1 - similarity.matrix))
-        pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.Cor.FC.pdf", 
+        hc.dist <- stats::hclust(stats::as.dist(1 - similarity.matrix))
+        grDevices::pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.Cor.FC.pdf", 
             sep = "_")), width = 20, height = 20)
         colors <- rev(brewer.pal(5, "PuOr"))
-        color.palette <- colorRampPalette(colors)
+        color.palette <- grDevices::colorRampPalette(colors)
         print(heatmap.2(similarity.matrix, col = color.palette, key = T, cexRow = 1, 
-            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = as.dendrogram(hc.dist), 
-            Colv = as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
+            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = stats::as.dendrogram(hc.dist), 
+            Colv = stats::as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
                 1), notecol = "white", main = "Cor", margins = c(10, 10)))
-        dev.off()
+        grDevices::dev.off()
         
         similarity.summary.df <- data.frame(cluster1 = filtered.cluster.similarity$name1, 
             cluster2 = filtered.cluster.similarity$name2, coef = filtered.cluster.similarity$similarity.1)
@@ -126,19 +128,19 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = qnor
         mirror$cluster1 <- cluster2
         mirror$cluster2 <- cluster1
         similarity.summary.df <- rbind(similarity.summary.df, mirror)
-        head(similarity.summary.df)
+        utils::head(similarity.summary.df)
         similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, value.var = "coef")
         similarity.matrix[1:10, 1:10]
-        hc.dist <- hclust(as.dist(1 - similarity.matrix))
-        pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.Cor.means.pdf", 
+        hc.dist <- stats::hclust(stats::as.dist(1 - similarity.matrix))
+        grDevices::pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.Cor.means.pdf", 
             sep = "_")), width = 20, height = 20)
         colors <- rev(brewer.pal(5, "PuOr"))
-        color.palette <- colorRampPalette(colors)
+        color.palette <- grDevices::colorRampPalette(colors)
         print(heatmap.2(similarity.matrix, col = color.palette, key = T, cexRow = 1, 
-            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = as.dendrogram(hc.dist), 
-            Colv = as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
+            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = stats::as.dendrogram(hc.dist), 
+            Colv = stats::as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
                 1), notecol = "white", main = "Cor", margins = c(10, 10)))
-        dev.off()
+        grDevices::dev.off()
         
         similarity.summary.df <- data.frame(cluster1 = filtered.cluster.similarity$name1, 
             cluster2 = filtered.cluster.similarity$name2, coef = -scale(filtered.cluster.similarity$ocldist.FC))
@@ -148,19 +150,19 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = qnor
         mirror$cluster1 <- cluster2
         mirror$cluster2 <- cluster1
         similarity.summary.df <- rbind(similarity.summary.df, mirror)
-        head(similarity.summary.df)
+        utils::head(similarity.summary.df)
         similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, value.var = "coef")
         similarity.matrix[1:10, 1:10]
-        hc.dist <- hclust(as.dist(1 - similarity.matrix))
-        pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.ocldist.FC.pdf", 
+        hc.dist <- stats::hclust(stats::as.dist(1 - similarity.matrix))
+        grDevices::pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.ocldist.FC.pdf", 
             sep = "_")), width = 20, height = 20)
         colors <- rev(brewer.pal(5, "PuOr"))
-        color.palette <- colorRampPalette(colors)
+        color.palette <- grDevices::colorRampPalette(colors)
         print(heatmap.2(similarity.matrix, col = color.palette, key = T, cexRow = 1, 
-            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = as.dendrogram(hc.dist), 
-            Colv = as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
+            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = stats::as.dendrogram(hc.dist), 
+            Colv = stats::as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
                 1), notecol = "white", main = "Cor", margins = c(10, 10)))
-        dev.off()
+        grDevices::dev.off()
         
         similarity.summary.df <- data.frame(cluster1 = filtered.cluster.similarity$name1, 
             cluster2 = filtered.cluster.similarity$name2, coef = -scale(filtered.cluster.similarity$ocldist))
@@ -170,22 +172,22 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = qnor
         mirror$cluster1 <- cluster2
         mirror$cluster2 <- cluster1
         similarity.summary.df <- rbind(similarity.summary.df, mirror)
-        head(similarity.summary.df)
+        utils::head(similarity.summary.df)
         similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, value.var = "coef")
         similarity.matrix[1:10, 1:10]
-        hc.dist <- hclust(as.dist(1 - similarity.matrix))
+        hc.dist <- stats::hclust(stats::as.dist(1 - similarity.matrix))
         
-        pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.ocldist.means.pdf", 
+        grDevices::pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.ocldist.means.pdf", 
             sep = "_")), width = 20, height = 20)
         colors <- rev(brewer.pal(5, "PuOr"))
-        color.palette <- colorRampPalette(colors)
+        color.palette <- grDevices::colorRampPalette(colors)
         print(heatmap.2(similarity.matrix, col = color.palette, key = T, cexRow = 1, 
-            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = as.dendrogram(hc.dist), 
-            Colv = as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
+            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = stats::as.dendrogram(hc.dist), 
+            Colv = stats::as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
                 1), notecol = "white", main = "Cor", margins = c(10, 10)))
-        dev.off()
+        grDevices::dev.off()
         
-        save(filtered.cluster.similarity, file = cache)
+        saveRDS(filtered.cluster.similarity, file = cache)
     }
     
     return(filtered.cluster.similarity)
@@ -193,29 +195,32 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = qnor
 
 pearson.correlation <- function(diff1, diff2) {
     
-    cor <- cor.test(diff1, diff2, method = "pearson")
+    cor <- stats::cor.test(diff1, diff2, method = "pearson")
     return(data.frame(similarity = cor$estimate, significance = cor$p.value))
 }
 
-#' Compare the similarity between clusters
-#' 
-#' TODO
+#' Compare Cluster Similarity
 #'
-#' @param environment The environment object 
-#' @param diff.exp.file TODO
-#' @param cluster.similarity.function TODO
-#' @param label TOOD
-#' @param rerun TODO
-#' @return TODO
+#' Assess similarity between pairs of clusters.
+#'
+#' @param environment \code{environment} object
+#' @param diff.exp.file name of differential expression results file
+#' @param cluster.similarity.function which similarity function to use (either 'pearson.correlation' or '?') Mamie - there was another similarity function using euclidean distance. Do you know where did it go to? Can you replace the '?' with the name of this other function?
+#' @param label name of the similarity measure to use for the results folder
+#' @param rerun whether to rerun the analysis or load from cache
+#' @return pairwise cluster similarity measures
 #' @export
-compare.cluster.similarity <- function(environment, diff.exp.file = "main.datasets.diff.exp.RData", 
+compare.cluster.similarity <- function(environment, diff.exp.file = "main.datasets.diff.exp.rds", 
     cluster.similarity.function = pearson.correlation, label = "pearson", rerun = F) {
     
-    cache <- file.path(environment$res.data.path, paste(label, "cluster.similarity.RData", 
+    cache <- file.path(environment$res.data.path, paste(label, "cluster.similarity.rds", 
         sep = "."))
     if (!rerun && file.exists(cache)) {
         print.message("Loading precomputed similarity")
-        load(cache)
+        precomputed <- readRDS(cache)
+        similarity <- precomputed$similarity
+        map <- precomputed$map
+        rm(precomputed)
     } else {
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"), split = F)
@@ -229,9 +234,10 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
         }
         dir.create(work.path, showWarnings = T, recursive = T)
         
-        load(file.path(environment$work.path, "data", diff.exp.file))
+        precomputed <- readRDS(file.path(environment$work.path, "data", diff.exp.file))
+        limma.all <- precomputed$limma.all
         final.diff <- limma.all
-        head(final.diff)
+        utils::head(final.diff)
         configs <- apply(final.diff, 1, function(v) paste(c(v[1], v[2]), collapse = "_"))
         membership <- environment$clustering$membership
         original.membership <- environment$original.clustering
@@ -243,7 +249,7 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
             c][1]), c))))
         colnames(map) <- c("name", "origin", "experiments", "sample", "original.membership", 
             "membership")
-        head(map)
+        utils::head(map)
         
         cluster.descriptors <- {
         }
@@ -265,13 +271,13 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
         }
         colnames(cluster.descriptors) <- map[match(seq(nclusters), map$membership), 
             1]
-        head(cluster.descriptors)
+        utils::head(cluster.descriptors)
         
-        pdf(file.path(environment$work.path, paste("hclust.cluster.descriptors.pdf", 
+        grDevices::pdf(file.path(environment$work.path, paste("hclust.cluster.descriptors.pdf", 
             sep = "_")), width = 10, height = 10)
-        hc.dist <- hclust(dist(t(cluster.descriptors)))
+        hc.dist <- stats::hclust(stats::dist(t(cluster.descriptors)))
         plot(hc.dist)
-        dev.off()
+        grDevices::dev.off()
         
         # Cluster similarity
         similarity <- {
@@ -300,8 +306,8 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
                   stop("\n\n\n\nGene mismatch\n\n\n\n")
                 measurements2 <- environment$normalized[, membership == cluster2]
                 measurements2.means <- rowMeans(measurements2)
-                ocldist <- as.vector(dist(rbind(measurements1.means, measurements2.means)))
-                ocldist.FC <- as.vector(dist(rbind(diff1$fold, diff2$fold)))
+                ocldist <- as.vector(stats::dist(rbind(measurements1.means, measurements2.means)))
+                ocldist.FC <- as.vector(stats::dist(rbind(diff1$fold, diff2$fold)))
                 over1 <- diff1[diff1$QValue <= 0.05 & diff1$fold >= 1, ]
                 over2 <- diff2[diff2$QValue <= 0.05 & diff2$fold >= 1, ]
                 intersect <- intersect(over1$gene, over2$gene)
@@ -329,21 +335,21 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
                   ocldist, ocldist.FC, jaccard, jaccard2))
             }
         }
-        head(similarity)
+        utils::head(similarity)
         dim(similarity)
         
         # Cluster mapping
-        similarity$Q.val <- p.adjust(similarity$significance, method = "BH")
-        similarity$Q.val.1 <- p.adjust(similarity$significance.1, method = "BH")
+        similarity$Q.val <- stats::p.adjust(similarity$significance, method = "BH")
+        similarity$Q.val.1 <- stats::p.adjust(similarity$significance.1, method = "BH")
         
         similarity <- cbind(map[match(similarity$cluster1, map$membership), 1:5], 
             map[match(similarity$cluster2, map$membership), 1:5], similarity)
-        head(similarity)
+        utils::head(similarity)
         colnames(similarity)[1:10] <- c("name1", "origin1", "experiment1", "sample1", 
             "original.membership1", "name2", "origin2", "experiment2", "sample2", 
             "original.membership2")
         similarity <- similarity[order(similarity$similarity, decreasing = T), ]
-        write.csv(similarity, row.names = F, file = file.path(work.path, paste(label, 
+        utils::write.csv(similarity, row.names = F, file = file.path(work.path, paste(label, 
             "cluster.similarity.csv", sep = "_")))
         
         similarity.summary.df <- data.frame(cluster1 = similarity$name1, cluster2 = similarity$name2, 
@@ -354,19 +360,19 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
         mirror$cluster1 <- cluster2
         mirror$cluster2 <- cluster1
         similarity.summary.df <- rbind(similarity.summary.df, mirror)
-        head(similarity.summary.df)
+        utils::head(similarity.summary.df)
         similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, value.var = "coef")
         similarity.matrix[1:10, 1:10]
-        hc.dist <- hclust(as.dist(1 - similarity.matrix))
-        pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.Cor.FC.pdf", 
+        hc.dist <- stats::hclust(stats::as.dist(1 - similarity.matrix))
+        grDevices::pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.Cor.FC.pdf", 
             sep = "_")), width = 20, height = 20)
         colors <- rev(brewer.pal(5, "PuOr"))
-        color.palette <- colorRampPalette(colors)
+        color.palette <- grDevices::colorRampPalette(colors)
         print(heatmap.2(similarity.matrix, col = color.palette, key = T, cexRow = 1, 
-            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = as.dendrogram(hc.dist), 
-            Colv = as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
+            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = stats::as.dendrogram(hc.dist), 
+            Colv = stats::as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
                 1), notecol = "white", main = "Cor", margins = c(10, 10)))
-        dev.off()
+        grDevices::dev.off()
         
         similarity.summary.df <- data.frame(cluster1 = similarity$name1, cluster2 = similarity$name2, 
             coef = similarity$similarity.1)
@@ -376,19 +382,19 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
         mirror$cluster1 <- cluster2
         mirror$cluster2 <- cluster1
         similarity.summary.df <- rbind(similarity.summary.df, mirror)
-        head(similarity.summary.df)
+        utils::head(similarity.summary.df)
         similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, value.var = "coef")
         similarity.matrix[1:10, 1:10]
-        hc.dist <- hclust(as.dist(1 - similarity.matrix))
-        pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.Cor.means.pdf", 
+        hc.dist <- stats::hclust(stats::as.dist(1 - similarity.matrix))
+        grDevices::pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.Cor.means.pdf", 
             sep = "_")), width = 20, height = 20)
         colors <- rev(brewer.pal(5, "PuOr"))
-        color.palette <- colorRampPalette(colors)
+        color.palette <- grDevices::colorRampPalette(colors)
         print(heatmap.2(similarity.matrix, col = color.palette, key = T, cexRow = 1, 
-            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = as.dendrogram(hc.dist), 
-            Colv = as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
+            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = stats::as.dendrogram(hc.dist), 
+            Colv = stats::as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
                 1), notecol = "white", main = "Cor", margins = c(10, 10)))
-        dev.off()
+        grDevices::dev.off()
         
         similarity.summary.df <- data.frame(cluster1 = similarity$name1, cluster2 = similarity$name2, 
             coef = -scale(similarity$ocldist.FC))
@@ -398,19 +404,19 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
         mirror$cluster1 <- cluster2
         mirror$cluster2 <- cluster1
         similarity.summary.df <- rbind(similarity.summary.df, mirror)
-        head(similarity.summary.df)
+        utils::head(similarity.summary.df)
         similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, value.var = "coef")
         similarity.matrix[1:10, 1:10]
-        hc.dist <- hclust(as.dist(1 - similarity.matrix))
-        pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.ocldist.FC.pdf", 
+        hc.dist <- stats::hclust(stats::as.dist(1 - similarity.matrix))
+        grDevices::pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.ocldist.FC.pdf", 
             sep = "_")), width = 20, height = 20)
         colors <- rev(brewer.pal(5, "PuOr"))
-        color.palette <- colorRampPalette(colors)
+        color.palette <- grDevices::colorRampPalette(colors)
         print(heatmap.2(similarity.matrix, col = color.palette, key = T, cexRow = 1, 
-            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = as.dendrogram(hc.dist), 
-            Colv = as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
+            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = stats::as.dendrogram(hc.dist), 
+            Colv = stats::as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
                 1), notecol = "white", main = "Cor", margins = c(10, 10)))
-        dev.off()
+        grDevices::dev.off()
         
         similarity.summary.df <- data.frame(cluster1 = similarity$name1, cluster2 = similarity$name2, 
             coef = -scale(similarity$ocldist))
@@ -420,23 +426,24 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
         mirror$cluster1 <- cluster2
         mirror$cluster2 <- cluster1
         similarity.summary.df <- rbind(similarity.summary.df, mirror)
-        head(similarity.summary.df)
+        utils::head(similarity.summary.df)
         similarity.matrix <- acast(similarity.summary.df, cluster1 ~ cluster2, value.var = "coef")
         similarity.matrix[1:10, 1:10]
-        hc.dist <- hclust(as.dist(1 - similarity.matrix))
-        pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.ocldist.means.pdf", 
+        hc.dist <- stats::hclust(stats::as.dist(1 - similarity.matrix))
+        grDevices::pdf(file.path(work.path, paste("filtered.cluster.similarity.heatmap.ocldist.means.pdf", 
             sep = "_")), width = 20, height = 20)
         colors <- rev(brewer.pal(5, "PuOr"))
-        color.palette <- colorRampPalette(colors)
+        color.palette <- grDevices::colorRampPalette(colors)
         print(heatmap.2(similarity.matrix, col = color.palette, key = T, cexRow = 1, 
-            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = as.dendrogram(hc.dist), 
-            Colv = as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
+            cexCol = 1, scale = "none", density.info = "none", trace = "none", Rowv = stats::as.dendrogram(hc.dist), 
+            Colv = stats::as.dendrogram(hc.dist), dendrogram = "both", cellnote = round(similarity.matrix, 
                 1), notecol = "white", main = "Cor", margins = c(10, 10)))
-        dev.off()
+        grDevices::dev.off()
         
-        save(similarity, map, file = cache)
+        saveRDS(list(similarity = similarity, map = map), file = cache)
         end(t)
     }
     
     return(list(map = map, similarity = similarity))
 }
+

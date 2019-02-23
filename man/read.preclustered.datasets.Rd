@@ -2,18 +2,20 @@
 % Please edit documentation in R/read_data.R
 \name{read.preclustered.datasets}
 \alias{read.preclustered.datasets}
-\title{Read preclustered datasets}
+\title{Read Preclustered Datasets}
 \usage{
 read.preclustered.datasets(environment, path = NA, recursive = T,
   rerun = F)
 }
 \arguments{
-\item{path}{Search path for previous projects}
+\item{environment}{\code{environment} object}
 
-\item{recursive}{Recursive path search}
+\item{path}{search path for previous projects}
 
-\item{rerun}{Whether to rerun the reading process}
+\item{recursive}{recursive path search}
+
+\item{rerun}{whether to rerun the reading process or load from cache}
 }
 \description{
-Read preclustered datasets
+Read previous analysis of multiple datasets to perform integrated analysis.
 }

@@ -1,20 +1,22 @@
-#' Get highly variable genes by Heteroscedasticity controlled binning
+#' Identify Highly Variable Genes
 #'
+#' Get highly variable genes by Heteroscedasticity controlled binning of gene expression measurements within each dataset separately.
 #'
-#' @param min.mean Minimum mean expression per gene
-#' @param min.frac.cells Minimum fraction of cells expressing each gene
-#' @param min.dispersion.scaled Minimum dispersion value
-#' @param rerun Whether to rerun
+#' @param environment \code{environment} object
+#' @param min.mean minimum mean expression per gene
+#' @param min.frac.cells minimum fraction of cells expressing each gene
+#' @param min.dispersion.scaled minimum dispersion value
+#' @param rerun whether to rerun the analysis or load from cache
 #' @return \code{environment} parameter containing highly variable genes selection
 #' @export
 get.variable.genes <- function(environment, min.mean = 0.05, min.frac.cells = 0, 
     min.dispersion.scaled = 1, rerun = F) {
     
-    cache <- file.path(environment$baseline.data.path, "HVG.RData")
+    cache <- file.path(environment$baseline.data.path, "HVG.rds")
     
     if (!rerun & file.exists(cache)) {
         print.message("Loading precomputed")
-        load(cache)
+        HVG <- readRDS(cache)
     } else {
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"))
@@ -33,26 +35,26 @@ get.variable.genes <- function(environment, min.mean = 0.05, min.frac.cells = 0,
             means <- apply(filtered.normalized, 1, function(v) log(mean(exp(v) - 
                 1) + 1))
             frac.cells <- rowSums(filtered.normalized > 0)/ncol(filtered.normalized)
-            vars <- apply(filtered.normalized, 1, function(v) log(var(exp(v) - 1) + 
-                1))
-            dispersion <- apply(filtered.normalized, 1, function(v) log(var(exp(v) - 
+            vars <- apply(filtered.normalized, 1, function(v) log(stats::var(exp(v) - 
+                1) + 1))
+            dispersion <- apply(filtered.normalized, 1, function(v) log(stats::var(exp(v) - 
                 1)/mean(exp(v) - 1)))
             dispersion[is.na(x = dispersion)] <- 0
             means[is.na(x = means)] <- 0
             
-            pdf(file.path(environment$baseline.work.path, paste(dataset, "VariableGenes.pdf", 
-                sep = ".")))
+            grDevices::pdf(file.path(environment$baseline.work.path, paste(dataset, 
+                "VariableGenes.pdf", sep = ".")))
             plot.data <- data.frame(gene = names(means), means, dispersion)  #head(plot.data)
             print(ggplot(plot.data, aes(x = means, y = dispersion, label = gene)) + 
                 geom_text(check_overlap = TRUE, size = 2))
-            smoothScatter(means, dispersion)
-            dev.off()
+            graphics::smoothScatter(means, dispersion)
+            grDevices::dev.off()
             
             num.bin <- 20
             bins <- cut(x = means, breaks = num.bin)
             names(x = bins) <- names(x = means)
             mean_y <- tapply(dispersion, bins, mean)
-            sd_y <- tapply(dispersion, bins, sd)
+            sd_y <- tapply(dispersion, bins, stats::sd)
             dispersion.scaled <- (dispersion - mean_y[as.numeric(x = bins)])/sd_y[as.numeric(x = bins)]
             dispersion.scaled[is.na(x = dispersion.scaled)] <- 0
             names(x = dispersion.scaled) <- names(x = means)
@@ -68,8 +70,8 @@ get.variable.genes <- function(environment, min.mean = 0.05, min.frac.cells = 0,
             genes <- c(get.ribo.genes(rownames(normalized)), get.mito.genes(rownames(normalized)))
             print.message("Qualifying Ribosomal & Mitochondrial")
             print(genes[genes %in% HVG])
-            write.csv(HVG, file = file.path(environment$baseline.work.path, paste(dataset, 
-                "VariableGenes.csv", sep = ".")))
+            utils::write.csv(HVG, file = file.path(environment$baseline.work.path, 
+                paste(dataset, "VariableGenes.csv", sep = ".")))
             merged <- unique(c(merged, HVG))
             
         }
@@ -84,7 +86,7 @@ get.variable.genes <- function(environment, min.mean = 0.05, min.frac.cells = 0,
         print.message("Overall qualifying Ribosomal & Mitochondrial")
         print(genes[genes %in% HVG])
         
-        save(HVG, file = cache)
+        saveRDS(HVG, file = cache)
         
         end(t)
     }
@@ -104,26 +106,28 @@ nGenes <- function() {
     return(colSums(environment$counts > 0))
 }
 
-#' Add confounder variable to environment object
-#' 
+#' Add Confounder Variables
 #'
-#' @param environment The environment object
-#' @param ... confounding variables
+#' Add confounder variables' activation level per cell to \code{environment} object.
+#'
+#' @param environment \code{environment} object
+#' @param ... vectors containing activation levels of confounding variables
 #' @return \code{environment} parameter containing added confounder variable
 #' @export
 add.confounder.variables <- function(environment, ...) {
     environment$confounders <- data.frame(environment$confounders, data.frame(...))
-    print(head(environment$confounders))
+    print(utils::head(environment$confounders))
     return(environment)
 }
 
-#' Compute ribosomal score
-#' 
+#' Compute Ribosomal Score
 #'
-#' @param environment The environment object
-#' @param control Whether to subtract the score defined by technically similar genes
-#' @param knn Number of nearest neighbor
-#' @return A vector of ribosomal genes activation score 
+#' Compute the activation level of ribosomal genes.
+#'
+#' @param environment \code{environment} object
+#' @param control whether to subtract the score defined by technically similar genes
+#' @param knn number of nearest neighbor
+#' @return a vector of ribosomal genes activation score
 #' @export
 ribosomal.score <- function(environment, control = T, knn = 10) {
     t <- start(file.path(environment$work.path, "tracking"))
@@ -143,13 +147,14 @@ get.ribo.genes <- function(genes) {
     return(genes[c(grep("^Rpl", genes, ignore.case = T), grep("^Rps", genes, ignore.case = T))])
 }
 
-#' Compute mitochondrial score
-#' 
+#' Compute Mitochondrial Score
 #'
-#' @param environment The environment object
-#' @param control Whether to subtract the score defined by technically similar genes
-#' @param knn Number of nearest neighbor
-#' @return A vector of mitochondrial genes activation score 
+#' Compute the activation level of mitochondrial genes.
+#'
+#' @param environment \code{environment} object
+#' @param control whether to subtract the score defined by technically similar genes
+#' @param knn number of nearest neighbor
+#' @return a vector of mitochondrial genes activation score
 #' @export
 mitochondrial.score <- function(environment, control = F, knn = 10) {
     # browser()
@@ -171,14 +176,15 @@ get.mito.genes <- function(genes) {
     return(genes[grep("^Mt-", genes, ignore.case = T)])
 }
 
-#' Compute cell cycle score
-#' 
-#' 
-#' @param environment The environment object
-#' @param knn The number of nearest neighbor
-#' @param cc.genes.path Optional; path to defined cell cycle genes. Default uses gene sets defined in Kowalczyk, M. S. et al. Single-cell RNA-seq reveals changes in cell cycle and differentiation programs upon aging of hematopoietic stem cells. Genome Res 25, 1860-1872, doi:10.1101/gr.192237.115 (2015).
-#' @return A matrix of cell cycle genes activation scores (S, G2M and aggregated S/G2M scores, separately)
-#' @export 
+#' Compute Cell Cycle Score
+#'
+#' Compute the activation of cell cycle genes defined in Kowalczyk, M. S. et al.
+#'
+#' @param environment \code{environment} object
+#' @param knn number of nearest neighbor
+#' @param cc.genes.path optional; path to defined cell cycle genes. Default uses gene sets defined in Kowalczyk, M. S. et al. Single-cell RNA-seq reveals changes in cell cycle and differentiation programs upon aging of hematopoietic stem cells. Genome Res 25, 1860-1872, doi:10.1101/gr.192237.115 (2015).
+#' @return a matrix of cell cycle genes activation scores (S, G2M and aggregated S/G2M scores, separately)
+#' @export
 cell.cycle.score <- function(environment, knn = 10, cc.genes.path = NA) {
     t <- start(file.path(environment$work.path, "tracking"))
     
@@ -205,18 +211,19 @@ cell.cycle.score <- function(environment, knn = 10, cc.genes.path = NA) {
         0)/length(g2m.score))
     end(t)
     
-    return(data.frame(s.score = s.score, g2m.score = g2m.score, cell.cycle.score = cell.cycle.score))
+    return(data.frame(S.stage = s.score, G2M.stage = g2m.score, aggregate_S_G2M.stage = cell.cycle.score))
 }
 
-#' Compute controlled mean gene signatures activation score
-#' 
-#' 
-#' @param environment The environment object
-#' @param genes The gene list upon which to calculate gene signature activate
-#' @param knn Number of nearest neighbors
-#' @param exclude.missing.genes Whether to exclude genes with missing values
-#' @param constrain.cell.universe A binary vector indicating in which subset of cells to calculate the gene signature activation. Default is all cells.
-#' @return Gene signature activation scores per cell
+#' Compute Controlled Activation Score
+#'
+#' Compute mean gene signatures activation scores while controlling for technically similar genes.
+#'
+#' @param environment \code{environment} object
+#' @param genes gene list upon which to calculate gene signature activate
+#' @param knn number of nearest neighbors
+#' @param exclude.missing.genes whether to exclude genes with missing values
+#' @param constrain.cell.universe binary vector indicating in which subset of cells to calculate the gene signature activation. Default is all cells.
+#' @return gene signature activation scores per cell
 #' @export
 controlled.mean.score <- function(environment, genes, knn = 10, exclude.missing.genes = T, 
     constrain.cell.universe = NA) {
@@ -252,31 +259,34 @@ controlled.mean.score <- function(environment, genes, knn = 10, exclude.missing.
 get.technically.similar.genes <- function(environment, knn = 10) {
     
     t <- start(file.path(environment$work.path, "tracking"))
-    cache <- file.path(environment$baseline.data.path, paste(knn, "technical.background.genes.distances.RData", 
+    cache <- file.path(environment$baseline.data.path, paste(knn, "technical.background.genes.distances.rds", 
         sep = "."))
     
     if (file.exists(cache)) {
         print.message("Loading precomputed")
-        load(cache)
+        precomputed <- readRDS(cache)
+        knns <- precomputed$knns
+        technical.variables <- precomputed$technical.variables
+        rm(precomputed)
     } else {
         print.message("Computing")
         
         technical.variables <- data.frame(means = rowMeans(environment$normalized), 
-            vars = apply(environment$normalized, 1, var))
+            vars = apply(environment$normalized, 1, stats::var))
         HVG.technical.variables <- technical.variables[environment$HVG, ]
         scaled.technical.variables <- apply(technical.variables, 2, scale)
         rownames(scaled.technical.variables) <- rownames(technical.variables)
         HVG.scaled.technical.variables <- apply(HVG.technical.variables, 2, scale)
         rownames(HVG.scaled.technical.variables) <- rownames(HVG.technical.variables)
         
-        distances <- as.matrix(dist(scaled.technical.variables))
+        distances <- as.matrix(stats::dist(scaled.technical.variables))
         knns <- array("", c(length(environment$genes), knn))
         rownames(knns) <- environment$genes
         for (index in seq(length(environment$genes))) {
             gene.dist <- distances[environment$genes[index], ]
             knns[index, ] <- names(gene.dist[order(gene.dist)[2:(knn + 1)]])
         }
-        save(knns, technical.variables, file = cache)
+        saveRDS(list(knns = knns, technical.variables = technical.variables), file = cache)
     }
     end(t)
     
@@ -293,9 +303,9 @@ background.genes <- function(environment, foreground.genes, knn) {
     
     background.genes <- unique(setdiff(as.vector(knns[foreground.genes, ]), foreground.genes))
     print.message("Head foreground.genes technical.variables")
-    print(head(technical.variables[foreground.genes, ]))
+    print(utils::head(technical.variables[foreground.genes, ]))
     print.message("Head background.genes technical.variables")
-    print(head(technical.variables[background.genes, ]))
+    print(utils::head(technical.variables[background.genes, ]))
     print.message("background.genes")
     print(background.genes)
     end(t)
@@ -305,18 +315,18 @@ background.genes <- function(environment, foreground.genes, knn) {
 regress.covariates <- function(environment, regress, data, groups, rerun = F, save = F) {
     
     cache <- file.path(environment$res.data.path, paste(paste(colnames(regress), 
-        collapse = "+"), "HVG.regressed.covariates.RData", sep = "_"))
+        collapse = "+"), "HVG.regressed.covariates.rds", sep = "_"))
     
     if (!rerun && file.exists(cache)) {
         print.message("Loading precomputed")
-        load(cache)
+        corrected <- readRDS(cache)
     } else {
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"))
         
         formula.str <- paste("gene", paste(colnames(regress), collapse = " + "), 
             sep = " ~ ")
-        formula <- as.formula(formula.str)
+        formula <- stats::as.formula(formula.str)
         print.message("Regressing:", formula.str)
         print.message("Not regressed matrix")
         corner(data)
@@ -326,32 +336,32 @@ regress.covariates <- function(environment, regress, data, groups, rerun = F, sa
             group.indices <- groups == group
             for (gene in rownames(data)) {
                 lm.data <- data.frame(gene = data[gene, group.indices], regress[group.indices, 
-                  ])  #,raw.gene=raw.data[gene,group.indices]
+                  ])
                 colnames(lm.data)[2:ncol(lm.data)] <- colnames(regress)
-                model <- lm(formula, lm.data)
+                model <- stats::lm(formula, lm.data)
                 corrected[gene, group.indices] <- model$residuals
             }
         }
-        # dev.off()
         if (save) 
-            save(corrected, file = cache)
+            saveRDS(corrected, file = cache)
         end(t)
     }
     
     return(corrected)
 }
 
-#' Summarize the clustering results into figures
-#' 
+#' Differential Expression and Figure Generation
 #'
-#' @param environment The environment object
-#' @param perplexity The perplexity parameter for tSNE anlaysis
-#' @param max_iter Maximum iterations for tSNE
-#' @param rerun Whether to rerun 
-#' @param order Order in which to plot the clusters 
-#' @param contrast Either 'all' indicating differential expression between one cluster against all others or 'datasets' indicating differential expression analysis comparing one cluster to all other within each dataset separately ('datasets' should be used in pooled analysis for optimal results)
-#' @param min.fold Minimum fold change for filtering final differentially expressed gene lists
-#' @param quantile q-value cutoff
+#' Summarize the clustering results by conducting differential expression analysis and plotting figures.
+#'
+#' @param environment \code{environment} object
+#' @param perplexity perplexity parameters for tSNE analyses
+#' @param max_iter maximum iterations for tSNE
+#' @param rerun whether to rerun
+#' @param order order in which to plot the clusters
+#' @param contrast either 'all' indicating differential expression between one cluster against all others or 'datasets' indicating differential expression analysis comparing one cluster to all other within each dataset separately ('datasets' should be used in pooled analysis for optimal results)
+#' @param min.fold minimum fold change for filtering final differentially expressed gene lists
+#' @param quantile q-value cutoff for differential expression analysis
 #' @export
 summarize <- function(environment, perplexity = seq(10, 30, 10), max_iter = 10000, 
     rerun = F, order = NA, contrast = "all", min.fold = 1.5, quantile = 0.95) {

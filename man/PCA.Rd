@@ -2,7 +2,7 @@
 % Please edit documentation in R/PCA.R
 \name{PCA}
 \alias{PCA}
-\title{Parallelized PCA}
+\title{Parallelized PCA Analysis}
 \usage{
 PCA(environment, regress = NA, groups = NA, nShuffleRuns = 10,
   threshold = 0.1, maxPCs = 100, label = NA, mem = "2GB",
@@ -10,31 +10,31 @@ PCA(environment, regress = NA, groups = NA, nShuffleRuns = 10,
   clear.previously.calculated.clustering = T)
 }
 \arguments{
-\item{environment}{The environment object}
+\item{environment}{\code{environment} object}
 
-\item{regress}{Gene signature activation scores to regress}
+\item{regress}{gene signature activation scores to regress}
 
-\item{groups}{Experimental design annotation to guide dataset-specific regression}
+\item{groups}{experimental design annotation to guide dataset-specific regression}
 
-\item{nShuffleRuns}{Number of shuffled analyses}
+\item{nShuffleRuns}{number of shuffled analyses}
 
 \item{threshold}{FDR threshold}
 
-\item{maxPCs}{Maximum number of possible PCs}
+\item{maxPCs}{maximum number of possible PCs}
 
-\item{label}{Optional analyses label folder}
+\item{label}{optional analyses label folder}
 
 \item{mem}{HPC memory}
 
 \item{time}{HPC time}
 
-\item{rerun}{Whether to rerun}
+\item{rerun}{whether to rerun the analysis rather than load from cache}
 
-\item{clear.previously.calculated.clustering}{Whether to clear previous clustering analysis}
+\item{clear.previously.calculated.clustering}{whether to clear previous clustering analysis}
 }
 \value{
 \code{environment} parameter containing PC coordinates
 }
 \description{
-Parallelized PCA
+Run PCA analysis with a simulation analysis of shuffled data to determine the appropriate number of PCs.
 }

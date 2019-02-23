@@ -1,39 +1,41 @@
-#' Read 10X data
+#' Read 10X Data
 #'
 #' Load sparse data matrices from 10X genomics.
 #'
 #' @param path Path to directory containing matrix.mtx, genes.tsv, and barcodes.tsv
-#' @return A matrix of genes by cells
+#' @return a matrix of genes by cells
 #' @export
 read.10x.data <- function(path) {
-    barcode.path <- list.files(path, pattern = "barcodes.tsv", full = T)
-    features.path <- list.files(path, pattern = "genes.tsv", full = T)
-    matrix.path <- list.files(path, pattern = "matrix.mtx", full = T)
+    barcode.path <- list.files(path, pattern = "barcodes.tsv", full.names = T)
+    features.path <- list.files(path, pattern = "genes.tsv", full.names = T)
+    matrix.path <- list.files(path, pattern = "matrix.mtx", full.names = T)
     mat <- Matrix::readMM(file = matrix.path)
-    feature.names <- read.delim(features.path, header = FALSE, stringsAsFactors = FALSE)
-    barcode.names <- read.delim(barcode.path, header = FALSE, stringsAsFactors = FALSE)
+    feature.names <- utils::read.delim(features.path, header = FALSE, stringsAsFactors = FALSE)
+    barcode.names <- utils::read.delim(barcode.path, header = FALSE, stringsAsFactors = FALSE)
     colnames(mat) <- barcode.names$V1
     rownames(mat) <- feature.names$V2
     return(mat)
 }
 
 
-#' Read data from 10X files or a raw data matrix and perform normalization, QC filtering and duplicates removal
+#' Read and Preprocess Data
 #'
+#' Read 10X data files or a raw data matrix and perform normalization, QC filtering and duplicates removal.
 #'
-#' @param genome Genome annotation
-#' @param min.genes.per.cell Minimum required number of genes per cell
-#' @param max.genes.per.cell.quantile Upper quantile for number of genes per cell
-#' @param max.UMIs.per.cell.quantile Upper quantile for number of UMIs per cell
-#' @param min.cells.per.gene Minimum required number of cells per gene
-#' @param max.mitochondrial.frac Maximum fraction of reads mapped to mitochondrial
+#' @param environment \code{environment} object
+#' @param genome genome annotation
+#' @param min.genes.per.cell minimum required number of genes per cell
+#' @param max.genes.per.cell.quantile upper quantile for number of genes per cell
+#' @param max.UMIs.per.cell.quantile upper quantile for number of UMIs per cell
+#' @param min.cells.per.gene minimum required number of cells per gene
+#' @param max.mitochondrial.frac maximum fraction of reads mapped to mitochondrial
 #' genes per cell
-#' @param max.ribosomal.frac Maximum fraction of reads mapped to ribosomal genes per cell
-#' @param cell.filters Filtering option for cells based on marker genes
-#' @param raw.data.matrices Logical indicating if data matrices is provided instead of 10X dataset
-#' @param rerun Whether to rerun loading the dataset
-#' @param subsample Number of cells to subsample
-#' @param seed seed for subsampling
+#' @param max.ribosomal.frac maximum fraction of reads mapped to ribosomal genes per cell
+#' @param cell.filters filtering option for cells based on marker genes
+#' @param raw.data.matrices logical indicating if data matrices is provided instead of 10X dataset
+#' @param rerun whether to rerun loading the dataset or load from cache
+#' @param subsample number of cells to subsample
+#' @param seed seed for subsampling of cells
 #' @export
 #' @import ggplot2
 read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, max.genes.per.cell.quantile = 0.98, 
@@ -41,11 +43,19 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
     max.ribosomal.frac = NA, cell.filters = NA, raw.data.matrices = NA, rerun = F, 
     subsample = NULL, seed = 0) {
     # browser()
-    cache <- file.path(environment$baseline.data.path, "data.RData")
+    cache <- file.path(environment$baseline.data.path, "data.rds")
     
     if (!rerun & file.exists(cache)) {
         print.message("Loading precomputed")
-        load(cache)
+        precomputed <- readRDS(cache)
+        genes.filter <- precomputed$genes.filter
+        counts <- precomputed$counts
+        normalized <- precomputed$normalized
+        dataset.labels <- precomputed$dataset.labels
+        origins <- precomputed$origins
+        experiments <- precomputed$experiments
+        criteria <- precomputed$criteria
+        rm(precomputed)
     } else {
         
         print.message("Computing")
@@ -88,10 +98,10 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
                 ]), Ribosomal.frac = colSums(measurements[get.ribo.genes(rownames(measurements)), 
                 ])/colSums(measurements), Mitochondrial.frac = colSums(measurements[get.mito.genes(rownames(measurements)), 
                 ])/colSums(measurements))
-            print(head(data))
+            print(utils::head(data))
             
-            pdf(file.path(environment$baseline.work.path, paste(dataset, "pre.filter.dataset.stats.pdf", 
-                sep = ".")))
+            grDevices::pdf(file.path(environment$baseline.work.path, paste(dataset, 
+                "pre.filter.dataset.stats.pdf", sep = ".")))
             for (ind1 in seq(length(colnames(data)) - 1)) {
                 for (ind2 in (ind1 + 1):(length(colnames(data)))) {
                   v1 <- colnames(data)[ind1]
@@ -99,7 +109,7 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
                   print(ggplot(data, aes_string(v1, v2)) + geom_point())
                 }
             }
-            dev.off()
+            grDevices::dev.off()
             
             print.message("Original dimensions")
             print(dim(measurements))
@@ -107,14 +117,14 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
             genes.per.cell <- colSums(measurements > 0)
             print.message("Original genes.per.cell")
             print(summary(genes.per.cell))
-            print(quantile(genes.per.cell, seq(0.01, 1, 0.01)))
+            print(stats::quantile(genes.per.cell, seq(0.01, 1, 0.01)))
             UMIs.per.cell <- colSums(measurements)
             print.message("Original UMIs.per.cell")
             print(summary(UMIs.per.cell))
-            print(quantile(UMIs.per.cell, seq(0.01, 1, 0.01)))
-            max.genes.per.cell <- quantile(genes.per.cell, max.genes.per.cell.quantile)
+            print(stats::quantile(UMIs.per.cell, seq(0.01, 1, 0.01)))
+            max.genes.per.cell <- stats::quantile(genes.per.cell, max.genes.per.cell.quantile)
             print.message("max.genes.per.cell", max.genes.per.cell)
-            max.UMIs.per.cell <- quantile(UMIs.per.cell, max.UMIs.per.cell.quantile)
+            max.UMIs.per.cell <- stats::quantile(UMIs.per.cell, max.UMIs.per.cell.quantile)
             print.message("max.UMIs.per.cell", max.UMIs.per.cell)
             print.message("max.mitochondrial.frac", max.mitochondrial.frac)
             
@@ -167,11 +177,11 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
             genes.per.cell <- colSums(measurements > 0)
             print.message("Filtered genes.per.cell")
             print(summary(genes.per.cell))
-            print(quantile(genes.per.cell, seq(0.01, 1, 0.01)))
+            print(stats::quantile(genes.per.cell, seq(0.01, 1, 0.01)))
             UMIs.per.cell <- colSums(measurements)
             print.message("Filtered UMIs.per.cell")
             print(summary(UMIs.per.cell))
-            print(quantile(UMIs.per.cell, seq(0.01, 1, 0.01)))
+            print(stats::quantile(UMIs.per.cell, seq(0.01, 1, 0.01)))
             
             data <- data.frame(nUMI = colSums(measurements), nGenes = colSums(measurements > 
                 0), Ribosomal = colMeans(measurements[get.ribo.genes(rownames(measurements)), 
@@ -180,9 +190,9 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
                 ])/colSums(measurements), Mitochondrial.frac = colSums(measurements[get.mito.genes(rownames(measurements)), 
                 ])/colSums(measurements))
             
-            print(head(data))
-            pdf(file.path(environment$baseline.work.path, paste(dataset, "post.filter.dataset.stats.pdf", 
-                sep = ".")))
+            print(utils::head(data))
+            grDevices::pdf(file.path(environment$baseline.work.path, paste(dataset, 
+                "post.filter.dataset.stats.pdf", sep = ".")))
             for (ind1 in seq(length(colnames(data)) - 1)) {
                 for (ind2 in (ind1 + 1):(length(colnames(data)))) {
                   v1 <- colnames(data)[ind1]
@@ -190,7 +200,7 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
                   print(ggplot(data, aes_string(v1, v2)) + geom_point())
                 }
             }
-            dev.off()
+            grDevices::dev.off()
             
             if (length(merged) == 1 && is.na(merged)) {
                 merged <- measurements
@@ -230,11 +240,11 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
         genes.per.cell <- colSums(counts[genes.filter, ] > 0)
         print.message("Aggregated dataset genes.per.cell")
         print(summary(genes.per.cell))
-        print(quantile(genes.per.cell, seq(0.01, 1, 0.01)))
+        print(stats::quantile(genes.per.cell, seq(0.01, 1, 0.01)))
         UMIs.per.cell <- colSums(counts[genes.filter, ])
         print.message("Aggregated dataset UMIs.per.cell")
         print(summary(UMIs.per.cell))
-        print(quantile(UMIs.per.cell, seq(0.01, 1, 0.01)))
+        print(stats::quantile(UMIs.per.cell, seq(0.01, 1, 0.01)))
         
         rownames <- data.frame(old = rownames(counts))
         if (sum(duplicated(rownames(counts))) > 0) {
@@ -271,8 +281,9 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
         }
         end(t)
         
-        save(genes.filter, counts, normalized, dataset.labels, origins, experiments, 
-            criteria, file = cache)
+        saveRDS(list(genes.filter = genes.filter, counts = counts, normalized = normalized, 
+            dataset.labels = dataset.labels, origins = origins, experiments = experiments, 
+            criteria = criteria), file = cache)
         
         end(t)
     }
@@ -298,18 +309,34 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
     return(environment)
 }
 
-#' Read preclustered datasets
-#' @param path Search path for previous projects
-#' @param recursive Recursive path search
-#' @param rerun Whether to rerun the reading process
+#' Read Preclustered Datasets
+#'
+#' Read previous analysis of multiple datasets to perform integrated analysis.
+#'
+#' @param environment \code{environment} object
+#' @param path search path for previous projects
+#' @param recursive recursive path search
+#' @param rerun whether to rerun the reading process or load from cache
 #' @export
 read.preclustered.datasets <- function(environment, path = NA, recursive = T, rerun = F) {
     
-    cache <- file.path(environment$baseline.data.path, "preclustered.datasets.RData")
+    cache <- file.path(environment$baseline.data.path, "preclustered.datasets.rds")
     
     if (!rerun & file.exists(cache)) {
         print.message("Loading precomputed")
-        load(cache)
+        precomputed <- readRDS(cache)
+        counts <- precomputed$counts
+        normalized <- precomputed$normalized
+        HVG <- precomputed$HVG
+        genes.filter <- precomputed$genes.filter
+        dataset.labels <- precomputed$dataset.labels
+        origins <- precomputed$origins
+        experiments <- precomputed$origins
+        clustering <- precomputed$clustering
+        merged.original.clustering <- precomputed$merged.original.clustering
+        merged.diff.exp <- precomputed$merged.diff.exp
+        cluster.names <- precomputed$cluster.names
+        rm(precomputed)
     } else {
         
         print.message("Computing")
@@ -346,7 +373,7 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
             dataset <- environment$datasets[sample.index]
             origin <- environment$origins[sample.index]
             experiment <- environment$experiments[sample.index]
-            data.files <- list.files(path = file.path(path, dataset), pattern = "clustering.RData", 
+            data.files <- list.files(path = file.path(path, dataset), pattern = "clustering.rds", 
                 full.names = T, recursive = recursive)
             file.index <- 1
             if (length(data.files) > 1) {
@@ -354,44 +381,19 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
                 file.index <- as.numeric(readline(prompt = "Select clustering: "))
             }
             print.message("Loading", dirname(dirname(data.files[file.index])), "\n")
-            load(data.files[file.index])
+            clustering <- readRDS(data.files[file.index])
+            
             if (length(merged.clustering) == 0) {
                 min <- 0
             } else {
                 min <- max(merged.clustering)
             }
             
-            # names(clustering) str(clustering$shuffled.membership)
-            # str(clustering$shuffled.membership[[1]])
-            # apply(clustering$shuffled.membership[[1]]$memberships,1,table) membership =
-            # clustering$shuffled.membership[[2]]$memberships[2,] limma.diff = {} for(
-            # cluster in seq(length(unique(membership))) ) { print.message('cluster
-            # =',cluster)
-            
-            # group = membership == cluster group = factor(group)
-            
-            # diff.exp = getDE.limma( Y = normalized, group = group, filter = F ) diff.exp =
-            # diff.exp[order(diff.exp$logFC,decreasing=T),] diff.exp =
-            # data.frame(gene=rownames(diff.exp),logFC=diff.exp$logFC,fold=exp(diff.exp$logFC),QValue=diff.exp$QValue,PValue=diff.exp$PValue,AveExpr=diff.exp$AveExpr)
-            # limma.diff = rbind(limma.diff,data.frame(cluster=cluster,diff.exp[,c(1,3,4)]))
-            # } limma.diff = limma.diff[order(limma.diff$fold,decreasing=T),]
-            # head(limma.diff) lcdif[lcdif$gene=='Foxp3',] lndif[lndif$gene=='Foxp3',] res={}
-            # for(i in seq(length(unique(lcdif$cluster)))){ for(j in
-            # seq(length(unique(lndif$cluster)))){ lc=lcdif[lcdif$cluster == i,]
-            # ln=lndif[lndif$cluster == j,] match = match(ln$gene,lc$gene) head(lc[match,])
-            # head(ln) ccc=cor.test(lc$fold[match],ln$fold,method='spearman') res =
-            # rbind(res,data.frame(ccc$estimate,ccc$p.value)) } } head(res)
-            # res[order(res$ccc.estimate),]
-            
             merged.clustering <- c(merged.clustering, clustering$membership + min)
             merged.original.clustering <- c(merged.original.clustering, clustering$membership)
             
-            # index = 1 merged.shuffled.clustering[[]] for (index in
-            # seq(length(clustering$shuffled.membership))) { v =
-            # clustering$shuffled.membership[[index]] shuffled.membership = v$memberships[2,]
-            # if (length(shuffled.membership) == length(clustering$membership)) }
-            
-            load(file.path(dirname(data.files[file.index]), "main.all.diff.exp.RData"))
+            precomputed <- readRDS(file.path(dirname(data.files[file.index]), "main.all.diff.exp.rds"))
+            limma.all <- precomputed$limma.all
             if (!is.null(environment$convert.to.mouse.gene.symbols) && environment$convert.to.mouse.gene.symbols[sample.index] == 
                 T) {
                 print.message("Converting from human to mouse genes")
@@ -411,7 +413,7 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
             limma.all <- cbind(dataset, origin, experiment, limma.all)
             merged.diff.exp <- rbind(merged.diff.exp, limma.all)
             base.path <- dirname(dirname(dirname(data.files[file.index])))
-            load(file.path(base.path, "data/HVG.RData"))
+            HVG <- readRDS(file.path(base.path, "data/HVG.rds"))
             if (!is.null(environment$convert.to.mouse.gene.symbols) && environment$convert.to.mouse.gene.symbols[sample.index] == 
                 T) {
                 human.genes <- toupper(HVG)
@@ -422,7 +424,12 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
                 HVG <- unique(mouse.gene.names[, 2])
             }
             merged.HVG <- unique(c(merged.HVG, HVG))
-            load(file.path(base.path, "data/data.RData"))
+            precomputed <- readRDS(file.path(base.path, "data/data.rds"))
+            counts <- precomputed$counts
+            normalized <- precomputed$normalized
+            genes.filter <- precomputed$genes.filter
+            rm(precomputed)
+            
             colnames(counts) <- colnames(normalized) <- rep(dataset, ncol(normalized))
             if (!is.null(environment$convert.to.mouse.gene.symbols) && environment$convert.to.mouse.gene.symbols[sample.index] == 
                 T) {
@@ -461,7 +468,10 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
             merged.dataset.labels <- c(merged.dataset.labels, rep(dataset, ncol(normalized)))
             merged.origins <- c(merged.origins, rep(origin, ncol(normalized)))
             merged.experiments <- c(merged.experiments, rep(experiment, ncol(normalized)))
-            load(file.path(dirname(data.files[file.index]), "cluster.names.RData"))
+            precomputed <- readRDS(file.path(dirname(data.files[file.index]), "cluster.names.rds"))
+            cluster.names <- precomputed$cluster.names
+            rm(precomputed)
+            
             merged.cluster.names <- c(merged.cluster.names, cluster.names)
             if (!is.null(environment$convert.to.mouse.gene.symbols) && environment$convert.to.mouse.gene.symbols[sample.index] == 
                 T) {
@@ -485,7 +495,7 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
                 union.genes.filter <- union.genes.filter | genes.filter
             }
             
-            dataset.genes <- rownames(merged.counts)[apply(merged.counts, 1, sd) > 
+            dataset.genes <- rownames(merged.counts)[apply(merged.counts, 1, stats::sd) > 
                 0]
         }
         
@@ -511,8 +521,10 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
         clustering <- merged.clustering
         cluster.names <- merged.cluster.names
         print.message("Saving")
-        save(genes.filter, counts, normalized, dataset.labels, origins, experiments, 
-            HVG, clustering, merged.diff.exp, merged.original.clustering, cluster.names, 
+        saveRDS(list(genes.filter = genes.filter, counts = counts, normalized = normalized, 
+            dataset.labels = dataset.labels, origins = origins, experiments = experiments, 
+            HVG = HVG, clustering = clustering, merged.diff.exp = merged.diff.exp, 
+            merged.original.clustering = merged.original.clustering, cluster.names = cluster.names), 
             file = cache)
         
         end(t)

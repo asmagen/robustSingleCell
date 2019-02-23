@@ -2,19 +2,22 @@
 % Please edit documentation in R/tSNE.R
 \name{run.tSNE}
 \alias{run.tSNE}
-\title{Run distributed tSNE analysis for multiple input parameters}
+\title{Perform tSNE Analyses}
 \usage{
 run.tSNE(environment, perplexity, max_iter, rerun)
 }
 \arguments{
-\item{environment}{The environment}
+\item{environment}{\code{environment} object}
 
-\item{perplexity}{The perplexity parameter of tSNE}
+\item{perplexity}{perplexity parameter of tSNE}
 
-\item{max_iter}{The maximum number of iterations to run the tSNE}
+\item{max_iter}{maximum number of iterations to run the tSNE}
 
-\item{rerun}{Whether to rerun}
+\item{rerun}{whether to rerun or load from cache}
+}
+\value{
+Distributed job identified object
 }
 \description{
-Run distributed tSNE analysis for multiple input parameters
+Run distributed tSNE analysis for multiple input hyperparameters
 }

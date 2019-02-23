@@ -1,3 +1,18 @@
+#' Download Example Dataset
+#'
+#' Download two replicates of CD44+ T cell 10X scRNAseq data sets (Ciucci 2018).
+#'
+#' @param base_dir Full path to a directory where data and analysis will be stored
+#' @export
+download_LCMV <- function(base_dir) {
+    dir.create(base_dir)
+    rep1_path <- GEOquery::getGEOSuppFiles("GSM3423794", baseDir = "~/LCMV")
+    rep2_path <- GEOquery::getGEOSuppFiles("GSM3423795", baseDir = "~/LCMV")
+    file.rename("~/LCMV/GSM3423795", "~/LCMV/LCMV1")
+    file.rename("~/LCMV/GSM3423794", "~/LCMV/LCMV2")
+    cat(paste0("Data saved at ", base_dir, "\n"))
+}
+
 capwords <- function(s, strict = FALSE) {
     s <- tolower(s)
     cap <- function(s) paste(toupper(substring(s, 1, 1)), {
@@ -81,4 +96,17 @@ apply.by.group <- function(groups, values, ...) {
 
 group.by <- function(groups, values) {
     return(split(x = as.vector(values), f = as.vector(groups)))
+}
+
+convertHumanGeneList <- function(x) {
+    
+    human <- biomaRt::useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+    mouse <- biomaRt::useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+    
+    genesV2 <- biomaRt::getLDS(attributes = c("hgnc_symbol"), filters = "hgnc_symbol", 
+        values = x, mart = human, attributesL = c("mgi_symbol"), martL = mouse, uniqueRows = T)
+    
+    humanx <- genesV2
+    
+    return(humanx)
 }

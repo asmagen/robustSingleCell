@@ -1,46 +1,46 @@
 cluster <- function(knn.ratio, label, path, data.path, nPCs) {
-
-    cat(paste("Params", "\nknn.ratio = ", knn.ratio, "\nlabel = ", label, "\npath = ",
+    
+    cat(paste("Params", "\nknn.ratio = ", knn.ratio, "\nlabel = ", label, "\npath = ", 
         path, "\ndata.path = ", data.path, "\n", sep = ""))
-
+    
     if (length(grep("shuffled", label)) > 0) {
         rep <- strsplit(as.character(label), split = "[.]")[[1]][2]
-        file <- file.path(path, "shuffled.PCA", paste("shuffled.PCA.rep", rep, "RData",
+        file <- file.path(path, "shuffled.PCA", paste("shuffled.PCA.rep", rep, "rds", 
             sep = "."))
-        if (!file.exists(file))
+        if (!file.exists(file)) 
             print.message("Shuffled PCA file", rep, "does not exist [Change PCA or clustering parameters]")
-        load(file)
+        precomputed <- readRDS(file)
+        pca.perm <- precomputed$pca.perm
         PCA <- t(pca.perm$x)[seq(as.numeric(nPCs)), ]
     } else {
-        load(file.path(data.path))
+        precomputed <- readRDS(file.path(data.path))
+        PCA <- precomputed$PCA
     }
-
-    neighborMatrix <- find_neighbors(t(PCA), k = floor(knn.ratio * ncol(PCA)))[,
-        -1]
-    jaccard_coeff <- function(idx) {
-        .Call("Rphenograph_jaccard_coeff", PACKAGE = "Rphenograph", idx)
-    }
-    links <- jaccard_coeff(neighborMatrix)
-    links <- links[links[, 1] > 0, ]
-    relations <- as.data.frame(links)
-    colnames(relations) <- c("from", "to", "weight")
-    community <- igraph::cluster_louvain(igraph::graph.data.frame(relations, directed = FALSE))
-
+    
+    # neighborMatrix <- find_neighbors(t(PCA), k = floor(knn.ratio * ncol(PCA)))[,
+    # -1] jaccard_coeff <- function(idx) { Rphenograph:::jaccard_coeff(idx) } links
+    # <- jaccard_coeff(neighborMatrix) links <- links[links[, 1] > 0, ] relations <-
+    # as.data.frame(links) colnames(relations) <- c('from', 'to', 'weight') community
+    # <- igraph::cluster_louvain(igraph::graph.data.frame(relations, directed =
+    # FALSE))
+    
+    res <- Rphenograph(t(PCA), k = floor(knn.ratio * ncol(PCA)))
+    community <- res[[2]]
     modularity <- igraph::modularity(community)
     membership <- igraph::membership(community)
     memberships <- community$memberships
     nclusters <- length(unique(membership))
-
-    clustering <- list(modularity = modularity, memberships = memberships, membership = membership,
+    
+    clustering <- list(modularity = modularity, memberships = memberships, membership = membership, 
         knn.ratio = knn.ratio, nclusters = nclusters)
-
-    save(clustering, file = file.path(path, "clustering", paste(label, knn.ratio,
-        "RData", sep = ".")))
+    
+    saveRDS(clustering, file = file.path(path, "clustering", paste(label, knn.ratio, 
+        "rds", sep = ".")))
 }
 
 get.clustering.results <- function(clustering.dir, knn.ratio, shuffledKNN) {
-
-    shuffled.result.files <- list.files(clustering.dir, pattern = paste("shuffled.*.*.RData",
+    
+    shuffled.result.files <- list.files(clustering.dir, pattern = paste("shuffled.*.*.rds", 
         sep = ""))
     shuffled.result.files
     nshuffled <- length(shuffled.result.files)
@@ -49,18 +49,18 @@ get.clustering.results <- function(clustering.dir, knn.ratio, shuffledKNN) {
     rep <- 1
     shuffled.membership <- list()
     for (rep in seq(nshuffled)) {
-        load(file.path(clustering.dir, shuffled.result.files[rep]))
+        clustering <- readRDS(file.path(clustering.dir, shuffled.result.files[rep]))
         shuffled <- rbind(shuffled, unlist(clustering[c(1, 4, 5)]))
         shuffled.membership[[rep]] <- as.vector(clustering[2])
     }
     shuffled <- as.data.frame(shuffled)
-
-    real.clustering.file <- file.path(clustering.dir, paste("real", knn.ratio, "RData",
+    
+    real.clustering.file <- file.path(clustering.dir, paste("real", knn.ratio, "rds", 
         sep = "."))
-    if (!file.exists(real.clustering.file))
-        cat("\nERROR: Couldn't find real clustering file knn.ratio =", knn.ratio,
+    if (!file.exists(real.clustering.file)) 
+        cat("\nERROR: Couldn't find real clustering file knn.ratio =", knn.ratio, 
             "\nCHECK FOR FAILED JOBS\n\n\n")
-    load(real.clustering.file)
+    clustering <- readRDS(real.clustering.file)
     membership <- clustering$membership
     nFinalClusters <- length(unique(membership))
     memberships <- clustering$memberships
@@ -69,98 +69,98 @@ get.clustering.results <- function(clustering.dir, knn.ratio, shuffledKNN) {
     shuffled.indices <- order(abs(shuffled$nclusters - nFinalClusters))[seq(shuffledKNN)]
     shuffled.matches <- shuffled[shuffled.indices, ]
     shuffled.membership <- shuffled.membership[shuffled.indices]
-
-    cat("knn.ratio = ", knn.ratio, " nclusters = ", nFinalClusters, " (nClustShuffled = ",
-        ifelse(var(shuffled.matches$nclusters) > 0, paste(min(shuffled.matches$nclusters),
-            "~", max(shuffled.matches$nclusters), sep = ""), shuffled.matches$nclusters[1]),
+    
+    cat("knn.ratio = ", knn.ratio, " nclusters = ", nFinalClusters, " (nClustShuffled = ", 
+        ifelse(stats::var(shuffled.matches$nclusters) > 0, paste(min(shuffled.matches$nclusters), 
+            "~", max(shuffled.matches$nclusters), sep = ""), shuffled.matches$nclusters[1]), 
         ")\n", sep = "")
-
+    
     mean.shuffled <- mean(shuffled.matches$modularity)
     max.shuffled <- max(shuffled.matches$modularity)
-    cat("mdlrty=", round(modularity, 2), " mean.shfl=", round(mean.shuffled, 2),
-        " max.shfl=", round(max.shuffled, 2), " mdlrty/mean.shfl=", round(modularity/mean.shuffled,
+    cat("mdlrty=", round(modularity, 2), " mean.shfl=", round(mean.shuffled, 2), 
+        " max.shfl=", round(max.shuffled, 2), " mdlrty/mean.shfl=", round(modularity/mean.shuffled, 
             2), " mdlrty/max.shfl=", round(modularity/max.shuffled, 2), "\n", sep = "")
-
-    return(list(membership = membership, memberships = memberships, modularity = modularity,
+    
+    return(list(membership = membership, memberships = memberships, modularity = modularity, 
         shuffled = shuffled.matches, shuffled.membership = shuffled.membership, shuffled.modularity = shuffled.matches$modularity))
 }
 
-#' Clustering analysis
+#' Distributed Clustering Analysis
 #'
+#' Perform clustering analysis for a range of hyperparameter (KNN Ratios) values and assess clustering quality relative to simulation analysis of shuffled data.
 #'
-#' @param knn.ratios Range of KNN parameters to scan (corresponding to different resolutions)
-#' @param nShuffleRuns Number of shuffled clustering analyses to perform per KNN threshold
-#' @param shuffleKNN Number of closest KNN shuffled analyses to include in background clustering quality computation
-#' @param loadPreviousKnn Whether to load previous analysis results
-#' @param rerun Whether to rerun
-#' @param deleteCacheWhether to delete cache files
+#' @param environment \code{environment} object
+#' @param knn.ratios range of KNN parameters to scan (corresponding to different resolutions)
+#' @param nShuffleRuns number of shuffled clustering analyses to perform per KNN threshold
+#' @param shuffledKNN number of closest KNN shuffled analyses to include in background clustering quality computation
+#' @param loadPreviousKnn whether to load previous analysis results
+#' @param rerun whether to rerun the analysis rather than load from cache
+#' @param deleteCache whether to delete cache files
 #' @param mem HPC memory
 #' @param time HPC time
-#' @param plot Whether to plot the clustering qualities compared to shuffled
+#' @param plot whether to plot the clustering qualities compared to shuffled
 #' @return \code{environment} parameter containing clustering assignment and provisional cluster names
 #' @import cccd
-#' @import Rphenograph
 #' @export
-cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuffleRuns = 10,
-    shuffledKNN = 10, loadPreviousKnn = T, rerun = F, deleteCache = F, mem = "4GB",
+cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuffleRuns = 10, 
+    shuffledKNN = 10, loadPreviousKnn = T, rerun = F, deleteCache = F, mem = "4GB", 
     time = "0:15:00", plot = T) {
-
+    
     clustering.dir <- file.path(environment$res.data.path, "clustering")
-    shuffled.result.files <- list.files(clustering.dir, pattern = paste("shuffled.*.*.RData",
+    shuffled.result.files <- list.files(clustering.dir, pattern = paste("shuffled.*.*.rds", 
         sep = ""))
     shuffled.result.files
-
-    extended.knn.ratios <- unique(c(knn.ratios, seq(max(knn.ratios), max(knn.ratios) *
-        1.25, max(knn.ratios) - knn.ratios[order(knn.ratios)][length(knn.ratios) -
+    
+    extended.knn.ratios <- unique(c(knn.ratios, seq(max(knn.ratios), max(knn.ratios) * 
+        1.25, max(knn.ratios) - knn.ratios[order(knn.ratios)][length(knn.ratios) - 
         1])))
     path <- environment$res.data.path
     data.path <- environment$PCA.path
-    params <- rbind(data.frame(knn.ratio = knn.ratios, label = "real", path, data.path,
-        nPCs = nrow(environment$PCA)), data.frame(expand.grid(knn.ratio = extended.knn.ratios,
-        label = paste("shuffled", seq(nShuffleRuns), sep = ".")), path, data.path,
+    params <- rbind(data.frame(knn.ratio = knn.ratios, label = "real", path, data.path, 
+        nPCs = nrow(environment$PCA)), data.frame(expand.grid(knn.ratio = extended.knn.ratios, 
+        label = paste("shuffled", seq(nShuffleRuns), sep = ".")), path, data.path, 
         nPCs = nrow(environment$PCA)))
-    cache <- file.path(environment$res.data.path, "clustering.RData")
+    cache <- file.path(environment$res.data.path, "clustering.rds")
     sjob <- NA
-
+    
     if (rerun || !dir.exists(clustering.dir)) {
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"))
-
-        if (deleteCache)
+        
+        if (deleteCache) 
             unlink(clustering.dir, recursive = T, force = T)
         dir.create(clustering.dir)
-
+        
         print.message("knn.ratios:")
         print(knn.ratios)
         print.message("# params:", nrow(params))
         print.message("Head params:")
-        print(head(params))
+        print(utils::head(params))
         print.message("Tail params:")
-        print(tail(params))
-
+        print(utils::tail(params))
+        
         sopt <- list(mem = mem, time = time, share = TRUE)
-        sjob <- slurm_apply(cluster, params, nodes = nrow(params), cpus_per_node = 1,
+        sjob <- slurm_apply(cluster, params, nodes = nrow(params), cpus_per_node = 1, 
             submit = TRUE, slurm_options = sopt)
         tryCatch({
             get_slurm_out(sjob)
             get_slurm_out(sjob)
             get_slurm_out(sjob)
         }, error = function(v) v)
-
+        
         end(t)
     }
-
+    
     if (loadPreviousKnn && file.exists(cache)) {
         print.message("Loading precomputed")
-        load(cache)
+        clustering <- readRDS(cache)
     } else {
-        t <- start(file.path(environment$work.path, "tracking"), name = "KNN.stats",
+        t <- start(file.path(environment$work.path, "tracking"), name = "KNN.stats", 
             split = T)
-
-        nResults <- length(list.files(clustering.dir, pattern = paste("*.RData",
-            sep = "")))
+        
+        nResults <- length(list.files(clustering.dir, pattern = paste("*.rds", sep = "")))
         if (nResults < nrow(params)) {
-            cat("\nERROR: Found just", nResults, "shuffled clusterings instead of",
+            cat("\nERROR: Found just", nResults, "shuffled clusterings instead of", 
                 nrow(params), "\nCHECK FOR FAILED JOBS\n\n\n")
             terminate <- readline(prompt = "Terminate? (y/n) ")
             if (terminate != "n") {
@@ -177,28 +177,28 @@ cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuf
             cleanup_files(sjob)
             cleanup_files(sjob)
         }, error = function(v) v)
-
+        
         plot.stats <- list()
         clusters.aggregate <- {
         }
-
+        
         for (knn.ratio in knn.ratios[length(knn.ratios):1]) {
             tryCatch({
                 result <- get.clustering.results(clustering.dir, knn.ratio, shuffledKNN)
                 nClusters <- paste(length(unique(result$membership)))
                 stats <- plot.stats[[nClusters]]
-                if (is.null(stats))
+                if (is.null(stats)) 
                   stats <- {
                   }
-                stats <- rbind(stats, data.frame(knn.ratio = knn.ratio, Type = "Original data",
+                stats <- rbind(stats, data.frame(knn.ratio = knn.ratio, Type = "Original data", 
                   Modularity = result$modularity))
-                stats <- rbind(stats, data.frame(knn.ratio = knn.ratio, Type = "Shuffled data",
+                stats <- rbind(stats, data.frame(knn.ratio = knn.ratio, Type = "Shuffled data", 
                   Modularity = result$shuffled.modularity))
                 plot.stats[[nClusters]] <- stats
                 clusters.aggregate <- cbind(clusters.aggregate, result$membership)
             }, error = function(v) v)
         }
-
+        
         if (plot) {
             ncluster <- names(plot.stats)[1]
             new.plot.stats <- {
@@ -210,78 +210,77 @@ cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuf
                 data <- plot.stats[[ncluster]]
                 original <- data$Modularity[data$Type == "Original data"]
                 shuffled <- data$Modularity[data$Type == "Shuffled data"]
-                new.plot.stats <- rbind(new.plot.stats, data.frame(nClusters = ncluster,
-                  Type = "Original Data", Modularity = mean(original), sd = sd(original)))
-                new.plot.stats <- rbind(new.plot.stats, data.frame(nClusters = ncluster,
-                  Type = "Shuffled Data", Modularity = mean(shuffled), sd = sd(shuffled)))
-                fold.data <- rbind(fold.data, data.frame(nClusters = ncluster, Type = "Original Data",
+                new.plot.stats <- rbind(new.plot.stats, data.frame(nClusters = ncluster, 
+                  Type = "Original Data", Modularity = mean(original), sd = stats::sd(original)))
+                new.plot.stats <- rbind(new.plot.stats, data.frame(nClusters = ncluster, 
+                  Type = "Shuffled Data", Modularity = mean(shuffled), sd = stats::sd(shuffled)))
+                fold.data <- rbind(fold.data, data.frame(nClusters = ncluster, Type = "Original Data", 
                   Modularity = mean(original), Fold = mean(original)/mean(shuffled)))
             }
-
-            pdf(file.path(environment$work.path, "Clustering.modularity.pdf"), width = 10)
-            print(ggplot(new.plot.stats, aes(x = nClusters, y = Modularity, fill = Type)) +
-                geom_bar(stat = "identity", color = "black", position = position_dodge()) +
-                geom_errorbar(aes(ymin = Modularity - sd, ymax = Modularity + sd),
-                  width = 0.2, position = position_dodge(0.9)) + labs(title = "Clustering modularity analysis",
-                x = "Number of Clusters", y = "Modularity") + theme_classic(base_size = 25) +
-                scale_fill_manual(values = c("#999999", "#E69F00")) + geom_text(data = fold.data,
-                aes(nClusters, max(Modularity) * 1.05, label = sprintf("%2.1f", Fold)),
+            
+            grDevices::pdf(file.path(environment$work.path, "Clustering.modularity.pdf"), 
+                width = 10)
+            print(ggplot(new.plot.stats, aes(x = nClusters, y = Modularity, fill = Type)) + 
+                geom_bar(stat = "identity", color = "black", position = position_dodge()) + 
+                geom_errorbar(aes(ymin = Modularity - sd, ymax = Modularity + sd), 
+                  width = 0.2, position = position_dodge(0.9)) + labs(title = "Clustering modularity analysis", 
+                x = "Number of Clusters", y = "Modularity") + theme_classic(base_size = 25) + 
+                scale_fill_manual(values = c("#999999", "#E69F00")) + geom_text(data = fold.data, 
+                aes(nClusters, max(Modularity) * 1.05, label = sprintf("%2.1f", Fold)), 
                 size = 7))
-            print(ggplot(new.plot.stats, aes(x = nClusters, y = Modularity, fill = Type)) +
-                geom_bar(stat = "identity", color = "black", position = position_dodge()) +
-                geom_errorbar(aes(ymin = Modularity - sd, ymax = Modularity + sd),
-                  width = 0.2, position = position_dodge(0.9)) + labs(title = "Clustering modularity analysis",
-                x = "Number of Clusters", y = "Modularity") + theme_classic(base_size = 25) +
-                scale_fill_manual(values = c("#999999", "#E69F00")) + geom_text(data = fold.data,
-                aes(nClusters, max(Modularity) * 1.05, label = sprintf("%2.2f", Fold)),
+            print(ggplot(new.plot.stats, aes(x = nClusters, y = Modularity, fill = Type)) + 
+                geom_bar(stat = "identity", color = "black", position = position_dodge()) + 
+                geom_errorbar(aes(ymin = Modularity - sd, ymax = Modularity + sd), 
+                  width = 0.2, position = position_dodge(0.9)) + labs(title = "Clustering modularity analysis", 
+                x = "Number of Clusters", y = "Modularity") + theme_classic(base_size = 25) + 
+                scale_fill_manual(values = c("#999999", "#E69F00")) + geom_text(data = fold.data, 
+                aes(nClusters, max(Modularity) * 1.05, label = sprintf("%2.2f", Fold)), 
                 size = 7))
-            dev.off()
+            grDevices::dev.off()
         }
-
+        
         knn.choose <- as.numeric(readline(prompt = "Select KNN ratio: "))
         print.message("knn.choose =", knn.choose)
-        clustering.results <- get.clustering.results(clustering.dir, knn.choose,
+        clustering.results <- get.clustering.results(clustering.dir, knn.choose, 
             nShuffleRuns)
         nclusters <- as.numeric(readline(prompt = "Select # clusters: "))
         print.message("nclusters =", nclusters)
-
+        
         clustering <- {
         }
         clustering$knn.choose <- knn.choose
-        clustering$membership <- as.vector(clustering.results$memberships[which(apply(clustering.results$memberships,
+        clustering$membership <- as.vector(clustering.results$memberships[which(apply(clustering.results$memberships, 
             1, function(v) length(unique(v))) == nclusters), ])
         clustering$nclusters <- length(unique(clustering$membership))
         print.message("# clusters:", clustering$nclusters)
         print.message("Length:", length(clustering$membership))
         clustering$shuffled <- clustering.results$shuffled
         clustering$shuffled.membership <- clustering.results$shuffled.membership
-
-        files <- c(list.files(environment$work.path, pattern = "*.pdf", full.names = T),
-            list.files(environment$work.path, pattern = "*.csv", full.names = T),
-            list.files(file.path(environment$work.path, "diff.exp", "main"), pattern = "*.csv",
-                full.names = T), list.files(file.path(environment$work.path, "Seurat"),
-                pattern = "*.pdf", full.names = T), list.files(file.path(environment$work.path,
+        
+        files <- c(list.files(environment$work.path, pattern = "*.pdf", full.names = T), 
+            list.files(environment$work.path, pattern = "*.csv", full.names = T), 
+            list.files(file.path(environment$work.path, "diff.exp", "main"), pattern = "*.csv", 
+                full.names = T), list.files(file.path(environment$work.path, "Seurat"), 
+                pattern = "*.pdf", full.names = T), list.files(file.path(environment$work.path, 
                 "tracking"), pattern = "*.txt", full.names = T))
         dir <- file.path(environment$work.path, format(Sys.time(), "%a_%b_%e_%Y__%H_%M_%S"))
         dir.create(dir)
         if (length(files) > 0) {
             file.copy(files, dir)
             file.remove(files)
-            file.remove(c(list.files(environment$res.data.path, pattern = "*.diff.exp.RData",
-                full.names = T), file.path(environment$res.data.path, c("main.diff.exp.RData",
-                "clustering.RData", "homogeneity.RData", "Seurat.RData"))), showWarnings = F)
+            file.remove(list.files(environment$res.data.path, pattern = "*.diff.exp.rds", 
+                full.names = T))
         }
         unlink(file.path(environment$work.path, "diff.exp"), recursive = T, force = T)
-        save(clustering, file = cache)
+        saveRDS(clustering, file = cache)
         end(t)
     }
-
+    
     environment$clustering <- clustering
     environment$cluster.names <- environment$clustering$membership
-
+    
     print.message("Membership table:")
     print(table(clustering$membership))
-
+    
     return(environment)
 }
-

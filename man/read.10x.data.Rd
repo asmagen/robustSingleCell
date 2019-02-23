@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_data.R
 \name{read.10x.data}
 \alias{read.10x.data}
-\title{Read 10X data}
+\title{Read 10X Data}
 \usage{
 read.10x.data(path)
 }
@@ -10,7 +10,7 @@ read.10x.data(path)
 \item{path}{Path to directory containing matrix.mtx, genes.tsv, and barcodes.tsv}
 }
 \value{
-A matrix of genes by cells
+a matrix of genes by cells
 }
 \description{
 Load sparse data matrices from 10X genomics.

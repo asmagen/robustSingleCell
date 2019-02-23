@@ -1,24 +1,14 @@
-#' Run distributed tSNE analysis for multiple input parameters
-#' 
-#' 
-#' @param environment The environment
-#' @param perplexity The perplexity parameter of tSNE
-#' @param max_iter The maximum number of iterations to run the tSNE
-#' @param rerun Whether to rerun
+#' Perform tSNE Analyses
+#'
+#' Run distributed tSNE analysis for multiple input hyperparameters
+#'
+#' @param environment \code{environment} object
+#' @param perplexity perplexity parameter of tSNE
+#' @param max_iter maximum number of iterations to run the tSNE
+#' @param rerun whether to rerun or load from cache
+#' @return Distributed job identified object
 #' @export
 run.tSNE <- function(environment, perplexity, max_iter, rerun) {
-    
-    tSNE <- function(perplexity, max_iter) {
-        
-        load(data.path)
-        
-        duplicated.indices <- duplicated(t(PCA))
-        tSNE <- Rtsne::Rtsne(t(PCA[, !duplicated.indices]), pca = F, initial_dims = nrow(PCA), 
-            perplexity = perplexity, max_iter = max_iter, verbose = T, whiten = F)$Y
-        
-        save(tSNE, file = file.path(tSNEs.dir, paste(perplexity, max_iter, "tSNE.RData", 
-            sep = ".")))
-    }
     
     tSNEs.dir <- file.path(environment$res.data.path, "tSNEs")
     list.files(tSNEs.dir)
@@ -37,6 +27,21 @@ run.tSNE <- function(environment, perplexity, max_iter, rerun) {
         }
         
         data.path <- environment$PCA.path
+        
+        tSNE <- function(perplexity, max_iter) {
+            
+            precomputed <- readRDS(data.path)
+            PCA <- precomputed$PCA
+            rm(precomputed)
+            
+            duplicated.indices <- duplicated(t(PCA))
+            tSNE <- Rtsne::Rtsne(t(PCA[, !duplicated.indices]), pca = F, initial_dims = nrow(PCA), 
+                perplexity = perplexity, max_iter = max_iter, verbose = T, whiten = F)$Y
+            
+            saveRDS(tSNE, file = file.path(tSNEs.dir, paste(perplexity, max_iter, 
+                "tSNE.rds", sep = ".")))
+        }
+        
         params <- data.frame(expand.grid(perplexity = perplexity, max_iter = max_iter))
         if (nrow(params) > 10) {
             print.message("Warning: possibly too many tSNE parameter combinations [", 
@@ -50,6 +55,7 @@ run.tSNE <- function(environment, perplexity, max_iter, rerun) {
         sopt <- list(mem = "4GB", time = "0:15:00", share = TRUE)
         sjob <- slurm_apply(tSNE, params, nodes = nrow(params), cpus_per_node = 1, 
             add_objects = c("data.path", "tSNEs.dir"), submit = TRUE, slurm_options = sopt)
+        waiting <- get_slurm_out(sjob)
         end()
     }
     

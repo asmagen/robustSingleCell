@@ -2,18 +2,18 @@
 % Please edit documentation in R/preprocess.R
 \name{add.confounder.variables}
 \alias{add.confounder.variables}
-\title{Add confounder variable to environment object}
+\title{Add Confounder Variables}
 \usage{
 add.confounder.variables(environment, ...)
 }
 \arguments{
-\item{environment}{The environment object}
+\item{environment}{\code{environment} object}
 
-\item{...}{confounding variables}
+\item{...}{vectors containing activation levels of confounding variables}
 }
 \value{
 \code{environment} parameter containing added confounder variable
 }
 \description{
-Add confounder variable to environment object
+Add confounder variables' activation level per cell to \code{environment} object.
 }

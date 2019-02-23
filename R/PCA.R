@@ -1,20 +1,21 @@
-#' Parallelized PCA
+#' Parallelized PCA Analysis
 #'
+#' Run PCA analysis with a simulation analysis of shuffled data to determine the appropriate number of PCs.
 #'
-#' @param environment The environment object
-#' @param regress Gene signature activation scores to regress
-#' @param groups Experimental design annotation to guide dataset-specific regression
-#' @param nShuffleRuns Number of shuffled analyses
-#' @param threshold FDR threshold 
-#' @param maxPCs Maximum number of possible PCs
-#' @param label Optional analyses label folder
+#' @param environment \code{environment} object
+#' @param regress gene signature activation scores to regress
+#' @param groups experimental design annotation to guide dataset-specific regression
+#' @param nShuffleRuns number of shuffled analyses
+#' @param threshold FDR threshold
+#' @param maxPCs maximum number of possible PCs
+#' @param label optional analyses label folder
 #' @param mem HPC memory
 #' @param time HPC time
-#' @param rerun Whether to rerun
-#' @param clear.previously.calculated.clustering Whether to clear previous clustering analysis
+#' @param rerun whether to rerun the analysis rather than load from cache
+#' @param clear.previously.calculated.clustering whether to clear previous clustering analysis
 #' @return \code{environment} parameter containing PC coordinates
 #' @export
-#' @import rslurm 
+#' @import rslurm
 PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, threshold = 0.1, 
     maxPCs = 100, label = NA, mem = "2GB", time = "0:10:00", rerun = F, clear.previously.calculated.clustering = T) {
     
@@ -48,11 +49,14 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
     
     dir.create(environment$res.data.path, showWarnings = F, recursive = T, mode = "700")
     
-    cache <- file.path(environment$res.data.path, paste(config, "PCA.RData", sep = "."))
+    cache <- file.path(environment$res.data.path, paste(config, "PCA.rds", sep = "."))
     
     if (!rerun && file.exists(cache)) {
         print.message("Loading precomputed")
-        load(cache)
+        precomputed <- readRDS(cache)
+        PCA <- precomputed$PCA
+        Rotation <- precomputed$Rotation
+        rm(precomputed)
     } else {
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"))
@@ -83,10 +87,10 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
         get.shuffled.var <- function(rep) {
             
             data.perm <- apply(data, 2, sample, replace = FALSE)
-            pca.perm <- prcomp(t(data.perm), retx = TRUE, center = T, scale. = T)
+            pca.perm <- stats::prcomp(t(data.perm), retx = TRUE, center = T, scale. = T)
             var.perm <- pca.perm$sdev[1:ndf]^2/sum(pca.perm$sdev[1:ndf]^2)
-            save(pca.perm, var.perm, file = file.path(shuffled.PCA.data.path, paste("shuffled.PCA.rep", 
-                rep, "RData", sep = ".")))
+            saveRDS(list(pca.perm = pca.perm, var.perm = var.perm), file = file.path(shuffled.PCA.data.path, 
+                paste("shuffled.PCA.rep", rep, "rds", sep = ".")))
             return(var.perm)
         }
         
@@ -96,12 +100,12 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
             nodes = nShuffleRuns, cpus_per_node = 1, submit = TRUE, slurm_options = sopt)
         
         pc.time <- Sys.time()
-        pca <- prcomp(t(data), retx = TRUE, center = T, scale. = T)
+        pca <- stats::prcomp(t(data), retx = TRUE, center = T, scale. = T)
         print.message("Single PCA run time:")
         print(Sys.time() - pc.time)
         var <- pca$sdev[1:ndf]^2/sum(pca$sdev[1:ndf]^2)
         print.message("Real PCA Var")
-        print(head(var, 10))
+        print(utils::head(var, 10))
         
         var.perm <- get_slurm_out(sjob)
         dim(var.perm)
@@ -150,7 +154,7 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
         print.message("Rotation")
         corner(Rotation)
         
-        save(PCA, Rotation, file = cache)
+        saveRDS(list(PCA = PCA, Rotation = Rotation), file = cache)
         
         end(t)
     }

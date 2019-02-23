@@ -2,29 +2,29 @@
 % Please edit documentation in R/preprocess.R
 \name{summarize}
 \alias{summarize}
-\title{Summarize the clustering results into figures}
+\title{Differential Expression and Figure Generation}
 \usage{
 summarize(environment, perplexity = seq(10, 30, 10), max_iter = 10000,
   rerun = F, order = NA, contrast = "all", min.fold = 1.5,
   quantile = 0.95)
 }
 \arguments{
-\item{environment}{The environment object}
+\item{environment}{\code{environment} object}
 
-\item{perplexity}{The perplexity parameter for tSNE anlaysis}
+\item{perplexity}{perplexity parameters for tSNE analyses}
 
-\item{max_iter}{Maximum iterations for tSNE}
+\item{max_iter}{maximum iterations for tSNE}
 
-\item{rerun}{Whether to rerun}
+\item{rerun}{whether to rerun}
 
-\item{order}{Order in which to plot the clusters}
+\item{order}{order in which to plot the clusters}
 
-\item{contrast}{Either 'all' indicating differential expression between one cluster against all others or 'datasets' indicating differential expression analysis comparing one cluster to all other within each dataset separately ('datasets' should be used in pooled analysis for optimal results)}
+\item{contrast}{either 'all' indicating differential expression between one cluster against all others or 'datasets' indicating differential expression analysis comparing one cluster to all other within each dataset separately ('datasets' should be used in pooled analysis for optimal results)}
 
-\item{min.fold}{Minimum fold change for filtering final differentially expressed gene lists}
+\item{min.fold}{minimum fold change for filtering final differentially expressed gene lists}
 
-\item{quantile}{q-value cutoff}
+\item{quantile}{q-value cutoff for differential expression analysis}
 }
 \description{
-Summarize the clustering results into figures
+Summarize the clustering results by conducting differential expression analysis and plotting figures.
 }
