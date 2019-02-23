@@ -245,7 +245,7 @@ cluster assignment.
 
 <figure>
 
-<img src="vignettes/figs/tsne.png" height="500" width="500">
+<img src="vignettes/figs/tsne.png" height="500" width="800">
 
 <figcaption>
 
