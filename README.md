@@ -104,8 +104,8 @@ post filtering.
 
 <figure>
 
-<img src="vignettes/figs/pre_stats.pdf">
-<img src="vignettes/figs/post_stats.pdf">
+<img src="vignettes/figs/pre_stats.png">
+<img src="vignettes/figs/post_stats.png">
 
 <figcaption>
 
@@ -137,7 +137,7 @@ analysis is presented in Figure 2.
 
 <figure>
 
-<img src="vignettes/figs/Clustering.modularity.pdf">
+<img src="vignettes/figs/Clustering.modularity.png">
 
 <figcaption>
 
@@ -182,7 +182,7 @@ genes.
 
 <figure>
 
-<img src="vignettes/figs/violin.pdf">
+<img src="vignettes/figs/violin.png">
 
 <figcaption>
 
@@ -198,7 +198,7 @@ created in the next step via `summarize` function below).
 
 <figure>
 
-<img src="vignettes/figs/PCA.pdf">
+<img src="vignettes/figs/PCA.png">
 
 <figcaption>
 
@@ -214,7 +214,7 @@ PCA loadings after removing the lowly ranked genes.
 
 <figure>
 
-<img src="vignettes/figs/rotation.pdf">
+<img src="vignettes/figs/rotation.png">
 
 <figcaption>
 
@@ -230,7 +230,7 @@ removing the lowly ranked genes.
 
 <figure>
 
-<img src="vignettes/figs/PC1_heatmap.pdf" width="500">
+<img src="vignettes/figs/PC1_heatmap.png" width="500">
 
 <figcaption>
 
@@ -245,7 +245,7 @@ cluster assignment.
 
 <figure>
 
-<img src="vignettes/figs/tsne.pdf" width="500">
+<img src="vignettes/figs/tsne.png" width="500">
 
 <figcaption>
 
@@ -260,7 +260,7 @@ genes for initial evaluation (Figure 8).
 
 <figure>
 
-<img src="vignettes/figs/diff.genes.pdf" width="500">
+<img src="vignettes/figs/diff.genes.png" width="500">
 
 <figcaption>
 
@@ -339,7 +339,7 @@ visualize.cluster.cors.heatmaps(pooled_env, pooled_env$work.path,
 
 <figure>
 
-<img src="vignettes/figs/LCMV1_LCMV2_similarity.pdf">
+<img src="vignettes/figs/LCMV1_LCMV2_similarity.png">
 
 <figcaption>
 
@@ -364,7 +364,7 @@ visualize.cluster.similarity.stats(pooled_env, similarity)
 
 <figure>
 
-<img src="vignettes/figs/cor_FC.pdf" width = "500">
+<img src="vignettes/figs/cor_FC.png" width = "500">
 
 <figcaption>
 
