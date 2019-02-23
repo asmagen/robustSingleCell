@@ -34,9 +34,9 @@ Imports:
   RANN,
   Rcpp
 LinkingTo: Rcpp
-License: Artistic-2.0 + file LICENSE
+License: Artistic-2.0 
 URL: https://github.com/asmagen/robustSingleCell
-BugsReport: https://github.com/asmagen/robustSingleCell/issues
+BugReports: https://github.com/asmagen/robustSingleCell/issues
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
