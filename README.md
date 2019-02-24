@@ -6,7 +6,7 @@ MagenSingleCell
 robustSingleCell is a pipeline designed to identify robust cell
 subpopulations using scRNAseq data and compare population compositions
 across tissues and experimental models via similarity analysis as
-described in Magen et al. (2019) \[1\].
+described in Magen et al. (2019) [*bioRxiv 543199*](https://doi.org/10.1101/543199) \[1\].
 
 ### Installation
 
