@@ -21,7 +21,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 BiocManager::install("limma")
 BiocManager::install("grimbough/biomaRt")
 
-devtools::install_github("asmagen/magensinglecell")
+devtools::install_github("asmagen/robustsinglecell")
 ```
 
 This pipeline currently supports [slurm](https://slurm.schedmd.com) for
@@ -30,7 +30,7 @@ parallel batch jobs.
 ### Getting help
 
 If you encounter a clear bug, please submit an
-[issue](https://github.com/asmagen/MagenSingleCell/issues) with
+[issue](https://github.com/asmagen/robustSingleCell/issues) with
 reproducible example.
 
 ### Tutorial
