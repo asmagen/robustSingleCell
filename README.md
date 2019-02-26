@@ -1,4 +1,4 @@
-MagenSingleCell
+robustSingleCell
 ================
 
 ### Overview
