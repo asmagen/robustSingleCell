@@ -169,7 +169,7 @@ The average expression of genes driving the PCs can be visualized as a heatmap v
 Figure 7 shows the tSNE visualization of the cells, color coded by cluster assignment. 
 
 <figure>
-<img src="vignettes/figs/tsne.png" width="500"> 
+<img src="vignettes/figs/tsne.png" height="500" width="500"> 
 <figcaption> Fig 7. t-SNE plot colored by cluster assignment.</figcaption>
 </figure>
 
