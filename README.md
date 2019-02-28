@@ -75,8 +75,8 @@ LCMV1 <- initialize.project(datasets = "LCMV1",
 ```
 
 `read.data` function reads the data in 10X genomics format and performs
-quality filtering as described in *Magen et al 2019* \[4\]. We randomly
-downsampled the datasets to 1000 cells to shorten the simplify this
+quality filtering as described in *Magen et al 2019*. We randomly
+downsampled the datasets to 1000 cells to simplify this
 example.
 
 ``` r
@@ -385,7 +385,3 @@ Fig 10. Correlation among all the clusters in the two datasets.
     *Immunity* 50.1 (2019): 91-105.
 
 3.  [slurm](https://slurm.schedmd.com)
-
-4.  Magen *et al*. “Single-cell profiling of tumor-reactive
-    CD4<sup>+</sup> T-cells reveals unexpected transcriptomic diversity”
-    [*bioRxiv 543199*](https://doi.org/10.1101/543199)
