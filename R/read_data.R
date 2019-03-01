@@ -77,7 +77,7 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
                 print.message("Using input", dataset)
                 measurements <- raw.data.matrices[[dataset]]
             }
-            if (!is.null(subsample) & subsample < ncol(measurements)) {
+            if (!is.null(subsample) && subsample < ncol(measurements)) {
                 measurements <- measurements[, sample(seq(ncol(measurements)), subsample)]
             }
             colnames(measurements) <- rep(environment$datasets[environment$datasets == 
