@@ -150,7 +150,7 @@ each resolution.
 
 </figure>
 
-We select the appropriate resolution, typically the one where there is
+We select the appropriate resolution (the parameter is requested as input from the user interactively), typically the one where there is
 more than two (2) fold change modularity difference relative to the
 shuffled analysis.
 
