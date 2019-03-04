@@ -273,17 +273,18 @@ get.technically.similar.genes <- function(environment, knn = 10) {
         
         technical.variables <- data.frame(means = rowMeans(environment$normalized), 
             vars = apply(environment$normalized, 1, stats::var))
-        HVG.technical.variables <- technical.variables[environment$HVG, ]
         scaled.technical.variables <- apply(technical.variables, 2, scale)
         rownames(scaled.technical.variables) <- rownames(technical.variables)
-        HVG.scaled.technical.variables <- apply(HVG.technical.variables, 2, scale)
-        rownames(HVG.scaled.technical.variables) <- rownames(HVG.technical.variables)
-        
-        distances <- as.matrix(stats::dist(scaled.technical.variables))
+        #HVG.technical.variables <- technical.variables[environment$HVG, ]
+        #HVG.scaled.technical.variables <- apply(HVG.technical.variables, 2, scale)
+        #rownames(HVG.scaled.technical.variables) <- rownames(HVG.technical.variables)
+       
+        n <- nrow(scaled.technical.variables) 
+        dist_obj <- stats::dist(scaled.technical.variables)
         knns <- array("", c(length(environment$genes), knn))
         rownames(knns) <- environment$genes
         for (index in seq(length(environment$genes))) {
-            gene.dist <- distances[environment$genes[index], ]
+            gene.dist <- get_dist(dist_obj, index, n)
             knns[index, ] <- names(gene.dist[order(gene.dist)[2:(knn + 1)]])
         }
         saveRDS(list(knns = knns, technical.variables = technical.variables), file = cache)
@@ -291,6 +292,11 @@ get.technically.similar.genes <- function(environment, knn = 10) {
     end(t)
     
     return(list(knns = knns, technical.variables = technical.variables))
+}
+
+get_dist <- function(dist_obj, i, n) {
+   distance <- c()
+   if (i > 1) distance <- c(distance, i + 1 + c(0, seq(n - 2, n - (i - 3)))
 }
 
 background.genes <- function(environment, foreground.genes, knn) {
