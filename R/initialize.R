@@ -6,38 +6,49 @@
 #' @param origins list of dataset tissue origin/condition full name
 #' @param experiments list of experiment design annotations
 #' @param data.path path to where the data is located
-#' @param work.path path to where the analysis should create folders and store files
+#' @param work.path path to where the analysis results are stored; optional, by
+#' default, a temporary directory
 #' @param marker.genes set of genes of interest for visualization purposes
 #' @param clear.history whether you would like to remove any previous project by this name
 #' @param analysis.label whether you would like to add a specific label to the analysis folder
 #' @param convert.to.mouse.gene.symbols whether you are using human gene symbols and would like to convert them to mouse gene symbols
 #' @return \code{environment} parameter containing file paths and experiment parameters
 #' @export
-initialize.project <- function(datasets, origins, experiments, data.path, work.path, 
-    marker.genes = NULL, clear.history = F, analysis.label = NA, convert.to.mouse.gene.symbols = NULL) {
-    
+#' @examples
+#' # Set up analysis folder and meta data
+#' data.path <- system.file("extdata", package = "robustSingleCell")
+#' LCMV1_proj <- initialize.project(datasets = "LCMV1",
+#'                             origins = "CD44+ cells",
+#'                             experiments = "Rep1",
+#'                             data.path = data.path)
+initialize.project <- function(datasets, origins, experiments, data.path, work.path = NULL,
+    marker.genes = NULL, clear.history = F, analysis.label = NULL, convert.to.mouse.gene.symbols = NULL) {
+
     options(width = 205)
-    environment <- {
-    }
+    environment <- list()
     environment$datasets <- datasets
     environment$origins <- origins
     environment$experiments <- experiments
     environment$labels <- labels
     environment$data.path <- data.path
-    environment$project <- ifelse(length(datasets) > 1, paste("merged", paste(datasets, 
+    environment$project <- ifelse(length(datasets) > 1, paste("merged", paste(datasets,
         collapse = "."), sep = "."), datasets)
-    if (!is.na(analysis.label)) 
+    if(is.null(work.path)) {
+        work.path <- tempdir()
+        cat("Results will be saved at ", work.path, ".\n", sep = "")
+    }
+    if (!is.null(analysis.label))
         environment$project <- paste(analysis.label, environment$project, sep = "_")
-    if (length(convert.to.mouse.gene.symbols) > 1 || !is.null(convert.to.mouse.gene.symbols)) 
+    if (length(convert.to.mouse.gene.symbols) > 1 || !is.null(convert.to.mouse.gene.symbols))
         environment$convert.to.mouse.gene.symbols <- convert.to.mouse.gene.symbols
-    environment$baseline.work.path <- environment$work.path <- file.path(work.path, 
+    environment$baseline.work.path <- environment$work.path <- file.path(work.path,
         environment$project)
-    if (clear.history) 
+    if (clear.history)
         unlink(environment$work.path, recursive = T, force = T)
     dir.create(environment$work.path, showWarnings = F, recursive = T, mode = "700")
-    dir.create(file.path(environment$work.path, "tracking"), showWarnings = F, recursive = T, 
+    dir.create(file.path(environment$work.path, "tracking"), showWarnings = F, recursive = T,
         mode = "700")
-    environment$baseline.data.path <- environment$res.data.path <- file.path(environment$work.path, 
+    environment$baseline.data.path <- environment$res.data.path <- file.path(environment$work.path,
         "data")
     dir.create(environment$res.data.path, showWarnings = F, recursive = T, mode = "700")
     if (is.null(marker.genes)) {
@@ -47,6 +58,6 @@ initialize.project <- function(datasets, origins, experiments, data.path, work.p
     t <- start(file.path(environment$work.path, "tracking"))
     print(environment)
     end(t)
-    
+
     return(environment)
 }

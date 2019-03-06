@@ -4,9 +4,9 @@
 \alias{initialize.project}
 \title{Intialize the Project Environment}
 \usage{
-initialize.project(datasets, origins, experiments, data.path, work.path,
-  marker.genes = NULL, clear.history = F, analysis.label = NA,
-  convert.to.mouse.gene.symbols = NULL)
+initialize.project(datasets, origins, experiments, data.path,
+  work.path = NULL, marker.genes = NULL, clear.history = F,
+  analysis.label = NULL, convert.to.mouse.gene.symbols = NULL)
 }
 \arguments{
 \item{datasets}{list of dataset code names}
@@ -17,7 +17,8 @@ initialize.project(datasets, origins, experiments, data.path, work.path,
 
 \item{data.path}{path to where the data is located}
 
-\item{work.path}{path to where the analysis should create folders and store files}
+\item{work.path}{path to where the analysis results are stored; optional, by
+default, a temporary directory}
 
 \item{marker.genes}{set of genes of interest for visualization purposes}
 
@@ -32,4 +33,12 @@ initialize.project(datasets, origins, experiments, data.path, work.path,
 }
 \description{
 Set up a project environment variable mapped to project results folder.
+}
+\examples{
+# Set up analysis folder and meta data
+data.path <- system.file("extdata", package = "robustSingleCell")
+LCMV1_proj <- initialize.project(datasets = "LCMV1",
+                            origins = "CD44+ cells",
+                            experiments = "Rep1",
+                            data.path = data.path)
 }

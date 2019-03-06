@@ -4,7 +4,7 @@
 \alias{compare.cluster.similarity}
 \title{Compare Cluster Similarity}
 \usage{
-compare.cluster.similarity(environment,
+\method{compare}{cluster.similarity}(environment,
   diff.exp.file = "main.datasets.diff.exp.rds",
   cluster.similarity.function = pearson.correlation, label = "pearson",
   rerun = F)

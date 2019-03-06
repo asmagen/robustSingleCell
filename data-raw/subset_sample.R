@@ -5,6 +5,8 @@ LCMV1 <- initialize.project(datasets = "LCMV1",
                             work.path = "~/LCMV/LCMV_analysis2")
 LCMV1 <- read.data(LCMV1, subsample = 100)
 LCMV1 <- get.variable.genes(LCMV1)
+LCMV1_small <- LCMV1$counts[LCMV1$HVG,]
+write.table(LCMV1_small, file = "inst/extdata/LCMV1_small.txt")
 
 
 # randomly sample
@@ -15,10 +17,6 @@ LCMV2 <- initialize.project(datasets = "LCMV2",
                             work.path = "~/LCMV/LCMV_analysis2")
 LCMV2 <- read.data(LCMV2, subsample = 100)
 LCMV2 <- get.variable.genes(LCMV2)
+LCMV2_small <- LCMV2$counts[LCMV2$HVG,]
+write.table(LCMV2_small, file = "inst/extdata/LCMV2_small.txt")
 
-subset_genes <- union(LCMV1$HVG, LCMV2$HVG)
-
-LCMV1_normalized <- LCMV1$normalized[LCMV1$HVG,]
-LCMV2_normalized <- LCMV2$normalized[LCMV2$HVG,]
-devtools::use_data(LCMV1_normalized, robustSingleCell)
-devtools::use_data(LCMV2_normalized, robustSingleCell)

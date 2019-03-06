@@ -42,3 +42,19 @@ genes per cell}
 \description{
 Read 10X data files or a raw data matrix and perform normalization, QC filtering and duplicates removal.
 }
+\examples{
+data.path <- system.file("extdata", package = "robustSingleCell")
+raw_LCMV1 <- read.table(file = file.path(data.path, "LCMV1_small.txt"), as.is = TRUE)
+LCMV1 <- initialize.project(datasets = "LCMV1",
+                            origins = "CD44+ cells",
+                            experiments = "Rep1",
+                            data.path = data.path)
+
+# The data had been filtered already and parameters were chosen correspondingly
+LCMV1 <- read.data(LCMV1,
+raw.data.matrices = list(LCMV1 = raw_LCMV1),
+min.genes.per.cell = 100,
+max.genes.per.cell.quantile = 1,
+max.UMIs.per.cell.quantile = 1,
+min.cells.per.gene = 1)
+}
