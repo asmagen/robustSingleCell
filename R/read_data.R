@@ -90,6 +90,7 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
             } else {
                 print.message("Using input", dataset)
                 measurements <- raw.data.matrices[[dataset]]
+                stopifnot(is.matrix(measurements))
             }
             if (!is.null(subsample) && subsample < ncol(measurements)) {
                 measurements <- measurements[, sample(seq(ncol(measurements)), subsample)]
@@ -184,7 +185,7 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
                 criteria <- criteria & data$Ribosomal.frac <= max.ribosomal.frac
             print.message("# qualifying cells", sum(criteria), "# not qualifying cells",
                 sum(!criteria))
-            measurements <- measurements[, criteria]
+            measurements <- measurements[, criteria] ###!!!
             dataset.labels <- dataset.labels[criteria]
             origins <- origins[criteria]
             experiments <- experiments[criteria]

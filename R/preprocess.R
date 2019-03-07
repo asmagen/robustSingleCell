@@ -281,7 +281,7 @@ get.technically.similar.genes <- function(environment, knn = 10) {
         knns <- array("", c(length(environment$genes), knn))
         rownames(knns) <- environment$genes
         for (index in seq(length(environment$genes))) {
-            gene.dist <- get_dist(dist_obj, index, n)
+            gene.dist <- get_dist(dist_obj, index, n, environment$genes)
             knns[index, ] <- names(gene.dist[order(gene.dist)[2:(knn + 1)]])
         }
         saveRDS(list(knns = knns, technical.variables = technical.variables), file = cache)
@@ -291,7 +291,7 @@ get.technically.similar.genes <- function(environment, knn = 10) {
     return(list(knns = knns, technical.variables = technical.variables))
 }
 
-get_dist <- function(dist_obj, i, n) {
+get_dist <- function(dist_obj, i, n, names) {
    stopifnot(i <= n)
    distance <- c(0)
    if (i < n) {
@@ -303,6 +303,7 @@ get_dist <- function(dist_obj, i, n) {
        pre <- Reduce(sum, pre, init = i - 1, accumulate = T)
        distance <- c(dist_obj[pre], distance)
    }
+   names(distance) <- names
    return(distance)
 }
 
