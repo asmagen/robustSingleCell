@@ -394,6 +394,12 @@ regress.covariates <- function(environment, regress, data, groups, rerun = F, sa
 #' @param min.fold minimum fold change for filtering final differentially expressed gene lists
 #' @param quantile q-value cutoff for differential expression analysis
 #' @export
+#' @examples
+#' \dontrun{
+#' # after running cluster.analysis()
+#' LCMV1 <- setup_LCMV1_example()
+#' summarize(LCMV1)
+#' }
 summarize <- function(environment, perplexity = seq(10, 30, 10), max_iter = 10000,
     rerun = F, order = NA, contrast = "all", min.fold = 1.5, quantile = 0.95) {
 
