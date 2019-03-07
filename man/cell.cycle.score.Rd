@@ -19,3 +19,7 @@ a matrix of cell cycle genes activation scores (S, G2M and aggregated S/G2M scor
 \description{
 Compute the activation of cell cycle genes defined in Kowalczyk, M. S. et al.
 }
+\examples{
+LCMV1 <- setup_LCMV1_example()
+cell.cycle.score = cell.cycle.score(LCMV1)
+}
