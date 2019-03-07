@@ -3,7 +3,7 @@
 #' Use cross-replicate experiment cluster similarity to remove irreproducible clusters.
 #'
 #' @param environment \code{environment} object
-#' @param similarity pearson correlation between clusters' FC vectors defined in compare.cluster.similarity
+#' @param similarity pearson correlation between clusters' FC vectors defined in assess.cluster.similarity
 #' @param min.sd minimum standard deviation for cluster reproducibility assessment
 #' @param max.q.val maximum q value for cluster correlation cutoff
 #' @param rerun whether to rerun the analysis or load from cache
@@ -199,7 +199,7 @@ pearson.correlation <- function(diff1, diff2) {
     return(data.frame(similarity = cor$estimate, significance = cor$p.value))
 }
 
-#' Compare Cluster Similarity
+#' Assess Cluster Similarity
 #'
 #' Assess similarity between pairs of clusters.
 #'
@@ -210,7 +210,7 @@ pearson.correlation <- function(diff1, diff2) {
 #' @param rerun whether to rerun the analysis or load from cache
 #' @return pairwise cluster similarity measures
 #' @export
-compare.cluster.similarity <- function(environment, diff.exp.file = "main.datasets.diff.exp.rds", 
+assess.cluster.similarity <- function(environment, diff.exp.file = "main.datasets.diff.exp.rds", 
     cluster.similarity.function = pearson.correlation, label = "pearson", rerun = F) {
     
     cache <- file.path(environment$res.data.path, paste(label, "cluster.similarity.rds", 
@@ -225,7 +225,7 @@ compare.cluster.similarity <- function(environment, diff.exp.file = "main.datase
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"), split = F)
         
-        name <- paste("compare.cluster.similarity", label, sep = "_")
+        name <- paste("assess.cluster.similarity", label, sep = "_")
         work.path <- file.path(environment$work.path, name)
         if (file.exists(work.path)) {
             new.dir <- file.path(environment$work.path, paste(name, format(Sys.time(), 

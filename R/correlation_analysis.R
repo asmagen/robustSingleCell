@@ -102,7 +102,8 @@ get.clustering.results <- function(clustering.dir, knn.ratio, shuffledKNN) {
 #' @return \code{environment} parameter containing clustering assignment and provisional cluster names
 #' @import cccd
 #' @export
-#' \donttest{
+#' @examples
+#' \dontrun{
 #' LCMV1 <- setup_LCMV1_example()
 #' LCMV1 <- cluster.analysis(LCMV1) # need to be run on slurm
 #' }

@@ -39,7 +39,7 @@ PCA(environment, regress = NA, groups = NA, nShuffleRuns = 10,
 Run PCA analysis with a simulation analysis of shuffled data to determine the appropriate number of PCs.
 }
 \examples{
-\donttest{
+\dontrun{
 LCMV1 <- setup_LCMV1_example()
 LCMV1 <- PCA(LCMV1) # need to be run on slurm
 }

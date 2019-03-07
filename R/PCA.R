@@ -17,7 +17,7 @@
 #' @export
 #' @import rslurm
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' LCMV1 <- setup_LCMV1_example()
 #' LCMV1 <- PCA(LCMV1) # need to be run on slurm
 #' }
