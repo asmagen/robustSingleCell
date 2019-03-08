@@ -13,11 +13,12 @@
 #' @param time HPC time
 #' @param rerun whether to rerun the analysis rather than load from cache
 #' @param clear.previously.calculated.clustering whether to clear previous clustering analysis
+#' @param local whether to run jobs locally rather than using distributed slurm system
 #' @return \code{environment} parameter containing PC coordinates
 #' @export
 #' @import rslurm
 PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, threshold = 0.1, 
-    maxPCs = 100, label = NA, mem = "2GB", time = "0:10:00", rerun = F, clear.previously.calculated.clustering = T) {
+    maxPCs = 100, label = NA, mem = "2GB", time = "0:10:00", rerun = F, clear.previously.calculated.clustering = T, local = F) {
     
     if (length(regress) > 1 || !is.na(regress)) {
         config <- paste(colnames(regress), collapse = "+")
@@ -95,9 +96,17 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
         }
         
         sopt <- list(mem = mem, time = time, share = TRUE)
-        sjob <- slurm_apply(get.shuffled.var, data.frame(rep = seq(nShuffleRuns)), 
+
+        if (local) {
+            sjob <- slurm_apply(get.shuffled.var, data.frame(rep = seq(nShuffleRuns)), 
+            add_objects = c("shuffled.PCA.data.path", "data", "ndf"), pkgs = NULL, 
+            nodes = nShuffleRuns, cpus_per_node = 1, submit = FALSE, slurm_options = sopt)
+            local_slurm_array(sjob)
+        } else {
+            sjob <- slurm_apply(get.shuffled.var, data.frame(rep = seq(nShuffleRuns)), 
             add_objects = c("shuffled.PCA.data.path", "data", "ndf"), pkgs = NULL, 
             nodes = nShuffleRuns, cpus_per_node = 1, submit = TRUE, slurm_options = sopt)
+        }
         
         pc.time <- Sys.time()
         pca <- stats::prcomp(t(data), retx = TRUE, center = T, scale. = T)
