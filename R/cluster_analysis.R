@@ -99,6 +99,7 @@ get.clustering.results <- function(clustering.dir, knn.ratio, shuffledKNN) {
 #' @param mem HPC memory
 #' @param time HPC time
 #' @param plot whether to plot the clustering qualities compared to shuffled
+#' @param local whether to run jobs locally rather than using distributed slurm system
 #' @return \code{environment} parameter containing clustering assignment and provisional cluster names
 #' @import cccd
 #' @export
@@ -109,7 +110,7 @@ get.clustering.results <- function(clustering.dir, knn.ratio, shuffledKNN) {
 #' }
 cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuffleRuns = 10,
     shuffledKNN = 10, loadPreviousKnn = T, rerun = F, deleteCache = F, mem = "4GB",
-    time = "0:15:00", plot = T) {
+    time = "0:15:00", plot = T, local = F) {
 
     clustering.dir <- file.path(environment$res.data.path, "clustering")
     shuffled.result.files <- list.files(clustering.dir, pattern = paste("shuffled.*.*.rds",
@@ -145,8 +146,16 @@ cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuf
         print(utils::tail(params))
 
         sopt <- list(mem = mem, time = time, share = TRUE)
-        sjob <- slurm_apply(cluster, params, nodes = nrow(params), cpus_per_node = 1,
+
+        if (local) {
+            sjob <- sjob <- slurm_apply(cluster, params, nodes = nrow(params), cpus_per_node = 1,
+            submit = FALSE, slurm_options = sopt)
+            local_slurm_array(sjob)
+        } else {
+            sjob <- slurm_apply(cluster, params, nodes = nrow(params), cpus_per_node = 1,
             submit = TRUE, slurm_options = sopt)
+        }
+
         tryCatch({
             get_slurm_out(sjob)
             get_slurm_out(sjob)
@@ -248,14 +257,11 @@ cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuf
         print.message("knn.choose =", knn.choose)
         clustering.results <- get.clustering.results(clustering.dir, knn.choose,
             nShuffleRuns)
-        nclusters <- as.numeric(readline(prompt = "Select # clusters: "))
-        print.message("nclusters =", nclusters)
 
         clustering <- {
         }
         clustering$knn.choose <- knn.choose
-        clustering$membership <- as.vector(clustering.results$memberships[which(apply(clustering.results$memberships,
-            1, function(v) length(unique(v))) == nclusters), ])
+        clustering$membership <- as.vector(clustering.results$memberships[nrow(clustering.results$memberships), ])
         clustering$nclusters <- length(unique(clustering$membership))
         print.message("# clusters:", clustering$nclusters)
         print.message("Length:", length(clustering$membership))

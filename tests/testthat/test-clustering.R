@@ -22,15 +22,13 @@ LCMV1 <- get.variable.genes(LCMV1)
 
 context("PCA computation")
 
-library(rslurm) # Why doesn't PCA load rslurm package?
+library(rslurm)
 
-local_slurm_array <- function(slr_job) { # Why rslurm doesn't load this function?
+local_slurm_array <- function(slr_job) {
     olddir <- getwd()
     rscript_path <- file.path(R.home("bin"), "Rscript")
     setwd(paste0("_rslurm_", slr_job$jobname))
     tryCatch({
-        #FIXME simplify with system('SLURM_ARRAY_TASK_ID=1 Rscript path/to/slurm_run.R')
-        # and loop in this code
         writeLines(c(paste0("for (i in 1:", slr_job$nodes, " - 1) {"),
                      "Sys.setenv(SLURM_ARRAY_TASK_ID = i)",
                      "source('slurm_run.R')", "}"), "local_run.R")
@@ -39,8 +37,22 @@ local_slurm_array <- function(slr_job) { # Why rslurm doesn't load this function
     return(slr_job)
 }
 
-LCMV1 <- PCA(LCMV1,local = T) # Added local functionality to original PCA function
+LCMV1 <- PCA(LCMV1,local = T)
 
 test_that("The number of 'significant' PCs ", {
   expect_equal(dim(LCMV1$PCA), c(7, 97))
 })
+
+
+# Tests for clustering computation
+
+context("Clustering computation")
+
+LCMV1 <- cluster.analysis(LCMV1,knn.ratios = c(0.1,0.2),loadPreviousKnn = F, rerun = T, deleteCache = T, plot = F, local = T)
+0.1
+LCMV1$clustering$
+# Need to resolve resolution input parameter
+test_that("The number of clusters ", {
+  expect_equal(LCMV1$clustering$nclusters, 6)
+})
+

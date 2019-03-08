@@ -1,3 +1,4 @@
+
 #' Get/Set Cluster Names by Marker Gene Expression
 #'
 #' \code{get.cluster.names} uses predefined marker genes to assign clusters with

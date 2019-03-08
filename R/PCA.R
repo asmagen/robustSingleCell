@@ -101,7 +101,6 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
         }
 
         sopt <- list(mem = mem, time = time, share = TRUE)
-<<<<<<< HEAD
 
         if (local) {
             sjob <- slurm_apply(get.shuffled.var, data.frame(rep = seq(nShuffleRuns)), 
@@ -113,13 +112,7 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
             add_objects = c("shuffled.PCA.data.path", "data", "ndf"), pkgs = NULL, 
             nodes = nShuffleRuns, cpus_per_node = 1, submit = TRUE, slurm_options = sopt)
         }
-        
-=======
-        sjob <- slurm_apply(get.shuffled.var, data.frame(rep = seq(nShuffleRuns)),
-            add_objects = c("shuffled.PCA.data.path", "data", "ndf"), pkgs = NULL,
-            nodes = nShuffleRuns, cpus_per_node = 1, submit = TRUE, slurm_options = sopt)
 
->>>>>>> 9bfbb7dd61feb817fab459b7188ca056c1b1991e
         pc.time <- Sys.time()
         pca <- stats::prcomp(t(data), retx = TRUE, center = T, scale. = T)
         print.message("Single PCA run time:")
