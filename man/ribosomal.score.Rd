@@ -19,3 +19,7 @@ a vector of ribosomal genes activation score
 \description{
 Compute the activation level of ribosomal genes.
 }
+\examples{
+LCMV1 <- setup_LCMV1_example()
+ribosomal.score <- ribosomal.score(LCMV1)
+}

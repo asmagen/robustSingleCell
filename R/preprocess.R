@@ -9,6 +9,9 @@
 #' @param rerun whether to rerun the analysis or load from cache
 #' @return \code{environment} parameter containing highly variable genes selection
 #' @export
+#' @examples
+#' LCMV1 <- setup_LCMV1_example()
+#' LCMV1 <- get.variable.genes(LCMV1)
 get.variable.genes <- function(environment, min.mean = 0.05, min.frac.cells = 0,
     min.dispersion.scaled = 1, rerun = F) {
 
@@ -129,6 +132,9 @@ add.confounder.variables <- function(environment, ...) {
 #' @param knn number of nearest neighbor
 #' @return a vector of ribosomal genes activation score
 #' @export
+#' @examples
+#' LCMV1 <- setup_LCMV1_example()
+#' ribosomal.score <- ribosomal.score(LCMV1)
 ribosomal.score <- function(environment, control = T, knn = 10) {
     t <- start(file.path(environment$work.path, "tracking"))
     genes <- get.ribo.genes(environment$genes)
@@ -156,6 +162,9 @@ get.ribo.genes <- function(genes) {
 #' @param knn number of nearest neighbor
 #' @return a vector of mitochondrial genes activation score
 #' @export
+#' @examples
+#' LCMV1 <- setup_LCMV1_example()
+#' mitochondrial.score <- mitochondrial.score(LCMV1)
 mitochondrial.score <- function(environment, control = F, knn = 10) {
     # browser()
     t <- start(file.path(environment$work.path, "tracking"))
@@ -185,6 +194,9 @@ get.mito.genes <- function(genes) {
 #' @param cc.genes.path optional; path to defined cell cycle genes. Default uses gene sets defined in Kowalczyk, M. S. et al. Single-cell RNA-seq reveals changes in cell cycle and differentiation programs upon aging of hematopoietic stem cells. Genome Res 25, 1860-1872, doi:10.1101/gr.192237.115 (2015).
 #' @return a matrix of cell cycle genes activation scores (S, G2M and aggregated S/G2M scores, separately)
 #' @export
+#' @examples
+#' LCMV1 <- setup_LCMV1_example()
+#' cell.cycle.score = cell.cycle.score(LCMV1)
 cell.cycle.score <- function(environment, knn = 10, cc.genes.path = NA) {
     t <- start(file.path(environment$work.path, "tracking"))
 
@@ -225,6 +237,11 @@ cell.cycle.score <- function(environment, knn = 10, cc.genes.path = NA) {
 #' @param constrain.cell.universe binary vector indicating in which subset of cells to calculate the gene signature activation. Default is all cells.
 #' @return gene signature activation scores per cell
 #' @export
+#' @examples
+#' LCMV1 <- setup_LCMV1_example()
+#' exhaustion_markers <- c('Pdcd1', 'Cd244', 'Havcr2', 'Ctla4', 'Cd160', 'Lag3',
+#' 'Tigit', 'Cd96')
+#' Exhaustion <- controlled.mean.score(LCMV1, exhaustion_markers)
 controlled.mean.score <- function(environment, genes, knn = 10, exclude.missing.genes = T,
     constrain.cell.universe = NA) {
     # similarly to
@@ -377,6 +394,12 @@ regress.covariates <- function(environment, regress, data, groups, rerun = F, sa
 #' @param min.fold minimum fold change for filtering final differentially expressed gene lists
 #' @param quantile q-value cutoff for differential expression analysis
 #' @export
+#' @examples
+#' \dontrun{
+#' # after running cluster.analysis()
+#' LCMV1 <- setup_LCMV1_example()
+#' summarize(LCMV1)
+#' }
 summarize <- function(environment, perplexity = seq(10, 30, 10), max_iter = 10000,
     rerun = F, order = NA, contrast = "all", min.fold = 1.5, quantile = 0.95) {
 

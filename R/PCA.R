@@ -17,41 +17,46 @@
 #' @return \code{environment} parameter containing PC coordinates
 #' @export
 #' @import rslurm
+#' @examples
+#' \dontrun{
+#' LCMV1 <- setup_LCMV1_example()
+#' LCMV1 <- PCA(LCMV1) # need to be run on slurm
+#' }
 PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, threshold = 0.1, 
     maxPCs = 100, label = NA, mem = "2GB", time = "0:10:00", rerun = F, clear.previously.calculated.clustering = T, local = F) {
-    
+
     if (length(regress) > 1 || !is.na(regress)) {
         config <- paste(colnames(regress), collapse = "+")
     } else {
         config <- "not.regressed"
     }
-    
-    if (length(groups) == 1 && is.na(groups)) 
+
+    if (length(groups) == 1 && is.na(groups))
         groups <- rep(1, environment$nsamples)
-    if (nShuffleRuns != 10) 
+    if (nShuffleRuns != 10)
         config <- paste(config, nShuffleRuns, sep = ".")
-    if (threshold != 0.1) 
+    if (threshold != 0.1)
         config <- paste(config, threshold, sep = ".")
-    if (maxPCs != 100) 
+    if (maxPCs != 100)
         config <- paste(config, maxPCs, sep = ".")
-    if (!is.na(label)) 
+    if (!is.na(label))
         config <- paste(config, label, sep = ".")
-    
+
     environment$work.path <- file.path(environment$baseline.work.path, config)
     environment$PCA <- environment$Rotation <- environment$PCA.path <- NA
-    if (clear.previously.calculated.clustering) 
+    if (clear.previously.calculated.clustering)
         environment$clustering <- environment$seurat.cluster.association <- NA
-    dir.create(file.path(environment$work.path, "tracking"), showWarnings = F, recursive = T, 
+    dir.create(file.path(environment$work.path, "tracking"), showWarnings = F, recursive = T,
         mode = "700")
     print.message("Transitioning to", config, "folder")
-    
+
     environment$res.data.path <- file.path(environment$work.path, "data")
     shuffled.PCA.data.path <- file.path(environment$res.data.path, "shuffled.PCA")
-    
+
     dir.create(environment$res.data.path, showWarnings = F, recursive = T, mode = "700")
-    
+
     cache <- file.path(environment$res.data.path, paste(config, "PCA.rds", sep = "."))
-    
+
     if (!rerun && file.exists(cache)) {
         print.message("Loading precomputed")
         precomputed <- readRDS(cache)
@@ -61,41 +66,42 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
     } else {
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"))
-        
-        if (clear.previously.calculated.clustering) 
-            unlink(file.path(environment$res.data.path, "clustering"), recursive = T, 
+
+        if (clear.previously.calculated.clustering)
+            unlink(file.path(environment$res.data.path, "clustering"), recursive = T,
                 force = T)
-        
+
         unlink(shuffled.PCA.data.path, recursive = T, force = T)
         dir.create(shuffled.PCA.data.path, showWarnings = F, recursive = T, mode = "700")
-        
+
         raw.data <- environment$counts
         data <- environment$normalized[environment$HVG, ]
         print.message("Dim")
         print(dim(data))
-        
+
         if (length(regress) > 1 || !is.na(regress)) {
             corrected <- regress.covariates(regress, data, groups, rerun, save = T)
             print.message("Regressed matrix")
             corner(corrected)
             data <- corrected
         }
-        
+
         n <- min(maxPCs, ncol(data))
         m <- nrow(data)
         ndf <- n - 1
-        
+
         get.shuffled.var <- function(rep) {
-            
+
             data.perm <- apply(data, 2, sample, replace = FALSE)
             pca.perm <- stats::prcomp(t(data.perm), retx = TRUE, center = T, scale. = T)
             var.perm <- pca.perm$sdev[1:ndf]^2/sum(pca.perm$sdev[1:ndf]^2)
-            saveRDS(list(pca.perm = pca.perm, var.perm = var.perm), file = file.path(shuffled.PCA.data.path, 
+            saveRDS(list(pca.perm = pca.perm, var.perm = var.perm), file = file.path(shuffled.PCA.data.path,
                 paste("shuffled.PCA.rep", rep, "rds", sep = ".")))
             return(var.perm)
         }
-        
+
         sopt <- list(mem = mem, time = time, share = TRUE)
+<<<<<<< HEAD
 
         if (local) {
             sjob <- slurm_apply(get.shuffled.var, data.frame(rep = seq(nShuffleRuns)), 
@@ -108,6 +114,12 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
             nodes = nShuffleRuns, cpus_per_node = 1, submit = TRUE, slurm_options = sopt)
         }
         
+=======
+        sjob <- slurm_apply(get.shuffled.var, data.frame(rep = seq(nShuffleRuns)),
+            add_objects = c("shuffled.PCA.data.path", "data", "ndf"), pkgs = NULL,
+            nodes = nShuffleRuns, cpus_per_node = 1, submit = TRUE, slurm_options = sopt)
+
+>>>>>>> 9bfbb7dd61feb817fab459b7188ca056c1b1991e
         pc.time <- Sys.time()
         pca <- stats::prcomp(t(data), retx = TRUE, center = T, scale. = T)
         print.message("Single PCA run time:")
@@ -115,14 +127,14 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
         var <- pca$sdev[1:ndf]^2/sum(pca$sdev[1:ndf]^2)
         print.message("Real PCA Var")
         print(utils::head(var, 10))
-        
+
         var.perm <- get_slurm_out(sjob)
         dim(var.perm)
-        
+
         end(t)
         start(file.path(environment$work.path, "tracking"), append = T, split = T)
         if (length(var.perm) == 0 || nrow(var.perm) < nShuffleRuns) {
-            print.message("JOB ERROR: Not enough shuffled results:", nrow(var.perm), 
+            print.message("JOB ERROR: Not enough shuffled results:", nrow(var.perm),
                 "<", nShuffleRuns, "\nCHECK FOR FAILED JOBS\n\n\n")
             terminate <- readline(prompt = "Terminate? (y/n) ")
             if (terminate != "n") {
@@ -144,7 +156,7 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
         }, error = function(v) v)
         print.message("Shuffled PCA Var")
         corner(var.perm, 10)
-        
+
         p <- rep(1, n)
         for (i in 1:ndf) {
             p[i] <- mean(var.perm[, i] >= var[i])
@@ -155,24 +167,24 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
         }
         nPCs <- sum(p <= threshold, na.rm = T)
         print.message("nPCs", nPCs)
-        
+
         PCA <- t(pca$x)[seq(nPCs), ]
         print.message("PCA")
         corner(PCA)
         Rotation <- t(pca$rotation[, seq(nPCs)])
         print.message("Rotation")
         corner(Rotation)
-        
+
         saveRDS(list(PCA = PCA, Rotation = Rotation), file = cache)
-        
+
         end(t)
     }
-    
+
     environment$PCA <- PCA
     environment$Rotation <- Rotation
     environment$PCA.path <- cache
-    
+
     cat("# PCs = ", nrow(environment$PCA), "\n", sep = "")
-    
+
     return(environment)
 }

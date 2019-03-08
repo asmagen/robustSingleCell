@@ -36,3 +36,9 @@ cluster.analysis(environment, knn.ratios = c(0.01, 0.05, 0.1),
 \description{
 Perform clustering analysis for a range of hyperparameter (KNN Ratios) values and assess clustering quality relative to simulation analysis of shuffled data.
 }
+\examples{
+\dontrun{
+LCMV1 <- setup_LCMV1_example()
+LCMV1 <- cluster.analysis(LCMV1) # need to be run on slurm
+}
+}

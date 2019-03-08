@@ -219,7 +219,7 @@ summarize(pooled_env, contrast = "datasets")
 We assessed the similarity between pairs of clusters and identify reproducible subpopulations across the two replicates. Figure 9 shows the correlation between clusters' FC vectors across replicates (as described in *Magen et al 2019*).
 
 ```{r pooled}
-cluster.similarity <- compare.cluster.similarity(pooled_env)
+cluster.similarity <- assess.cluster.similarity(pooled_env)
 similarity <- cluster.similarity$similarity
 map <- cluster.similarity$map
 filtered.similarity <- get.robust.cluster.similarity(

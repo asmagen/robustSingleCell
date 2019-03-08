@@ -38,13 +38,9 @@ read.10x.data <- function(path) {
 #' @export
 #' @import ggplot2
 #' @examples
-#' data.path <- system.file("extdata", package = "robustSingleCell")
-#' raw_LCMV1 <- read.table(file = file.path(data.path, "LCMV1_small.txt"), as.is = TRUE)
-#' LCMV1 <- initialize.project(datasets = "LCMV1",
-#'                             origins = "CD44+ cells",
-#'                             experiments = "Rep1",
-#'                             data.path = data.path)
-#'
+#' data.path <- system.file("extdata/LCMV1_small.txt", package = "robustSingleCell")
+#' raw_LCMV1 <- as.matrix(read.table(data.path, check.names = F))
+#' LCMV1 <- setup_LCMV1_example()
 #' # The data had been filtered already and parameters were chosen correspondingly
 #' LCMV1 <- read.data(LCMV1,
 #' raw.data.matrices = list(LCMV1 = raw_LCMV1),
@@ -95,6 +91,7 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
             if (!is.null(subsample) && subsample < ncol(measurements)) {
                 measurements <- measurements[, sample(seq(ncol(measurements)), subsample)]
             }
+
             colnames(measurements) <- rep(environment$datasets[environment$datasets ==
                 dataset], ncol(measurements))
             dataset.labels <- rep(paste(environment$origins[environment$datasets ==

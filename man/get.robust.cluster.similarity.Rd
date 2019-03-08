@@ -10,7 +10,7 @@ get.robust.cluster.similarity(environment, similarity,
 \arguments{
 \item{environment}{\code{environment} object}
 
-\item{similarity}{pearson correlation between clusters' FC vectors defined in compare.cluster.similarity}
+\item{similarity}{pearson correlation between clusters' FC vectors defined in assess.cluster.similarity}
 
 \item{min.sd}{minimum standard deviation for cluster reproducibility assessment}
 

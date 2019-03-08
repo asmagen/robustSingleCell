@@ -2,10 +2,13 @@
 % Please edit documentation in R/clustering.R
 \name{get.cluster.names}
 \alias{get.cluster.names}
-\title{Get Cluster Names by Marker Gene Expression}
+\alias{set.cluster.names}
+\title{Get/Set Cluster Names by Marker Gene Expression}
 \usage{
 get.cluster.names(environment, types, min.fold = 1.25, max.Qval = 0.1,
   print = T)
+
+set.cluster.names(environment, names)
 }
 \arguments{
 \item{environment}{\code{environment} object}
@@ -17,10 +20,41 @@ get.cluster.names(environment, types, min.fold = 1.25, max.Qval = 0.1,
 \item{max.Qval}{maximum FDR q value to consider a marker as overexpressed}
 
 \item{print}{whether to print output calculations}
+
+\item{names}{cluster names defined in get.cluster.names}
 }
 \value{
-vector containing assigned cluster name labels
+\code{get.cluster.names} returns a vector containing assigned cluster
+name labels
+
+\code{set.cluster.names} returns an \code{environment} object coded
+with cluster names
 }
 \description{
-Use predefined marker genes to assign clusters with putative cell type or state labels.
+\code{get.cluster.names} uses predefined marker genes to assign clusters with
+putative cell type or state labels.
+
+\code{set.cluster.names} saves the cluster names in storage and in the \code{environment} object
+}
+\section{Functions}{
+\itemize{
+\item \code{set.cluster.names}: set annotations to clusters
+}}
+
+\examples{
+\dontrun{
+LCMV1 <- setup_LCMV1_example()
+types = rbind(
+data.frame(type='Tfh',gene=c('Tcf7','Cxcr5','Bcl6')),
+data.frame(type='Th1',gene=c('Cxcr6','Ifng','Tbx21')),
+data.frame(type='Tcmp',gene=c('Ccr7','Bcl2','Tcf7')),
+data.frame(type='Treg',gene=c('Foxp3','Il2ra')),
+data.frame(type='Tmem',gene=c('Il7r','Ccr7')),
+data.frame(type='CD8',gene=c('Cd8a')),
+data.frame(type='CD4', gene = c("Cd4")),
+data.frame(type='Cycle',gene=c('Mki67','Top2a','Birc5'))
+)
+cluster_names <- get.cluster.names(LCMV1, types, min.fold = 1.0, max.Qval = 0.01)
+LCMV1 <- set.cluster.names(LCMV1, names = cluster_names)
+}
 }
