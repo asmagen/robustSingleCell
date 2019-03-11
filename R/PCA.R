@@ -22,7 +22,7 @@
 #' LCMV1 <- setup_LCMV1_example()
 #' LCMV1 <- PCA(LCMV1) # need to be run on slurm
 #' }
-PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, threshold = 0.1, 
+PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, threshold = 0.1,
     maxPCs = 100, label = NA, mem = "2GB", time = "0:10:00", rerun = F, clear.previously.calculated.clustering = T, local = F) {
 
     if (length(regress) > 1 || !is.na(regress)) {
@@ -103,13 +103,13 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
         sopt <- list(mem = mem, time = time, share = TRUE)
 
         if (local) {
-            sjob <- slurm_apply(get.shuffled.var, data.frame(rep = seq(nShuffleRuns)), 
-            add_objects = c("shuffled.PCA.data.path", "data", "ndf"), pkgs = NULL, 
+            sjob <- slurm_apply(get.shuffled.var, data.frame(rep = seq(nShuffleRuns)),
+            add_objects = c("shuffled.PCA.data.path", "data", "ndf"), pkgs = NULL,
             nodes = nShuffleRuns, cpus_per_node = 1, submit = FALSE, slurm_options = sopt)
             local_slurm_array(sjob)
         } else {
-            sjob <- slurm_apply(get.shuffled.var, data.frame(rep = seq(nShuffleRuns)), 
-            add_objects = c("shuffled.PCA.data.path", "data", "ndf"), pkgs = NULL, 
+            sjob <- slurm_apply(get.shuffled.var, data.frame(rep = seq(nShuffleRuns)),
+            add_objects = c("shuffled.PCA.data.path", "data", "ndf"), pkgs = NULL,
             nodes = nShuffleRuns, cpus_per_node = 1, submit = TRUE, slurm_options = sopt)
         }
 
@@ -180,4 +180,17 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
     cat("# PCs = ", nrow(environment$PCA), "\n", sep = "")
 
     return(environment)
+}
+
+local_slurm_array <- function(slr_job) {
+    olddir <- getwd()
+    rscript_path <- file.path(R.home("bin"), "Rscript")
+    setwd(paste0("_rslurm_", slr_job$jobname))
+    tryCatch({
+        writeLines(c(paste0("for (i in 1:", slr_job$nodes, " - 1) {"),
+                     "Sys.setenv(SLURM_ARRAY_TASK_ID = i)",
+                     "source('slurm_run.R')", "}"), "local_run.R")
+        system(paste(rscript_path, "--vanilla local_run.R"))
+    }, finally = setwd(olddir))
+    return(slr_job)
 }

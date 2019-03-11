@@ -7,7 +7,7 @@
 PCA(environment, regress = NA, groups = NA, nShuffleRuns = 10,
   threshold = 0.1, maxPCs = 100, label = NA, mem = "2GB",
   time = "0:10:00", rerun = F,
-  clear.previously.calculated.clustering = T)
+  clear.previously.calculated.clustering = T, local = F)
 }
 \arguments{
 \item{environment}{\code{environment} object}
@@ -31,6 +31,8 @@ PCA(environment, regress = NA, groups = NA, nShuffleRuns = 10,
 \item{rerun}{whether to rerun the analysis rather than load from cache}
 
 \item{clear.previously.calculated.clustering}{whether to clear previous clustering analysis}
+
+\item{local}{whether to run jobs locally rather than using distributed slurm system}
 }
 \value{
 \code{environment} parameter containing PC coordinates
