@@ -25,8 +25,8 @@ test_that("The number of 'significant' PCs and number of clusters", {
   if (SLURM) skip(SLURM_MSG)
   LCMV1 <- PCA(LCMV1, local = T)
   expect_equal(dim(LCMV1$PCA), c(7, 97))
-  LCMV1 <- cluster.analysis(LCMV1, knn.ratios = c(0.1, 0.2), loadPreviousKnn = F,
-                            rerun = T, deleteCache = T, plot = F, local = T)
-  expect_equal(LCMV1$clustering$nclusters, 6)
+#  LCMV1 <- cluster.analysis(LCMV1, knn.ratios = c(0.1, 0.2), loadPreviousKnn = F,
+#                            rerun = T, deleteCache = T, plot = F, local = T)
+#  expect_equal(LCMV1$clustering$nclusters, 6)
 })
 
