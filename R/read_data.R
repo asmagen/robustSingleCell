@@ -4,7 +4,7 @@
 #'
 #' @param path Path to directory containing matrix.mtx, genes.tsv, and barcodes.tsv
 #' @return a matrix of genes by cells
-read.10x.data <- function(path) {
+read_10x_data <- function(path) {
     barcode.path <- list.files(path, pattern = "barcodes.tsv", full.names = T)
     features.path <- list.files(path, pattern = "genes.tsv", full.names = T)
     matrix.path <- list.files(path, pattern = "matrix.mtx", full.names = T)
@@ -39,7 +39,7 @@ read.10x.data <- function(path) {
 #' @import ggplot2
 #' @examples
 #' data.path <- system.file("extdata/LCMV1_small.txt", package = "robustSingleCell")
-#' raw_LCMV1 <- as.matrix(read.table(data.path, check.names = F))
+#' raw_LCMV1 <- as.matrix(read.table(data.path, check.names = FALSE))
 #' LCMV1 <- setup_LCMV1_example()
 #' # The data had been filtered already and parameters were chosen correspondingly
 #' LCMV1 <- read.data(LCMV1,
@@ -79,7 +79,7 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
         for (dataset in environment$datasets) {
             if (is.na(raw.data.matrices)) {
                 print.message("Loading", dataset)
-                measurements <- read.10x.data(path = file.path(environment$data.path,
+                measurements <- read_10x_data(path = file.path(environment$data.path,
                   dataset))
                 measurements <- as.matrix(measurements[, Matrix::colSums(measurements >
                   0) >= min.genes.per.cell])
@@ -330,6 +330,15 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
 #' @param recursive recursive path search
 #' @param rerun whether to rerun the reading process or load from cache
 #' @export
+#' @examples
+#' \dontrun{
+#' pooled_env <- initialize.project(datasets = c("LCMV1", "LCMV2"),
+#' origins = rep("CD44+ cells", 2),
+#' experiments = c("Rep1", "Rep2"),
+#' data.path = "~/LCMV/",
+#' work.path = "~/LCMV/LCMV_analysis")
+#' pooled_env <- read.preclustered.datasets(pooled_env)
+#' }
 read.preclustered.datasets <- function(environment, path = NA, recursive = T, rerun = F) {
 
     cache <- file.path(environment$baseline.data.path, "preclustered.datasets.rds")

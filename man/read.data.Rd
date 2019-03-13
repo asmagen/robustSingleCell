@@ -44,7 +44,7 @@ Read 10X data files or a raw data matrix and perform normalization, QC filtering
 }
 \examples{
 data.path <- system.file("extdata/LCMV1_small.txt", package = "robustSingleCell")
-raw_LCMV1 <- as.matrix(read.table(data.path, check.names = F))
+raw_LCMV1 <- as.matrix(read.table(data.path, check.names = FALSE))
 LCMV1 <- setup_LCMV1_example()
 # The data had been filtered already and parameters were chosen correspondingly
 LCMV1 <- read.data(LCMV1,

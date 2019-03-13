@@ -26,3 +26,21 @@ pairwise cluster similarity measures
 \description{
 Assess similarity between pairs of clusters.
 }
+\examples{
+\dontrun{
+pooled_env <- initialize.project(datasets = c("LCMV1", "LCMV2"),
+origins = rep("CD44+ cells", 2),
+experiments = c("Rep1", "Rep2"),
+data.path = )
+pooled_env <- read.preclustered.datasets(pooled_env)
+pooled_env <- add.confounder.variables(
+    pooled_env,
+    ribosomal.score = ribosomal.score(pooled_env),
+    mitochondrial.score = mitochondrial.score(pooled_env),
+    cell.cycle.score = cell.cycle.score(pooled_env),
+    Exhaustion = controlled.mean.score(pooled_env, exhaustion_markers))
+pooled_env <- PCA(pooled_env, clear.previously.calculated.clustering = F)
+summarize(pooled_env, contrast = "datasets")
+cluster.similarity <- assess.cluster.similarity(pooled_env)
+}
+}

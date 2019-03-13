@@ -8,3 +8,6 @@ inst/doc
 # compiled object
 *.o
 *.so
+
+*.Rcheck
+*.tar.gz

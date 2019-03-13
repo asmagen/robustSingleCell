@@ -3,6 +3,8 @@
 #' Set the path in the LCMV1_small object
 #' @return An environment object containing the LCMV1_small data
 #' @export
+#' @examples
+#' setup_LCMV1_example()
 setup_LCMV1_example <- function() {
     work.path <- file.path(tempdir(), "LCMV1/data")
     dir.create(work.path, showWarnings = FALSE, recursive = TRUE)
@@ -21,13 +23,20 @@ setup_LCMV1_example <- function() {
 #'
 #' @param base_dir Full path to a directory where data and analysis will be stored
 #' @export
+#' @examples
+#' \dontrun{
+#' download_LCMV(tempdir()) # require network connection
+#' }
 download_LCMV <- function(base_dir) {
-    dir.create(base_dir)
-    rep1_path <- GEOquery::getGEOSuppFiles("GSM3423794", baseDir = "~/LCMV")
-    rep2_path <- GEOquery::getGEOSuppFiles("GSM3423795", baseDir = "~/LCMV")
-    file.rename("~/LCMV/GSM3423795", "~/LCMV/LCMV1")
-    file.rename("~/LCMV/GSM3423794", "~/LCMV/LCMV2")
-    cat(paste0("Data saved at ", base_dir, "\n"))
+    base_dir_path <- file.path(base_dir, "LCMV")
+    dir.create(base_dir_path, showWarnings = F)
+    GEOquery::getGEOSuppFiles("GSM3423794", baseDir = base_dir_path)
+    GEOquery::getGEOSuppFiles("GSM3423795", baseDir = base_dir_path)
+    file.rename(file.path(base_dir_path, "GSM3423795"),
+                file.path(base_dir_path, "LCMV1"))
+    file.rename(file.path(base_dir_path, "GSM3423794"),
+                file.path(base_dir_path, "LCMV2"))
+    cat(paste0("Data saved at ", base_dir_path, "\n"))
 }
 
 capwords <- function(s, strict = FALSE) {

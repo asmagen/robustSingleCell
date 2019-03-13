@@ -14,3 +14,14 @@ visualize.cluster.similarity.stats(environment, similarity)
 \description{
 Perform hierarchical clustering and plot cluster similarities according to dendrogram.
 }
+\examples{
+\dontrun{
+cluster.similarity <- assess.cluster.similarity(pooled_env)
+similarity <- cluster.similarity$similarity
+map <- cluster.similarity$map
+filtered.similarity <- get.robust.cluster.similarity(
+    pooled_env, similarity, min.sd = qnorm(.9), max.q.val = 0.01, rerun = F)
+visualize.cluster.cors.heatmaps(pooled_env, pooled_env$work.path, filtered.similarity)
+visualize.cluster.similarity.stats(pooled_env, similarity)
+}
+}

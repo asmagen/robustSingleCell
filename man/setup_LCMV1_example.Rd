@@ -12,3 +12,6 @@ An environment object containing the LCMV1_small data
 \description{
 Set the path in the LCMV1_small object
 }
+\examples{
+setup_LCMV1_example()
+}

@@ -24,3 +24,12 @@ filtered cluster similarity matrix
 \description{
 Use cross-replicate experiment cluster similarity to remove irreproducible clusters.
 }
+\examples{
+\dontrun{
+cluster.similarity <- assess.cluster.similarity(pooled_env)
+similarity <- cluster.similarity$similarity
+map <- cluster.similarity$map
+filtered.similarity <- get.robust.cluster.similarity(pooled_env, similarity,
+min.sd = qnorm(.9), max.q.val = 0.01, rerun = F)
+}
+}

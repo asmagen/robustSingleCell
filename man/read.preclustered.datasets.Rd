@@ -19,3 +19,13 @@ read.preclustered.datasets(environment, path = NA, recursive = T,
 \description{
 Read previous analysis of multiple datasets to perform integrated analysis.
 }
+\examples{
+\dontrun{
+pooled_env <- initialize.project(datasets = c("LCMV1", "LCMV2"),
+origins = rep("CD44+ cells", 2),
+experiments = c("Rep1", "Rep2"),
+data.path = "~/LCMV/",
+work.path = "~/LCMV/LCMV_analysis")
+pooled_env <- read.preclustered.datasets(pooled_env)
+}
+}

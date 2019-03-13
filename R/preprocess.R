@@ -117,6 +117,9 @@ nGenes <- function() {
 #' @param ... vectors containing activation levels of confounding variables
 #' @return \code{environment} parameter containing added confounder variable
 #' @export
+#' @examples
+#' LCMV1 <- setup_LCMV1_example()
+#' LCMV1 <- add.confounder.variables(LCMV1, ribosomal.score = ribosomal.score(LCMV1))
 add.confounder.variables <- function(environment, ...) {
     environment$confounders <- data.frame(environment$confounders, data.frame(...))
     print(utils::head(environment$confounders))
@@ -407,7 +410,7 @@ summarize <- function(environment, perplexity = seq(10, 30, 10), max_iter = 1000
     if (length(order) == 1 && is.na(order))
         order <- names(cluster.size)[order(cluster.size, decreasing = T)]
     tSNE.job <- run.tSNE(environment, perplexity, max_iter, rerun)
-    plot.PCA(environment, quantile = 0.05, order)
+    plot_PCA(environment, quantile = 0.05, order)
     plot.cluster.stats(environment, membership = environment$cluster.names, order = order)
     if (length(environment$seurat.cluster.association) > 1)
         tryCatch({
