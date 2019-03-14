@@ -13,10 +13,11 @@ knitr::opts_chunk$set(
   eval = FALSE)
 ```
 
+[![Travis build status](https://travis-ci.org/asmagen/robustSingleCell.svg?branch=master)](https://travis-ci.org/asmagen/robustSingleCell)
 
 ### Overview
 
-robustSingleCell is a pipeline designed to identify robust cell subpopulations using scRNAseq data and compare population compositions across tissues and experimental models via similarity analysis as described in Magen et al. (2019) [^1]. 
+robustSingleCell is a pipeline designed to identify robust cell subpopulations using scRNAseq data and compare population compositions across tissues and experimental models via similarity analysis as described in Magen et al. (2019) [*bioRxiv*](https://doi.org/10.1101/543199) [^1]. 
 
 ### Installation
 
@@ -117,7 +118,8 @@ The analysis is repeated multiple times over shuffled data to estimate the appro
 <figcaption> Fig 2. Bar plot shows the clustering modularity of the original data versus shuffled data across multiple clustering resolutions. Numbers on top represent the fold change of original versus shuffled analysis for each resolution. </figcaption>
 </figure>
 
-We select the appropriate resolution, typically the one where there is more than two (2) fold change modularity difference relative to the shuffled analysis.
+We select the appropriate resolution (the parameter is requested as input from the user interactively), typically the one where there is
+more than two fold change modularity difference relative to the shuffled analysis.
 
 The `summarize` function which performs differential expression analysis, computes tSNE and visualizes the results in the analysis folder. After differential expression analysis, `get.cluster.names` assigns clusters with names using a customized set of marker genes which users should adapt to their own data.
 
@@ -142,7 +144,7 @@ Figure 3 shows violin plots indicating the activation of the cell cycle genes.
 
 <figure>
 <img src="vignettes/figs/violin.png"> 
-<figcaption> Fig 3. Violin plot pf cell cycle score.</figcaption>
+<figcaption> Fig 3. Violin plot of cell cycle score.</figcaption>
 </figure>
 
 Figure 4 places individual cells on a two dimensional grid corresponding to the scores of the first two PCs (note that the PCA figures are created in the next step via `summarize` function below).
@@ -159,7 +161,7 @@ The genes driving the PCs are visualized in figure 5 according to the PCA loadin
 <figcaption> Fig 5. Top ranked genes contribution to PC1 and PC2 scores.</figcaption>
 </figure>
 
-The average expression of genes driving the PCs can be visualized as a heatmap visualized in figure 6 according to the PCA loadings after removing the lowly ranked genes.
+The average expression of genes driving the PCs can be visualized as a heatmap in figure 6 according to the PCA loadings after removing the lowly ranked genes.
 
 <figure>
 <img src="vignettes/figs/PC1_heatmap.png" width="500">
@@ -169,7 +171,7 @@ The average expression of genes driving the PCs can be visualized as a heatmap v
 Figure 7 shows the tSNE visualization of the cells, color coded by cluster assignment. 
 
 <figure>
-<img src="vignettes/figs/tsne.png" height="500" width="500"> 
+<img src="vignettes/figs/tsne.png" height="500" width="700"> 
 <figcaption> Fig 7. t-SNE plot colored by cluster assignment.</figcaption>
 </figure>
 

@@ -1,12 +1,16 @@
-robustSingleCell
+MagenSingleCell
 ================
+
+[![Travis build
+status](https://travis-ci.org/asmagen/robustSingleCell.svg?branch=master)](https://travis-ci.org/asmagen/robustSingleCell)
 
 ### Overview
 
 robustSingleCell is a pipeline designed to identify robust cell
 subpopulations using scRNAseq data and compare population compositions
 across tissues and experimental models via similarity analysis as
-described in Magen et al. (2019) [*bioRxiv*](https://doi.org/10.1101/543199) \[1\].
+described in Magen et al. (2019)
+[*bioRxiv*](https://doi.org/10.1101/543199) \[1\].
 
 ### Installation
 
@@ -21,7 +25,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 BiocManager::install("limma")
 BiocManager::install("grimbough/biomaRt")
 
-devtools::install_github("asmagen/robustsinglecell")
+devtools::install_github("asmagen/magensinglecell")
 ```
 
 This pipeline currently supports [slurm](https://slurm.schedmd.com) for
@@ -30,7 +34,7 @@ parallel batch jobs.
 ### Getting help
 
 If you encounter a clear bug, please submit an
-[issue](https://github.com/asmagen/robustSingleCell/issues) with
+[issue](https://github.com/asmagen/MagenSingleCell/issues) with
 reproducible example.
 
 ### Tutorial
@@ -76,7 +80,7 @@ LCMV1 <- initialize.project(datasets = "LCMV1",
 
 `read.data` function reads the data in 10X genomics format and performs
 quality filtering as described in *Magen et al 2019*. We randomly
-downsampled the datasets to 1000 cells to simplify this
+downsampled the datasets to 1000 cells to shorten the simplify this
 example.
 
 ``` r
@@ -150,9 +154,10 @@ each resolution.
 
 </figure>
 
-We select the appropriate resolution (the parameter is requested as input from the user interactively), typically the one where there is
-more than two (2) fold change modularity difference relative to the
-shuffled analysis.
+We select the appropriate resolution (the parameter is requested as
+input from the user interactively), typically the one where there is
+more than two fold change modularity difference relative to the shuffled
+analysis.
 
 The `summarize` function which performs differential expression
 analysis, computes tSNE and visualizes the results in the analysis
@@ -186,7 +191,7 @@ genes.
 
 <figcaption>
 
-Fig 3. Violin plot pf cell cycle score.
+Fig 3. Violin plot of cell cycle score.
 
 </figcaption>
 
@@ -225,8 +230,8 @@ Fig 5. Top ranked genes contribution to PC1 and PC2 scores.
 </figure>
 
 The average expression of genes driving the PCs can be visualized as a
-heatmap visualized in figure 6 according to the PCA loadings after
-removing the lowly ranked genes.
+heatmap in figure 6 according to the PCA loadings after removing the
+lowly ranked genes.
 
 <figure>
 
