@@ -8,8 +8,8 @@ Authors@R:
     person("Meng", "Wang", email = "szmamie@live.com", role = c("aut", "cre"), 
     comment = c(ORCID = "0000-0002-3453-7805"))
   )
-Description: A robust clustering method for single cell RNA-seq by correlation analysis 
-  from Magen et al. (2019) <doi:10.1101/543199>. 
+Description: Robust single cell clustering and comparison of population compositions across tissues and 
+  experimental models via similarity analysis from Magen et al. (2019) <doi:10.1101/543199>. 
 Depends: R (>= 3.2.0)
 Imports:
   utils,
