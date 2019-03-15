@@ -1,5 +1,5 @@
 ---
-title: MagenSingleCell
+title: robustSingleCell
 output:
   github_document
 ---
