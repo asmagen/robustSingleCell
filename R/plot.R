@@ -573,9 +573,10 @@ plot.heatmaps <- function(environment, diff.exp, membership, order = NA, nTopRan
 #' }
 plot.contour.overlay.tSNE <- function (environment,genes,perplexity = 30,max_iter = 10000,width = 10, height = 10)
 
-    load(file.path(environment$res.data.path,'tSNEs',paste(perplexity,max_iter,'tSNE.RData',sep='.')))
+    tSNE <- readRDS(file.path(environment$res.data.path, "tSNEs", paste(perplexity,
+                max_iter, "tSNE.rds", sep = ".")))
 
-    duplicated.indices = duplicated(t(environment$PCA))
+    duplicated.indices <- duplicated(t(environment$PCA))
 
     grDevices::pdf(file = file.path(environment$work.path, "contour.overlay.tSNE.pdf"),
         width = width, height = height)
