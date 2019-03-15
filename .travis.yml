@@ -1,6 +1,18 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
-language: R
-sudo: false
-cache: packages
-use_bioc: true
+# language: R
+# sudo: false
+# cache: packages
+
+language: c
+
+script: ./travis-tool.sh run_tests
+
+before_install:
+    - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
+    - chmod 755 ./travis-tool.sh
+    - ./travis-tool.sh bootstrap
+
+install:
+    - ./travis-tool.sh bioc_install GEOquery biomaRt limma
+    - ./travis-tool.sh install_deps
