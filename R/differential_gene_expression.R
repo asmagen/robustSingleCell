@@ -15,29 +15,6 @@ getDE.limma <- function(Y, group, filter = T) {
 run.diff.expression <- function(environment, clustering, min.fold, quantile, label, 
     rerun = F, contrast = "all", contrast.groups = NA) {
     
-    # get.diff.exp.stats <- function(id) { t <- Sys.time() if (is.na(id)) { label <-
-    # 'real' clustering <- as.vector(membership) } else { label <- 'shuffled'
-    # clustering <- as.vector(unlist(shuffled.membership[[id]])) } fold <-
-    # function(v, group) { exp(mean(v[group == T]) - mean(v[group == F])) }
-    # cat(label, id, '\n') stats <- {} for (cluster in sort(unique(clustering))) {
-    # cat('cluster', cluster, '\n') tt <- Sys.time() group <- factor(clustering ==
-    # cluster) stats <- rbind(stats, data.frame(cluster = cluster, gene =
-    # rownames(matrix), fold = apply(matrix, 1, fold, group))) print(Sys.time() - tt)
-    # } stats <- cbind(label, stats) print(Sys.time() - t) return(stats) }
-    
-    # summarize.diff.exp.stats <- function(job.portion, min.fold, quantile) {
-    # real.stats <- stats[stats$label == 'real', ] print(utils::head(real.stats))
-    # shuffled.stats <- stats[stats$label == 'shuffled', ]
-    # print(utils::head(shuffled.stats)) genes <- genes[job.portions == job.portion]
-    # results <- { } empirical.diff <- { } for (gene in genes) { real <-
-    # real.stats[real.stats$gene == gene, ] real <- real[real$fold >= min.fold, ] if
-    # (nrow(real) == 0) next shuffled <- shuffled.stats$fold[shuffled.stats$gene ==
-    # gene] # quantile(shuffled,seq(0.01,1,0.01));quantile(shuffled,0.95);real
-    # significant <- real[real$fold >= quantile(shuffled, quantile), ] empirical.diff
-    # <- rbind(empirical.diff, significant) } rownames(empirical.diff) <- NULL
-    # empirical.diff <- empirical.diff[order(empirical.diff$fold, decreasing = T), ]
-    # print(utils::head(empirical.diff)) return(empirical.diff) }
-    
     cache <- file.path(environment$res.data.path, paste(label, contrast, "diff.exp.rds", 
         sep = "."))
     
@@ -118,4 +95,74 @@ run.diff.expression <- function(environment, clustering, min.fold, quantile, lab
     }
     
     return(final.diff)
+}
+
+
+#' Get Robust Marker
+#'
+#' Analysis of robust subpopulation marker prioritization
+#'
+#' @param environment \code{environment} object
+#' @param cluster_group1 cluster group 1 to be used as a foreground
+#' @param cluster_group2 cluster group 2 to be used as a background
+#' @param group1_label label for group 1
+#' @param group2_label label for group 2
+#' @param annotate.genes specific gene names to annotate in figure in addition to novel markers
+#' @param min.fold.diff average expression fold change cutoff
+#' @param min.ratio.diff detection ratio fold change cutoff
+#' @param QValue Qvalue cutoff
+#' @import ggrepel
+#' @importFrom graphics plot
+#' @export
+#' @examples
+#' \dontrun{
+#' get.robust.markers (environment,cluster_group1 = c('cluster_name_1','cluster_name_2'),cluster_group2 = c('cluster_name_3','cluster_name_4'),group1_label = 'CD4 T Cells,group2_label = 'CD8 T Cells')
+#' }
+get.robust.markers <- function (
+    environment,
+    cluster_group1,
+    cluster_group2,
+    group1_label,
+    group2_label,
+    annotate.genes = NA,
+    min.fold.diff = 1.5,
+    min.ratio.diff = 3,
+    QValue = 0.05) {
+
+    indices = environment$cluster.names %in% c(cluster_group1,cluster_group2)
+    measurements = environment$normalized[,indices]
+    groups = environment$cluster.names[indices] %in% cluster_group1
+    diff.exp = getDE.limma( Y = measurements, group = groups, filter = F )
+    diff.exp = diff.exp[order(diff.exp$logFC,decreasing=T),]
+    diff.exp = data.frame(gene=rownames(diff.exp),logFC=diff.exp$logFC,fold=exp(diff.exp$logFC),QValue=diff.exp$QValue,PValue=diff.exp$PValue,AveExpr=diff.exp$AveExpr,stringsAsFactors = F)
+    diff.exp = diff.exp[((diff.exp$fold >= min.fold.diff | diff.exp$fold <= 1/min.fold.diff) & diff.exp$QValue <= QValue) | diff.exp$gene %in% annotate.genes,]
+    rownames(diff.exp) = diff.exp$gene
+    diff.exp$detected.cluster_group1 = rowMeans(measurements[match(diff.exp$gene,rownames(measurements)),groups]>0)
+    diff.exp$detected.cluster_group2 = rowMeans(measurements[match(diff.exp$gene,rownames(measurements)),!groups]>0)
+    diff.exp$detected.fold = diff.exp$detected.cluster_group1/diff.exp$detected.cluster_group2
+    diff.exp = diff.exp[order(diff.exp$detected.cluster_group1/diff.exp$detected.cluster_group2,decreasing=T),]
+    diff.exp = diff.exp[order(diff.exp$fold,decreasing=T),]
+
+    diff.exp = diff.exp[,c('gene','fold','QValue','detected.cluster_group1','detected.cluster_group2','detected.fold')]
+    diff.exp = diff.exp[rowSums(is.na(diff.exp))==0,]
+    if (!is.na(annotate.genes)) print(diff.exp[annotate.genes,])
+
+    figure.data = data.frame(Gene = diff.exp$gene,Fold = diff.exp$fold,Foreground.ratio = diff.exp$detected.cluster_group1,Background.ratio = diff.exp$detected.cluster_group2,Detected.fold = diff.exp$detected.fold)
+    label.indices = (figure.data$Fold >= min.fold.diff | figure.data$Fold <= 1/min.fold.diff) & (figure.data$Detected.fold >= min.ratio.diff | figure.data$Detected.fold < 1/min.ratio.diff)
+    label.indices.annotated = (figure.data$Fold >= min.fold.diff | figure.data$Fold <= 1/min.fold.diff) & (figure.data$Detected.fold >= min.ratio.diff | figure.data$Detected.fold < 1/min.ratio.diff) | figure.data$Gene %in% annotate.genes
+
+    path = file.path(environment$work.path,paste(group1_label,group2_label,'Robust.diff.detection',sep='_'))
+    dir.create(path)
+
+    grDevices::pdf(file = file.path(path,paste(group1_label,group2_label,'robust.diff.exp.pdf',sep='_')),width=20,height=10)
+    print(ggplot(data = figure.data, aes(Foreground.ratio, Background.ratio,label=Gene)) + geom_point(data = figure.data,aes(alpha=0.25,size=Fold)) + theme_classic(base_size=30) + xlab(paste('Detection ratio in',group1_label)) + ylab(paste('Detection ratio in',group2_label)) + geom_text_repel(data = figure.data[label.indices,],size=10,box.padding = 0.25,point.padding = 0.25) + theme(legend.position="right"))
+    grDevices::dev.off()
+
+    diff.exp = diff.exp[order(diff.exp$detected.fold,decreasing=T),]
+    rownames(diff.exp) = NULL
+    colnames(diff.exp) = c('Gene','Fold Change Mean Expression','QValue','Detection ratio in group1','Detection ratio in group2','Fold Change detection ratio')
+
+    write.csv(diff.exp,file = file.path(path,paste(group1_label,group2_label,'robust.diff.exp.csv',sep='_')))
+
+    return(diff.exp)
 }
