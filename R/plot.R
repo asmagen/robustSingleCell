@@ -571,7 +571,13 @@ plot.heatmaps <- function(environment, diff.exp, membership, order = NA, nTopRan
 #' \dontrun{
 #' plot.contour.overlay.tSNE (environment,genes = c('Cd4','Cd8a'))
 #' }
-plot.contour.overlay.tSNE <- function (environment,genes,perplexity = 30,max_iter = 10000,width = 10, height = 10)
+plot.contour.overlay.tSNE <- function (environment,genes,perplexity = 30,max_iter = 10000,width = 10, height = 10) {
+
+    if (any(!genes %in% environment$genes)) {
+        cat('Removing genes not found in dataset:')
+        print(genes[!genes %in% environment$genes])
+        genes = genes[genes %in% environment$genes]
+    }
 
     tSNE <- readRDS(file.path(environment$res.data.path, "tSNEs", paste(perplexity,
                 max_iter, "tSNE.rds", sep = ".")))
@@ -608,7 +614,7 @@ plot.contour.overlay.tSNE <- function (environment,genes,perplexity = 30,max_ite
 #' }
 plot.pair.scatter <- function (environment,gene1,gene2,cluster_group1,cluster_group2,group1_label,group2_label,width = 10, height = 10) {
 
-    clusters <- c(group1,group2)
+    clusters <- c(cluster_group1,cluster_group2)
     plot.data <- data.frame(gene1 = environment$normalized[gene1,environment$cluster.name %in% clusters],gene2 = environment$normalized[gene2,environment$cluster.name %in% clusters]);head(plot.data)
 
     plot.data[,1][plot.data[,1]==0] <- rnorm(sum(plot.data[,1]==0),sd = min(plot.data[,1][plot.data[,1]!=0])/5)
@@ -616,8 +622,8 @@ plot.pair.scatter <- function (environment,gene1,gene2,cluster_group1,cluster_gr
 
     cluster <- environment$cluster.name[environment$cluster.name %in% clusters]
     
-    cluster[cluster %in% c(group1)] <- group1_label
-    cluster[cluster %in% c(group2)] <- group2_label
+    cluster[cluster %in% c(cluster_group1)] <- group1_label
+    cluster[cluster %in% c(cluster_group2)] <- group2_label
 
     plot.data <- cbind(plot.data,cluster = cluster)
     colnames(plot.data)[1:2] <- c(gene1,gene2)
