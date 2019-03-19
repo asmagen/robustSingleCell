@@ -13,7 +13,7 @@ download_LCMV(base_dir)
 Download two replicates of CD44+ T cell 10X scRNAseq data sets (Ciucci 2018).
 }
 \examples{
-\dontrun{
+\donttest{
 download_LCMV(tempdir()) # require network connection
 }
 }

@@ -24,7 +24,7 @@ setup_LCMV1_example <- function() {
 #' @param base_dir Full path to a directory where data and analysis will be stored
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' download_LCMV(tempdir()) # require network connection
 #' }
 download_LCMV <- function(base_dir) {
