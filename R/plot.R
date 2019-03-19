@@ -556,6 +556,83 @@ plot.heatmaps <- function(environment, diff.exp, membership, order = NA, nTopRan
     grDevices::dev.off()
 }
 
+#' Plot Gene Expression on tSNE
+#'
+#' Visualize normalized expression of selected genes on tSNE plot with color-code and contour annotation.
+#'
+#' @param environment \code{environment} object
+#' @param genes selected genes to visualize
+#' @param perplexity tSNE perplexity parameter
+#' @param max_iter tSNE max_iter parameter
+#' @param width pdf file canvas width
+#' @param height pdf file canvas height
+#' @export
+#' @examples
+#' \dontrun{
+#' plot.contour.overlay.tSNE (environment,genes = c('Cd4','Cd8a'))
+#' }
+plot.contour.overlay.tSNE <- function (environment,genes,perplexity = 30,max_iter = 10000,width = 10, height = 10) {
+
+    if (any(!genes %in% environment$genes)) {
+        cat('Removing genes not found in dataset:')
+        print(genes[!genes %in% environment$genes])
+        genes = genes[genes %in% environment$genes]
+    }
+
+    tSNE <- readRDS(file.path(environment$res.data.path, "tSNEs", paste(perplexity,
+                max_iter, "tSNE.rds", sep = ".")))
+
+    duplicated.indices <- duplicated(t(environment$PCA))
+
+    grDevices::pdf(file = file.path(environment$work.path, "contour.overlay.tSNE.pdf"),
+        width = width, height = height)
+    for (gene in genes) {
+        data <- data.frame(tSNE = tSNE,activation = scale(environment$normalized[gene,]));head(data)
+        data.filtered <- data[data$activation > quantile(data$activation,0.9),]
+        print(ggplot() + geom_point(data = data,aes(x = tSNE.1, y = tSNE.2,color=activation),size = 4,alpha = 0.6) + scale_shape(solid = T) + geom_density_2d(data = data.filtered, aes(x = tSNE.1, y = tSNE.2),alpha = 1,colour = "gray65") + xlab('tSNE 1') + ylab('tSNE 2') + theme_classic(base_size=20) + scale_colour_gradient(low = "#ededed", high = "#a50303") + theme(legend.position="bottom") + ggtitle(gene))
+    } 
+    grDevices::dev.off()
+}
+
+#' Plot Pairwise Gene Scatter Plot
+#'
+#' Visualize normalized expression contours of a selected gene pair across selected cluster groups.
+#'
+#' @param environment \code{environment} object
+#' @param gene1 selected gene number 1
+#' @param gene2 selected gene number 2
+#' @param cluster_group1 cluster group 1 to be visualized (one or more clusters)
+#' @param cluster_group2 cluster group 2 to be visualized (one or more clusters)
+#' @param group1_label label for group 1 legend and file name
+#' @param group2_label label for group 2 legend and file name
+#' @param width pdf file canvas width
+#' @param height pdf file canvas height
+#' @export
+#' @examples
+#' \dontrun{
+#' plot.pair.scatter (environment,gene1 = 'Cd4',gene2 = 'Cd8',cluster_group1 = c('cluster_name_1','cluster_name_2'),cluster_group2 = c('cluster_name_3','cluster_name_4'),group1_label = 'CD4 T Cells,group2_label = 'CD8 T Cells')
+#' }
+plot.pair.scatter <- function (environment,gene1,gene2,cluster_group1,cluster_group2,group1_label,group2_label,width = 10, height = 10) {
+
+    clusters <- c(cluster_group1,cluster_group2)
+    plot.data <- data.frame(gene1 = environment$normalized[gene1,environment$cluster.name %in% clusters],gene2 = environment$normalized[gene2,environment$cluster.name %in% clusters]);head(plot.data)
+
+    plot.data[,1][plot.data[,1]==0] <- rnorm(sum(plot.data[,1]==0),sd = min(plot.data[,1][plot.data[,1]!=0])/5)
+    plot.data[,2][plot.data[,2]==0] <- rnorm(sum(plot.data[,2]==0),sd = min(plot.data[,2][plot.data[,2]!=0])/5)
+
+    cluster <- environment$cluster.name[environment$cluster.name %in% clusters]
+    
+    cluster[cluster %in% c(cluster_group1)] <- group1_label
+    cluster[cluster %in% c(cluster_group2)] <- group2_label
+
+    plot.data <- cbind(plot.data,cluster = cluster)
+    colnames(plot.data)[1:2] <- c(gene1,gene2)
+
+    grDevices::pdf(file = file.path(environment$work.path, paste(group1_label,group2_label,gene1,gene2,'pdf',sep='.')),
+        width = width, height = height)
+    print(ggplot(plot.data, aes_string(x = gene1, y = gene2, colour = 'cluster')) + geom_point(aes(alpha=0.5,size=3)) + geom_density_2d() + theme_classic(base_size=15) + ggtitle(paste(gene1,'vs',gene2,'expression in',group1_label,'vs',group2_label,'clusters',sep=' ')))
+    grDevices::dev.off()
+}
 
 #' Visualize Correlation
 #'
