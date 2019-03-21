@@ -35,10 +35,10 @@ default, a temporary directory}
 Set up a project environment variable mapped to project results folder.
 }
 \examples{
-# Set up analysis folder and meta data
 data.path <- system.file("extdata", package = "robustSingleCell")
 LCMV1_proj <- initialize.project(datasets = "LCMV1",
                             origins = "CD44+ cells",
                             experiments = "Rep1",
-                            data.path = data.path)
+                            data.path = data.path,
+                            work.path = tempdir())
 }

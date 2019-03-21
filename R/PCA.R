@@ -27,14 +27,12 @@ check_not_slurm <- function(func_name) {
 #' @export
 #' @import rslurm
 #' @examples
-#' \donttest{
 #' LCMV1 <- setup_LCMV1_example()
 #' LCMV1 <- PCA(LCMV1)
-#' }
 PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, threshold = 0.1,
     maxPCs = 100, label = NA, mem = "2GB", time = "0:10:00", rerun = F, clear.previously.calculated.clustering = T, local = F) {
 
-    if (check_not_slurm("PCA")) {
+    if (!local && check_not_slurm("PCA")) {
         return(environment)
     }
     if (length(regress) > 1 || !is.na(regress)) {

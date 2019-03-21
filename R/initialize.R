@@ -15,12 +15,12 @@
 #' @return \code{environment} parameter containing file paths and experiment parameters
 #' @export
 #' @examples
-#' # Set up analysis folder and meta data
 #' data.path <- system.file("extdata", package = "robustSingleCell")
 #' LCMV1_proj <- initialize.project(datasets = "LCMV1",
 #'                             origins = "CD44+ cells",
 #'                             experiments = "Rep1",
-#'                             data.path = data.path)
+#'                             data.path = data.path,
+#'                             work.path = tempdir())
 initialize.project <- function(datasets, origins, experiments, data.path, work.path = NULL,
     marker.genes = NULL, clear.history = F, analysis.label = NULL, convert.to.mouse.gene.symbols = NULL) {
 

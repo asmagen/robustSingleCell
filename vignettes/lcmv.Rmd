@@ -58,8 +58,7 @@ Next, we identify highly variable genes on which we base the PCA and clustering 
 
 ```{r preprocess}
 LCMV1 <- get.variable.genes(LCMV1) 
-exhaustion_markers <- c('Pdcd1', 'Cd244', 'Havcr2', 'Ctla4', 'Cd160', 'Lag3', 
-                        'Tigit', 'Cd96')
+exhaustion_markers <- c('Pdcd1', 'Cd244', 'Havcr2', 'Ctla4', 'Cd160', 'Lag3', 'Tigit', 'Cd96')
 LCMV1 <- add.confounder.variables(LCMV1,
 	ribosomal.score = ribosomal.score(LCMV1),
 	mitochondrial.score = mitochondrial.score(LCMV1),

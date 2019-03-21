@@ -6,13 +6,20 @@
 #' @examples
 #' setup_LCMV1_example()
 setup_LCMV1_example <- function() {
-    work.path <- file.path(tempdir(), "LCMV1/data")
-    dir.create(work.path, showWarnings = FALSE, recursive = TRUE)
-    dir.create(file.path(tempdir(), "LCMV1/tracking"), showWarnings = FALSE, recursive = TRUE)
-    LCMV1_small$data.path <- system.file("extdata", package = "robustSingleCell")
-    LCMV1_small$work.path <- LCMV1_small$baseline.work.path <- file.path(tempdir(), "LCMV1")
-    LCMV1_small$res.data.path <- LCMV1_small$baseline.data.path <- work.path
-    LCMV1_small$datasets <- "LCMV1"
+    data.path <- system.file("extdata", package = "robustSingleCell")
+    LCMV1_small <- initialize.project(datasets = "LCMV1",
+                                origins = "CD44+ cells",
+                                experiments = "Rep1",
+                                data.path = data.path,
+                                work.path = tempdir())
+    data.path <- system.file("extdata/LCMV1_small.txt", package = "robustSingleCell")
+    raw_LCMV1 <- as.matrix(read.table(data.path, check.names = FALSE))
+    LCMV1_small <- read.data(LCMV1_small,
+                       raw.data.matrices = list(LCMV1 = raw_LCMV1),
+                       min.genes.per.cell = 100,
+                       max.genes.per.cell.quantile = 1,
+                       max.UMIs.per.cell.quantile = 1,
+                       min.cells.per.gene = 1)
     LCMV1_small
 }
 

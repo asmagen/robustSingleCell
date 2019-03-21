@@ -199,7 +199,7 @@ get.mito.genes <- function(genes) {
 #' @export
 #' @examples
 #' LCMV1 <- setup_LCMV1_example()
-#' cell.cycle.score = cell.cycle.score(LCMV1)
+#' cell.cycle.score <- cell.cycle.score(LCMV1)
 cell.cycle.score <- function(environment, knn = 10, cc.genes.path = NA) {
     t <- start(file.path(environment$work.path, "tracking"))
 
@@ -210,7 +210,7 @@ cell.cycle.score <- function(environment, knn = 10, cc.genes.path = NA) {
     }
 
     s.genes <- cc.genes[1:43]
-    s.genesi <- s.genes[s.genes %in% capwords(environment$genes)]
+    s.genes <- s.genes[s.genes %in% capwords(environment$genes)]
     print(s.genes)
     g2m.genes <- cc.genes[44:98]
     g2m.genes <- g2m.genes[g2m.genes %in% capwords(environment$genes)]

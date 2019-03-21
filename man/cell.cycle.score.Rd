@@ -21,5 +21,5 @@ Compute the activation of cell cycle genes defined in Kowalczyk, M. S. et al.
 }
 \examples{
 LCMV1 <- setup_LCMV1_example()
-cell.cycle.score = cell.cycle.score(LCMV1)
+cell.cycle.score <- cell.cycle.score(LCMV1)
 }
