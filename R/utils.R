@@ -23,20 +23,27 @@ setup_LCMV1_example <- function() {
 #'
 #' @param base_dir Full path to a directory where data and analysis will be stored
 #' @export
+#' @return 1 if download fails and 0 if succeeds
 #' @examples
-#' \donttest{
-#' download_LCMV(tempdir()) # require network connection
-#' }
+#' download_LCMV(tempdir())
 download_LCMV <- function(base_dir) {
     base_dir_path <- file.path(base_dir, "LCMV")
     dir.create(base_dir_path, showWarnings = F)
-    GEOquery::getGEOSuppFiles("GSM3423794", baseDir = base_dir_path)
-    GEOquery::getGEOSuppFiles("GSM3423795", baseDir = base_dir_path)
-    file.rename(file.path(base_dir_path, "GSM3423795"),
-                file.path(base_dir_path, "LCMV1"))
-    file.rename(file.path(base_dir_path, "GSM3423794"),
-                file.path(base_dir_path, "LCMV2"))
-    cat(paste0("Data saved at ", base_dir_path, "\n"))
+    check_1_avail <- GEOquery::getGEOSuppFiles("GSM3423794", fetch_files = FALSE)
+    check_2_avail <- GEOquery::getGEOSuppFiles("GSM3423795", fetch_files = FALSE)
+    if (is.null(check_1_avail) | is.null(check_2_avail)) {
+        cat("Example files cannot be downloaded. \nPlease check your network connection.\n")
+        return(1)
+    } else {
+        GEOquery::getGEOSuppFiles("GSM3423794", baseDir = base_dir_path)
+        GEOquery::getGEOSuppFiles("GSM3423795", baseDir = base_dir_path)
+        file.rename(file.path(base_dir_path, "GSM3423795"),
+                    file.path(base_dir_path, "LCMV1"))
+        file.rename(file.path(base_dir_path, "GSM3423794"),
+                    file.path(base_dir_path, "LCMV2"))
+        cat(paste0("Data saved at ", base_dir_path, "\n"))
+        return(0)
+    }
 }
 
 capwords <- function(s, strict = FALSE) {

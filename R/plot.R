@@ -1,6 +1,7 @@
 globalVariables(c("Modularity", "Type", "sd", "Fold", "correlation", "SD", "gene",
     "clustering", "Dataset", "..count..", "tSNE.1", "tSNE.2", "Cluster", "Origin",
-    "Experiment", "cell_type"))
+    "Experiment", "cell_type", "Background.ratio", "Foreground.ratio", "Gene",
+    "activation"))
 
 #' Plot PCA results
 #'
@@ -12,6 +13,8 @@ globalVariables(c("Modularity", "Type", "sd", "Fold", "correlation", "SD", "gene
 #' @import GGally
 #' @import ggrepel
 #' @importFrom graphics plot
+#' @importFrom stats quantile rnorm
+#' @importFrom utils head write.csv
 plot_PCA <- function(environment, quantile, order) {
 
     work.path <- environment$work.path
@@ -568,10 +571,10 @@ plot.heatmaps <- function(environment, diff.exp, membership, order = NA, nTopRan
 #' @param height pdf file canvas height
 #' @export
 #' @examples
-#' \dontrun{
-#' plot.contour.overlay.tSNE (environment,genes = c('Cd4','Cd8a'))
+#' \donttest{
+#' plot_contour.overlay_tSNE (environment,genes = c('Cd4','Cd8a'))
 #' }
-plot.contour.overlay.tSNE <- function (environment,genes,perplexity = 30,max_iter = 10000,width = 10, height = 10) {
+plot_contour_overlay_tSNE <- function (environment,genes,perplexity = 30,max_iter = 10000,width = 10, height = 10) {
 
     if (any(!genes %in% environment$genes)) {
         cat('Removing genes not found in dataset:')
@@ -590,7 +593,7 @@ plot.contour.overlay.tSNE <- function (environment,genes,perplexity = 30,max_ite
         data <- data.frame(tSNE = tSNE,activation = scale(environment$normalized[gene,]));head(data)
         data.filtered <- data[data$activation > quantile(data$activation,0.9),]
         print(ggplot() + geom_point(data = data,aes(x = tSNE.1, y = tSNE.2,color=activation),size = 4,alpha = 0.6) + scale_shape(solid = T) + geom_density_2d(data = data.filtered, aes(x = tSNE.1, y = tSNE.2),alpha = 1,colour = "gray65") + xlab('tSNE 1') + ylab('tSNE 2') + theme_classic(base_size=20) + scale_colour_gradient(low = "#ededed", high = "#a50303") + theme(legend.position="bottom") + ggtitle(gene))
-    } 
+    }
     grDevices::dev.off()
 }
 
@@ -609,10 +612,16 @@ plot.contour.overlay.tSNE <- function (environment,genes,perplexity = 30,max_ite
 #' @param height pdf file canvas height
 #' @export
 #' @examples
-#' \dontrun{
-#' plot.pair.scatter (environment,gene1 = 'Cd4',gene2 = 'Cd8',cluster_group1 = c('cluster_name_1','cluster_name_2'),cluster_group2 = c('cluster_name_3','cluster_name_4'),group1_label = 'CD4 T Cells,group2_label = 'CD8 T Cells')
+#' \donttest{
+#' plot_pair_scatter (environment,
+#' gene1 = 'Cd4',
+#' gene2 = 'Cd8',
+#' cluster_group1 = c('cluster_name_1','cluster_name_2'),
+#' cluster_group2 = c('cluster_name_3','cluster_name_4'),
+#' group1_label = 'CD4 T Cells',
+#' group2_label = 'CD8 T Cells')
 #' }
-plot.pair.scatter <- function (environment,gene1,gene2,cluster_group1,cluster_group2,group1_label,group2_label,width = 10, height = 10) {
+plot_pair_scatter <- function (environment,gene1,gene2,cluster_group1,cluster_group2,group1_label,group2_label,width = 10, height = 10) {
 
     clusters <- c(cluster_group1,cluster_group2)
     plot.data <- data.frame(gene1 = environment$normalized[gene1,environment$cluster.name %in% clusters],gene2 = environment$normalized[gene2,environment$cluster.name %in% clusters]);head(plot.data)
@@ -621,7 +630,7 @@ plot.pair.scatter <- function (environment,gene1,gene2,cluster_group1,cluster_gr
     plot.data[,2][plot.data[,2]==0] <- rnorm(sum(plot.data[,2]==0),sd = min(plot.data[,2][plot.data[,2]!=0])/5)
 
     cluster <- environment$cluster.name[environment$cluster.name %in% clusters]
-    
+
     cluster[cluster %in% c(cluster_group1)] <- group1_label
     cluster[cluster %in% c(cluster_group2)] <- group2_label
 
@@ -643,7 +652,7 @@ plot.pair.scatter <- function (environment,gene1,gene2,cluster_group1,cluster_gr
 #' @param similarity similarity matrix defined in compare.cluster.similarity or get.robust.cluster.similarity
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' cluster.similarity <- assess.cluster.similarity(pooled_env)
 #' similarity <- cluster.similarity$similarity
 #' map <- cluster.similarity$map
@@ -721,7 +730,7 @@ visualize.cluster.cors.heatmaps <- function(environment, work.path, similarity) 
 #' @param similarity similarity matrix defined in compare.cluster.similarity or get.robust.cluster.similarity
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' cluster.similarity <- assess.cluster.similarity(pooled_env)
 #' similarity <- cluster.similarity$similarity
 #' map <- cluster.similarity$map

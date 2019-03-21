@@ -17,7 +17,7 @@ visualize.cluster.cors.heatmaps(environment, work.path, similarity)
 Plot correlation heatmaps for each pair of datasets.
 }
 \examples{
-\dontrun{
+\donttest{
 cluster.similarity <- assess.cluster.similarity(pooled_env)
 similarity <- cluster.similarity$similarity
 map <- cluster.similarity$map

@@ -331,7 +331,7 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
 #' @param rerun whether to rerun the reading process or load from cache
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' pooled_env <- initialize.project(datasets = c("LCMV1", "LCMV2"),
 #' origins = rep("CD44+ cells", 2),
 #' experiments = c("Rep1", "Rep2"),

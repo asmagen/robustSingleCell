@@ -42,7 +42,7 @@ putative cell type or state labels.
 }}
 
 \examples{
-\dontrun{
+\donttest{
 LCMV1 <- setup_LCMV1_example()
 types = rbind(
 data.frame(type='Tfh',gene=c('Tcf7','Cxcr5','Bcl6')),

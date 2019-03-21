@@ -398,7 +398,7 @@ regress.covariates <- function(environment, regress, data, groups, rerun = F, sa
 #' @param quantile q-value cutoff for differential expression analysis
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # after running cluster.analysis()
 #' LCMV1 <- setup_LCMV1_example()
 #' summarize(LCMV1)

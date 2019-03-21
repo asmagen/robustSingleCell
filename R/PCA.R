@@ -1,3 +1,12 @@
+check_not_slurm <- function(func_name) {
+    not_slurm = suppressWarnings(system('sinfo', ignore.stdout = TRUE, ignore.stderr = TRUE))
+    slurm_msg = paste0('SLURM not detected. Please run ',
+                       func_name,
+                       ' on a SLURM cluster.\n')
+    cat(slurm_msg)
+    return(not_slurm)
+}
+
 #' Parallelized PCA Analysis
 #'
 #' Run PCA analysis with a simulation analysis of shuffled data to determine the appropriate number of PCs.
@@ -18,13 +27,16 @@
 #' @export
 #' @import rslurm
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' LCMV1 <- setup_LCMV1_example()
-#' LCMV1 <- PCA(LCMV1) # need to be run on slurm
+#' LCMV1 <- PCA(LCMV1)
 #' }
 PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, threshold = 0.1,
     maxPCs = 100, label = NA, mem = "2GB", time = "0:10:00", rerun = F, clear.previously.calculated.clustering = T, local = F) {
 
+    if (check_not_slurm("PCA")) {
+        return(environment)
+    }
     if (length(regress) > 1 || !is.na(regress)) {
         config <- paste(colnames(regress), collapse = "+")
     } else {

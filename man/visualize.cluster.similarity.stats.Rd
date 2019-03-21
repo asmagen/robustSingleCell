@@ -15,7 +15,7 @@ visualize.cluster.similarity.stats(environment, similarity)
 Perform hierarchical clustering and plot cluster similarities according to dendrogram.
 }
 \examples{
-\dontrun{
+\donttest{
 cluster.similarity <- assess.cluster.similarity(pooled_env)
 similarity <- cluster.similarity$similarity
 map <- cluster.similarity$map

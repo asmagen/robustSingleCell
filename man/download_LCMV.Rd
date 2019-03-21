@@ -9,11 +9,12 @@ download_LCMV(base_dir)
 \arguments{
 \item{base_dir}{Full path to a directory where data and analysis will be stored}
 }
+\value{
+1 if download fails and 0 if succeeds
+}
 \description{
 Download two replicates of CD44+ T cell 10X scRNAseq data sets (Ciucci 2018).
 }
 \examples{
-\donttest{
-download_LCMV(tempdir()) # require network connection
-}
+download_LCMV(tempdir())
 }

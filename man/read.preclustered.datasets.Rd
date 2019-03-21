@@ -20,7 +20,7 @@ read.preclustered.datasets(environment, path = NA, recursive = T,
 Read previous analysis of multiple datasets to perform integrated analysis.
 }
 \examples{
-\dontrun{
+\donttest{
 pooled_env <- initialize.project(datasets = c("LCMV1", "LCMV2"),
 origins = rep("CD44+ cells", 2),
 experiments = c("Rep1", "Rep2"),

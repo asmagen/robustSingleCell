@@ -25,7 +25,7 @@ filtered cluster similarity matrix
 Use cross-replicate experiment cluster similarity to remove irreproducible clusters.
 }
 \examples{
-\dontrun{
+\donttest{
 cluster.similarity <- assess.cluster.similarity(pooled_env)
 similarity <- cluster.similarity$similarity
 map <- cluster.similarity$map

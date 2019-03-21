@@ -104,7 +104,7 @@ get.clustering.results <- function(clustering.dir, knn.ratio, shuffledKNN) {
 #' @import cccd
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' LCMV1 <- setup_LCMV1_example()
 #' LCMV1 <- cluster.analysis(LCMV1) # need to be run on slurm
 #' }

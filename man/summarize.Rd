@@ -29,7 +29,7 @@ summarize(environment, perplexity = seq(10, 30, 10), max_iter = 10000,
 Summarize the clustering results by conducting differential expression analysis and plotting figures.
 }
 \examples{
-\dontrun{
+\donttest{
 # after running cluster.analysis()
 LCMV1 <- setup_LCMV1_example()
 summarize(LCMV1)

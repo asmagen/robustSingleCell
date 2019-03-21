@@ -3,21 +3,21 @@ getDE.limma <- function(Y, group, filter = T) {
     my.lm <- limma::lmFit(Y, design = design)
     my.lm <- limma::eBayes(my.lm)
     topTable <- limma::topTable(my.lm, number = Inf, coef = seq(2, ncol(design)))
-    if (filter) 
+    if (filter)
         topTable <- topTable[topTable$adj.P.Val < 0.1, ]
     topTable <- topTable[order(topTable$adj.P.Val, decreasing = F), ]
     colnames(topTable)[colnames(topTable) == "P.Value"] <- "PValue"
     colnames(topTable)[colnames(topTable) == "adj.P.Val"] <- "QValue"
-    
+
     return(topTable)
 }
 
-run.diff.expression <- function(environment, clustering, min.fold, quantile, label, 
+run.diff.expression <- function(environment, clustering, min.fold, quantile, label,
     rerun = F, contrast = "all", contrast.groups = NA) {
-    
-    cache <- file.path(environment$res.data.path, paste(label, contrast, "diff.exp.rds", 
+
+    cache <- file.path(environment$res.data.path, paste(label, contrast, "diff.exp.rds",
         sep = "."))
-    
+
     if (!rerun && file.exists(cache)) {
         print.message("Loading precomputed")
         precomputed <- readRDS(cache)
@@ -30,23 +30,23 @@ run.diff.expression <- function(environment, clustering, min.fold, quantile, lab
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"), split = T)
         membership <- as.vector(clustering$membership)
-        
+
         empirical.diff <- NA
-        
+
         diff.exp.dir <- file.path(environment$work.path, "diff.exp", label, contrast)
         unlink(diff.exp.dir, recursive = T, force = T)
         dir.create(diff.exp.dir, recursive = T)
         limma.diff <- {
         }
-        
+
         if (contrast == "all") {
             contrast.groups <- rep(1, length(membership))
         } else if (contrast == "datasets") {
             contrast.groups <- environment$datasets
         }
-        
+
         print.message("contrast =", contrast)
-        
+
         print(table(contrast.groups))
         contrast.group <- unique(contrast.groups)[1]
         table(membership, contrast.groups)
@@ -58,42 +58,42 @@ run.diff.expression <- function(environment, clustering, min.fold, quantile, lab
             cluster <- contrast.group.clusters[1]
             for (cluster in contrast.group.clusters) {
                 print.message("cluster =", cluster)
-                
+
                 group <- membership[contrast.group.indices] == cluster
                 group <- factor(group)
-                
-                diff.exp <- getDE.limma(Y = environment$normalized[, contrast.group.indices], 
+
+                diff.exp <- getDE.limma(Y = environment$normalized[, contrast.group.indices],
                   group = group, filter = F)
                 diff.exp <- diff.exp[order(diff.exp$logFC, decreasing = T), ]
-                diff.exp <- data.frame(gene = rownames(diff.exp), logFC = diff.exp$logFC, 
-                  fold = exp(diff.exp$logFC), QValue = diff.exp$QValue, PValue = diff.exp$PValue, 
+                diff.exp <- data.frame(gene = rownames(diff.exp), logFC = diff.exp$logFC,
+                  fold = exp(diff.exp$logFC), QValue = diff.exp$QValue, PValue = diff.exp$PValue,
                   AveExpr = diff.exp$AveExpr)
-                utils::write.csv(diff.exp, file = file.path(diff.exp.dir, paste("cluster", 
+                utils::write.csv(diff.exp, file = file.path(diff.exp.dir, paste("cluster",
                   cluster, "csv", sep = ".")))
-                markers.diff <- diff.exp[diff.exp$gene %in% environment$marker.genes, 
+                markers.diff <- diff.exp[diff.exp$gene %in% environment$marker.genes,
                   ]
-                utils::write.csv(markers.diff, file = file.path(diff.exp.dir, paste("markers.cluster", 
+                utils::write.csv(markers.diff, file = file.path(diff.exp.dir, paste("markers.cluster",
                   cluster, "csv", sep = ".")))
-                limma.diff <- rbind(limma.diff, data.frame(contrast.group = contrast.group, 
+                limma.diff <- rbind(limma.diff, data.frame(contrast.group = contrast.group,
                   cluster = cluster, diff.exp[, c(1, 3, 4)]))
             }
         }
         rownames(limma.diff) <- NULL
         limma.all <- limma.diff
-        limma.diff <- limma.diff[limma.diff$QValue <= (1 - quantile) & limma.diff$fold >= 
+        limma.diff <- limma.diff[limma.diff$QValue <= (1 - quantile) & limma.diff$fold >=
             min.fold, ]
-        final.diff <- limma.diff <- limma.diff[order(limma.diff$fold, decreasing = T), 
+        final.diff <- limma.diff <- limma.diff[order(limma.diff$fold, decreasing = T),
             ]
         print.message("head(limma.diff):")
         print(utils::head(limma.diff))
         utils::write.csv(limma.diff, file = file.path(diff.exp.dir, "limma.diff.csv"))
         utils::write.csv(final.diff, file = file.path(diff.exp.dir, "final.diff.csv"))
-        
-        saveRDS(list(final.diff = final.diff, limma.diff = limma.diff, empirical.diff = empirical.diff, 
+
+        saveRDS(list(final.diff = final.diff, limma.diff = limma.diff, empirical.diff = empirical.diff,
             limma.all = limma.all), file = cache)
         end(t)
     }
-    
+
     return(final.diff)
 }
 
@@ -115,8 +115,11 @@ run.diff.expression <- function(environment, clustering, min.fold, quantile, lab
 #' @importFrom graphics plot
 #' @export
 #' @examples
-#' \dontrun{
-#' get.robust.markers (environment,cluster_group1 = c('cluster_name_1','cluster_name_2'),cluster_group2 = c('cluster_name_3','cluster_name_4'),group1_label = 'CD4 T Cells,group2_label = 'CD8 T Cells')
+#' \donttest{
+#' get.robust.markers(environment,cluster_group1 = c('cluster_name_1','cluster_name_2'),
+#' cluster_group2 = c('cluster_name_3','cluster_name_4'),
+#' group1_label = 'CD4 T Cells',
+#' group2_label = 'CD8 T Cells')
 #' }
 get.robust.markers <- function (
     environment,

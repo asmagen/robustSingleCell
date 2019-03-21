@@ -15,7 +15,7 @@
 #' @import dplyr
 #' @import ggpubr
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' cluster.similarity <- assess.cluster.similarity(pooled_env)
 #' similarity <- cluster.similarity$similarity
 #' map <- cluster.similarity$map
@@ -219,11 +219,12 @@ pearson.correlation <- function(diff1, diff2) {
 #' @return pairwise cluster similarity measures
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' data.path <- system.file("extdata", package = "robustSingleCell")
 #' pooled_env <- initialize.project(datasets = c("LCMV1", "LCMV2"),
 #' origins = rep("CD44+ cells", 2),
 #' experiments = c("Rep1", "Rep2"),
-#' data.path = )
+#' data.path = data.path)
 #' pooled_env <- read.preclustered.datasets(pooled_env)
 #' pooled_env <- add.confounder.variables(
 #'     pooled_env,
