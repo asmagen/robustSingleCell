@@ -36,8 +36,8 @@ setup_LCMV1_example <- function() {
 download_LCMV <- function(base_dir) {
     base_dir_path <- file.path(base_dir, "LCMV")
     dir.create(base_dir_path, showWarnings = F)
-    check_1_avail <- GEOquery::getGEOSuppFiles("GSM3423794", fetch_files = FALSE)
-    check_2_avail <- GEOquery::getGEOSuppFiles("GSM3423795", fetch_files = FALSE)
+    check_1_avail <- GEOquery::getGEOSuppFiles("GSM3423794")
+    check_2_avail <- GEOquery::getGEOSuppFiles("GSM3423795")
     if (is.null(check_1_avail) | is.null(check_2_avail)) {
         cat("Example files cannot be downloaded. \nPlease check your network connection.\n")
         return(1)
