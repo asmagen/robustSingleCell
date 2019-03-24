@@ -1,16 +1,11 @@
 robustSingleCell
 ================
 
-[![Travis build
-status](https://travis-ci.org/asmagen/robustSingleCell.svg?branch=master)](https://travis-ci.org/asmagen/robustSingleCell)
+[![Travis build status](https://travis-ci.org/asmagen/robustSingleCell.svg?branch=master)](https://travis-ci.org/asmagen/robustSingleCell)
 
 ### Overview
 
-robustSingleCell is a pipeline designed to identify robust cell
-subpopulations using scRNAseq data and compare population compositions
-across tissues and experimental models via similarity analysis as
-described in Magen et al. (2019)
-[*bioRxiv*](https://doi.org/10.1101/543199) \[1\].
+robustSingleCell is a pipeline designed to identify robust cell subpopulations using scRNAseq data and compare population compositions across tissues and experimental models via similarity analysis as described in Magen et al. (2019) [*bioRxiv*](https://doi.org/10.1101/543199) [1].
 
 ### Installation
 
@@ -25,50 +20,36 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 BiocManager::install("limma")
 BiocManager::install("grimbough/biomaRt")
 
-devtools::install_github("asmagen/magensinglecell")
+devtools::install_github("asmagen/robustsinglecell")
 ```
 
-This pipeline currently supports [slurm](https://slurm.schedmd.com) for
-parallel batch jobs.
+This pipeline currently supports [slurm](https://slurm.schedmd.com) for parallel batch jobs.
 
 ### Getting help
 
-If you encounter a clear bug, please submit an
-[issue](https://github.com/asmagen/MagenSingleCell/issues) with
-reproducible example.
+If you encounter a clear bug, please submit an [issue](https://github.com/asmagen/robustSingleCell/issues) with reproducible example.
 
 ### Tutorial
 
-We used two replicates of CD44<sup>+</sup> T cell data sets from Ciucci
-et al. 2019 \[2\] as an example to demonstrate the use of
-`robustSingleCell`. The analysis requires at least 8G of memory on
-*slurm* \[3\] high performance computing workload manager. We first
-download the raw 10X data from GEO using `GEOquery`, which can be
-obtained using the following command if not already installed:
+We used two replicates of CD44<sup>+</sup> T cell data sets from Ciucci et al. 2019 [2] as an example to demonstrate the use of `robustSingleCell`. The analysis requires at least 8G of memory on *slurm* [3] high performance computing workload manager. We first download the raw 10X data from GEO using `GEOquery`, which can be obtained using the following command if not already installed:
 
 ``` r
 source("https://bioconductor.org/biocLite.R")
 biocLite("GEOquery")
 ```
 
-The two datasets `LCMV1`, `LCMV2` will be downloaded into `~/LCMV`. Each
-folder will contain the `matrix.mtx`, `gene.tsv`, `barcode.tsv` files as
-in 10X genomics format.
+The two datasets `LCMV1`, `LCMV2` will be downloaded into `~/LCMV`. Each folder will contain the `matrix.mtx`, `gene.tsv`, `barcode.tsv` files as in 10X genomics format.
 
 ``` r
 library(robustSingleCell)
 download_LCMV(base_dir = "~/LCMV")
 ```
 
-We cluster each dataset separately to account for dataset-specific
-technical and biological differences. Then, we measure the
-transcriptional similarity and divergence between the clusters
-identified in the two datasets using correlation analysis.
+We cluster each dataset separately to account for dataset-specific technical and biological differences. Then, we measure the transcriptional similarity and divergence between the clusters identified in the two datasets using correlation analysis.
 
 #### Individual analysis of LCMV1 and LCMV2
 
-First, we set up the directory where the results of the analysis will be
-stored.
+First, we set up the directory where the results of the analysis will be stored.
 
 ``` r
 LCMV1 <- initialize.project(datasets = "LCMV1", 
@@ -78,19 +59,13 @@ LCMV1 <- initialize.project(datasets = "LCMV1",
                           work.path = "~/LCMV/LCMV_analysis")
 ```
 
-`read.data` function reads the data in 10X genomics format and performs
-quality filtering as described in *Magen et al 2019*. We randomly
-downsampled the datasets to 1000 cells to shorten the simplify this
-example.
+`read.data` function reads the data in 10X genomics format and performs quality filtering as described in *Magen et al 2019*. We randomly downsampled the datasets to 1000 cells to shorten the simplify this example.
 
 ``` r
 LCMV1 <- read.data(LCMV1, subsample = 1000)
 ```
 
-Next, we identify highly variable genes on which we base the PCA and
-clustering analyses. We also compute the activation of gene sets of
-interest, such as cell cycle genes, which can be used for confounder
-correction using the `regress` parameter in the PCA analysis.
+Next, we identify highly variable genes on which we base the PCA and clustering analyses. We also compute the activation of gene sets of interest, such as cell cycle genes, which can be used for confounder correction using the `regress` parameter in the PCA analysis.
 
 ``` r
 LCMV1 <- get.variable.genes(LCMV1) 
@@ -103,67 +78,37 @@ LCMV1 <- add.confounder.variables(LCMV1,
     Exhaustion = controlled.mean.score(LCMV1, exhaustion_markers))
 ```
 
-Figure 1 shows the mitochondrial score versus number of UMIs, pre and
-post filtering.
+Figure 1 shows the mitochondrial score versus number of UMIs, pre and post filtering.
 
 <figure>
-
-<img src="vignettes/figs/pre_stats.png">
-<img src="vignettes/figs/post_stats.png">
-
+<img src="vignettes/figs/pre_stats.png"> <img src="vignettes/figs/post_stats.png">
 <figcaption>
-
-Fig 1. Mitochondrial genes score vs. number of UMIs for pre (top) and
-post (bottom) quality control filtering.
-
+Fig 1. Mitochondrial genes score vs. number of UMIs for pre (top) and post (bottom) quality control filtering.
 </figcaption>
-
 </figure>
-
-The `PCA` function performs multiple simulation analyses of shuffled
-data to determine the appropriate number of PCs.
+The `PCA` function performs multiple simulation analyses of shuffled data to determine the appropriate number of PCs.
 
 ``` r
 LCMV1 <- PCA(LCMV1)
 ```
 
-We then perform clustering analysis for a range of clustering
-resolutions.
+We then perform clustering analysis for a range of clustering resolutions.
 
 ``` r
 LCMV1 <- cluster.analysis(LCMV1)
 ```
 
-The analysis is repeated multiple times over shuffled data to estimate
-the appropriate clustering resolution and control for false discovery of
-clusters, as described in *Magen et al 2018*. The summary of this
-analysis is presented in Figure 2.
+The analysis is repeated multiple times over shuffled data to estimate the appropriate clustering resolution and control for false discovery of clusters, as described in *Magen et al 2018*. The summary of this analysis is presented in Figure 2.
 
 <figure>
-
 <img src="vignettes/figs/Clustering.modularity.png">
-
 <figcaption>
-
-Fig 2. Bar plot shows the clustering modularity of the original data
-versus shuffled data across multiple clustering resolutions. Numbers on
-top represent the fold change of original versus shuffled analysis for
-each resolution.
-
+Fig 2. Bar plot shows the clustering modularity of the original data versus shuffled data across multiple clustering resolutions. Numbers on top represent the fold change of original versus shuffled analysis for each resolution.
 </figcaption>
-
 </figure>
+We select the appropriate resolution (the parameter is requested as input from the user interactively), typically the one where there is more than two fold change modularity difference relative to the shuffled analysis.
 
-We select the appropriate resolution (the parameter is requested as
-input from the user interactively), typically the one where there is
-more than two fold change modularity difference relative to the shuffled
-analysis.
-
-The `summarize` function which performs differential expression
-analysis, computes tSNE and visualizes the results in the analysis
-folder. After differential expression analysis, `get.cluster.names`
-assigns clusters with names using a customized set of marker genes which
-users should adapt to their own data.
+The `summarize` function which performs differential expression analysis, computes tSNE and visualizes the results in the analysis folder. After differential expression analysis, `get.cluster.names` assigns clusters with names using a customized set of marker genes which users should adapt to their own data.
 
 ``` r
 types = rbind(
@@ -182,100 +127,54 @@ LCMV1 <- set.cluster.names(LCMV1, names = LCMV1_cluster_names)
 summarize(LCMV1)
 ```
 
-Figure 3 shows violin plots indicating the activation of the cell cycle
-genes.
+Figure 3 shows violin plots indicating the activation of the cell cycle genes.
 
 <figure>
-
 <img src="vignettes/figs/violin.png">
-
 <figcaption>
-
 Fig 3. Violin plot of cell cycle score.
-
 </figcaption>
-
 </figure>
-
-Figure 4 places individual cells on a two dimensional grid corresponding
-to the scores of the first two PCs (note that the PCA figures are
-created in the next step via `summarize` function below).
+Figure 4 places individual cells on a two dimensional grid corresponding to the scores of the first two PCs (note that the PCA figures are created in the next step via `summarize` function below).
 
 <figure>
-
 <img src="vignettes/figs/PCA.png">
-
 <figcaption>
-
-Fig 4. Single cells placement on a 2D grid corresponding to the first
-two PCs.
-
+Fig 4. Single cells placement on a 2D grid corresponding to the first two PCs.
 </figcaption>
-
 </figure>
-
-The genes driving the PCs are visualized in figure 5 according to the
-PCA loadings after removing the lowly ranked genes.
+The genes driving the PCs are visualized in figure 5 according to the PCA loadings after removing the lowly ranked genes.
 
 <figure>
-
 <img src="vignettes/figs/rotation.png">
-
 <figcaption>
-
 Fig 5. Top ranked genes contribution to PC1 and PC2 scores.
-
 </figcaption>
-
 </figure>
-
-The average expression of genes driving the PCs can be visualized as a
-heatmap in figure 6 according to the PCA loadings after removing the
-lowly ranked genes.
+The average expression of genes driving the PCs can be visualized as a heatmap in figure 6 according to the PCA loadings after removing the lowly ranked genes.
 
 <figure>
-
 <img src="vignettes/figs/PC1_heatmap.png" width="500">
-
 <figcaption>
-
 Fig 6. Heatmap shows loadings of the first PC.
-
 </figcaption>
-
 </figure>
-
-Figure 7 shows the tSNE visualization of the cells, color coded by
-cluster assignment.
+Figure 7 shows the tSNE visualization of the cells, color coded by cluster assignment.
 
 <figure>
-
 <img src="vignettes/figs/tsne.png" height="500" width="700">
-
 <figcaption>
-
 Fig 7. t-SNE plot colored by cluster assignment.
-
 </figcaption>
-
 </figure>
-
-We can also visualize the average expression of selected T cells marker
-genes for initial evaluation (Figure 8).
+We can also visualize the average expression of selected T cells marker genes for initial evaluation (Figure 8).
 
 <figure>
-
 <img src="vignettes/figs/diff.genes.png" width="500">
-
 <figcaption>
-
-Fig 8. Heatmap shows row-normalized average expression of selected
-marker genes per cluster.
-
+Fig 8. Heatmap shows row-normalized average expression of selected marker genes per cluster.
 </figcaption>
-
 </figure>
-
 We repeat the same procedure for `LCMV2` dataset.
 
 ``` r
@@ -303,9 +202,7 @@ summarize(LCMV2)
 
 #### Dataset Integration by Correlation Analysis
 
-We then initialize the aggregate analysis of the two independent runs,
-providing the information of which analyses folders should be used to
-pull the data for integration.
+We then initialize the aggregate analysis of the two independent runs, providing the information of which analyses folders should be used to pull the data for integration.
 
 ``` r
 pooled_env <- initialize.project(datasets = c("LCMV1", "LCMV2"),
@@ -324,10 +221,7 @@ pooled_env <- PCA(pooled_env, clear.previously.calculated.clustering = F)
 summarize(pooled_env, contrast = "datasets")
 ```
 
-We assessed the similarity between pairs of clusters and identify
-reproducible subpopulations across the two replicates. Figure 9 shows
-the correlation between clusters’ FC vectors across replicates (as
-described in *Magen et al 2018*).
+We assessed the similarity between pairs of clusters and identify reproducible subpopulations across the two replicates. Figure 9 shows the correlation between clusters' FC vectors across replicates (as described in *Magen et al 2018*).
 
 ``` r
 cluster.similarity <- compare.cluster.similarity(pooled_env)
@@ -343,24 +237,12 @@ visualize.cluster.cors.heatmaps(pooled_env, pooled_env$work.path,
 ```
 
 <figure>
-
 <img src="vignettes/figs/LCMV1_LCMV2_similarity.png">
-
 <figcaption>
-
-Fig 9. Correlation between clusters’ FC vectors across the two
-replicates.
-
+Fig 9. Correlation between clusters' FC vectors across the two replicates.
 </figcaption>
-
 </figure>
-
-Finally, the cluster similarity between all clusters integrated by this
-analysis is shown in Figure 10. Unlike the simplified example shown
-here, this analysis is typically used for estimating subpopulation
-similarity and divergence across multiple tissue-origins or experimental
-settings, including corresponding pre-clinical to clinical datasets as
-described in *Magen et al 2018*.
+Finally, the cluster similarity between all clusters integrated by this analysis is shown in Figure 10. Unlike the simplified example shown here, this analysis is typically used for estimating subpopulation similarity and divergence across multiple tissue-origins or experimental settings, including corresponding pre-clinical to clinical datasets as described in *Magen et al 2018*.
 
 ``` r
 similarity <- filtered.similarity
@@ -368,25 +250,15 @@ visualize.cluster.similarity.stats(pooled_env, similarity)
 ```
 
 <figure>
-
 <img src="vignettes/figs/cor_FC.png" width = "500">
-
 <figcaption>
-
 Fig 10. Correlation among all the clusters in the two datasets.
-
 </figcaption>
-
 </figure>
-
 ### Reference
 
-1.  Magen *et al*. “Single-cell profiling of tumor-reactive
-    CD4<sup>+</sup> T-cells reveals unexpected transcriptomic diversity”
-    [*bioRxiv 543199*](https://doi.org/10.1101/543199)
+[1] Magen *et al*. “Single-cell profiling of tumor-reactive CD4<sup>+</sup> T-cells reveals unexpected transcriptomic diversity” [*bioRxiv 543199*](https://doi.org/10.1101/543199)
 
-2.  Ciucci, Thomas, et al. “The Emergence and Functional Fitness of
-    Memory CD4+ T Cells Require the Transcription Factor Thpok.”
-    *Immunity* 50.1 (2019): 91-105.
+[2] Ciucci, Thomas, et al. "The Emergence and Functional Fitness of Memory CD4+ T Cells Require the Transcription Factor Thpok." *Immunity* 50.1 (2019): 91-105.
 
-3.  [slurm](https://slurm.schedmd.com)
+[3] [slurm](https://slurm.schedmd.com)
