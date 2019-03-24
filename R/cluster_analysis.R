@@ -17,7 +17,7 @@ cluster <- function(knn.ratio, label, path, data.path, nPCs) {
         PCA <- precomputed$PCA
     }
 
-    res <- Rphenograph(t(PCA), k = max(2,knn.ratio * ncol(PCA)))
+    res <- Rphenograph(t(PCA), k = max(2,floor(knn.ratio * ncol(PCA))))
     community <- res[[2]]
     modularity <- igraph::modularity(community)
     membership <- igraph::membership(community)
