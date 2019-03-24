@@ -17,14 +17,7 @@ cluster <- function(knn.ratio, label, path, data.path, nPCs) {
         PCA <- precomputed$PCA
     }
 
-    # neighborMatrix <- find_neighbors(t(PCA), k = floor(knn.ratio * ncol(PCA)))[,
-    # -1] jaccard_coeff <- function(idx) { Rphenograph:::jaccard_coeff(idx) } links
-    # <- jaccard_coeff(neighborMatrix) links <- links[links[, 1] > 0, ] relations <-
-    # as.data.frame(links) colnames(relations) <- c('from', 'to', 'weight') community
-    # <- igraph::cluster_louvain(igraph::graph.data.frame(relations, directed =
-    # FALSE))
-
-    res <- Rphenograph(t(PCA), k = floor(knn.ratio * ncol(PCA)))
+    res <- Rphenograph(t(PCA), k = max(2,knn.ratio * ncol(PCA)))
     community <- res[[2]]
     modularity <- igraph::modularity(community)
     membership <- igraph::membership(community)
@@ -113,6 +106,7 @@ cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuf
     time = "0:15:00", plot = T, local = F) {
 
     clustering.dir <- file.path(environment$res.data.path, "clustering")
+    nresults = length(list.files(clustering.dir, pattern = paste("*.rds", sep = "")))
     shuffled.result.files <- list.files(clustering.dir, pattern = paste("shuffled.*.*.rds",
         sep = ""))
     shuffled.result.files
@@ -129,7 +123,7 @@ cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuf
     cache <- file.path(environment$res.data.path, "clustering.rds")
     sjob <- NA
 
-    if (rerun || !dir.exists(clustering.dir)) {
+    if (rerun || !dir.exists(clustering.dir) || nresults == 0) {
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"))
 
