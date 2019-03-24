@@ -10,7 +10,7 @@
 #' @return \code{environment} parameter containing highly variable genes selection
 #' @export
 #' @examples
-#' LCMV1 <- setup_LCMV1_example()
+#' LCMV1 <- setup_LCMV_example()
 #' LCMV1 <- get.variable.genes(LCMV1)
 get.variable.genes <- function(environment, min.mean = 0.05, min.frac.cells = 0,
     min.dispersion.scaled = 1, rerun = F) {
@@ -118,7 +118,7 @@ nGenes <- function() {
 #' @return \code{environment} parameter containing added confounder variable
 #' @export
 #' @examples
-#' LCMV1 <- setup_LCMV1_example()
+#' LCMV1 <- setup_LCMV_example()
 #' LCMV1 <- add.confounder.variables(LCMV1, ribosomal.score = ribosomal.score(LCMV1))
 add.confounder.variables <- function(environment, ...) {
     environment$confounders <- data.frame(environment$confounders, data.frame(...))
@@ -136,7 +136,7 @@ add.confounder.variables <- function(environment, ...) {
 #' @return a vector of ribosomal genes activation score
 #' @export
 #' @examples
-#' LCMV1 <- setup_LCMV1_example()
+#' LCMV1 <- setup_LCMV_example()
 #' ribosomal.score <- ribosomal.score(LCMV1)
 ribosomal.score <- function(environment, control = T, knn = 10) {
     t <- start(file.path(environment$work.path, "tracking"))
@@ -166,7 +166,7 @@ get.ribo.genes <- function(genes) {
 #' @return a vector of mitochondrial genes activation score
 #' @export
 #' @examples
-#' LCMV1 <- setup_LCMV1_example()
+#' LCMV1 <- setup_LCMV_example()
 #' mitochondrial.score <- mitochondrial.score(LCMV1)
 mitochondrial.score <- function(environment, control = F, knn = 10) {
     # browser()
@@ -198,7 +198,7 @@ get.mito.genes <- function(genes) {
 #' @return a matrix of cell cycle genes activation scores (S, G2M and aggregated S/G2M scores, separately)
 #' @export
 #' @examples
-#' LCMV1 <- setup_LCMV1_example()
+#' LCMV1 <- setup_LCMV_example()
 #' cell.cycle.score <- cell.cycle.score(LCMV1)
 cell.cycle.score <- function(environment, knn = 10, cc.genes.path = NA) {
     t <- start(file.path(environment$work.path, "tracking"))
@@ -241,7 +241,7 @@ cell.cycle.score <- function(environment, knn = 10, cc.genes.path = NA) {
 #' @return gene signature activation scores per cell
 #' @export
 #' @examples
-#' LCMV1 <- setup_LCMV1_example()
+#' LCMV1 <- setup_LCMV_example()
 #' exhaustion_markers <- c('Pdcd1', 'Cd244', 'Havcr2', 'Ctla4', 'Cd160', 'Lag3',
 #' 'Tigit', 'Cd96')
 #' Exhaustion <- controlled.mean.score(LCMV1, exhaustion_markers)
@@ -400,7 +400,7 @@ regress.covariates <- function(environment, regress, data, groups, rerun = F, sa
 #' @examples
 #' \donttest{
 #' # after running cluster.analysis()
-#' LCMV1 <- setup_LCMV1_example()
+#' LCMV1 <- setup_LCMV_example()
 #' summarize(LCMV1)
 #' }
 summarize <- function(environment, perplexity = seq(10, 30, 10), max_iter = 10000,

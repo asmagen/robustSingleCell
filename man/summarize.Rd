@@ -31,7 +31,7 @@ Summarize the clustering results by conducting differential expression analysis 
 \examples{
 \donttest{
 # after running cluster.analysis()
-LCMV1 <- setup_LCMV1_example()
+LCMV1 <- setup_LCMV_example()
 summarize(LCMV1)
 }
 }

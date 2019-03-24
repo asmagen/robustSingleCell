@@ -38,7 +38,7 @@ read_10x_data <- function(path) {
 #' @export
 #' @import ggplot2
 #' @examples
-#' LCMV1 <- setup_LCMV1_example()
+#' LCMV1 <- setup_LCMV_example()
 #' data.path <- system.file("extdata/LCMV1_small.txt", package = "robustSingleCell")
 #' # name of list should be the same as LCMV1$datasets
 #' raw_LCMV1 <- as.matrix(read.table(data.path, check.names = FALSE))
@@ -81,16 +81,18 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
                 print.message("Loading", dataset)
                 measurements <- read_10x_data(path = file.path(environment$data.path,
                   dataset))
+
                 measurements <- as.matrix(measurements[, Matrix::colSums(measurements >
                   0) >= min.genes.per.cell])
+                if (!is.null(subsample) && subsample < ncol(measurements)) {
+                    measurements <- measurements[, sample(seq(ncol(measurements)), subsample)]
+                }
             } else {
                 print.message("Using input", dataset)
                 measurements <- raw.data.matrices[[dataset]]
                 stopifnot(is.matrix(measurements))
             }
-            if (!is.null(subsample) && subsample < ncol(measurements)) {
-                measurements <- measurements[, sample(seq(ncol(measurements)), subsample)]
-            }
+
 
             colnames(measurements) <- rep(environment$datasets[environment$datasets ==
                 dataset], ncol(measurements))

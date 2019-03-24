@@ -27,8 +27,12 @@ check_not_slurm <- function(func_name) {
 #' @export
 #' @import rslurm
 #' @examples
-#' LCMV1 <- setup_LCMV1_example()
-#' LCMV1 <- PCA(LCMV1)
+#' \donttest{
+#' LCMV1 <- setup_LCMV_example()
+#' LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
+#' min.dispersion.scaled = 0.1)
+#' LCMV1 <- PCA(LCMV1, local = TRUE)
+#' }
 PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, threshold = 0.1,
     maxPCs = 100, label = NA, mem = "2GB", time = "0:10:00", rerun = F, clear.previously.calculated.clustering = T, local = F) {
 

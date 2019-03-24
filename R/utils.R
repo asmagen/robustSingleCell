@@ -1,26 +1,31 @@
 #' Set up LCMV1 example
 #'
-#' Set the path in the LCMV1_small object
+#' Set the path in the LCMV object
+#' @param dataset The name of dataset (LCMV1 or LCMV2)
 #' @return An environment object containing the LCMV1_small data
 #' @export
+#' @importFrom utils read.table
 #' @examples
-#' setup_LCMV1_example()
-setup_LCMV1_example <- function() {
+#' LCMV1 <- setup_LCMV_example("LCMV1")
+setup_LCMV_example <- function(dataset = "LCMV1") {
+    stopifnot(dataset %in% c("LCMV1", "LCMV2"))
     data.path <- system.file("extdata", package = "robustSingleCell")
-    LCMV1_small <- initialize.project(datasets = "LCMV1",
+    LCMV_small <- initialize.project(datasets = dataset,
                                 origins = "CD44+ cells",
                                 experiments = "Rep1",
                                 data.path = data.path,
                                 work.path = tempdir())
-    data.path <- system.file("extdata/LCMV1_small.txt", package = "robustSingleCell")
-    raw_LCMV1 <- as.matrix(read.table(data.path, check.names = FALSE))
-    LCMV1_small <- read.data(LCMV1_small,
-                       raw.data.matrices = list(LCMV1 = raw_LCMV1),
-                       min.genes.per.cell = 100,
+    data.path <- system.file(paste0("extdata/", dataset, "_small.txt"), package = "robustSingleCell")
+    raw_LCMV <- as.matrix(read.table(data.path, check.names = FALSE))
+    print(dim(raw_LCMV))
+    LCMV_small <- read.data(LCMV_small,
+                       raw.data.matrices = structure(list(raw_LCMV), names = dataset),
+                       min.genes.per.cell = 10,
                        max.genes.per.cell.quantile = 1,
                        max.UMIs.per.cell.quantile = 1,
                        min.cells.per.gene = 1)
-    LCMV1_small
+
+    LCMV_small
 }
 
 
@@ -36,14 +41,13 @@ setup_LCMV1_example <- function() {
 download_LCMV <- function(base_dir) {
     base_dir_path <- file.path(base_dir, "LCMV")
     dir.create(base_dir_path, showWarnings = F)
-    check_1_avail <- GEOquery::getGEOSuppFiles("GSM3423794")
-    check_2_avail <- GEOquery::getGEOSuppFiles("GSM3423795")
+    # check if the files are available downloading
+    check_1_avail <- GEOquery::getGEOSuppFiles("GSM3423794", baseDir = base_dir_path)
+    check_2_avail <- GEOquery::getGEOSuppFiles("GSM3423795", baseDir = base_dir_path)
     if (is.null(check_1_avail) | is.null(check_2_avail)) {
         cat("Example files cannot be downloaded. \nPlease check your network connection.\n")
         return(1)
     } else {
-        GEOquery::getGEOSuppFiles("GSM3423794", baseDir = base_dir_path)
-        GEOquery::getGEOSuppFiles("GSM3423795", baseDir = base_dir_path)
         file.rename(file.path(base_dir_path, "GSM3423795"),
                     file.path(base_dir_path, "LCMV1"))
         file.rename(file.path(base_dir_path, "GSM3423794"),

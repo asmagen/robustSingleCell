@@ -10,7 +10,7 @@ LCMV1 <- initialize.project(datasets = "LCMV1",
 
 LCMV1 <- read.data(LCMV1,
                    raw.data.matrices = list(LCMV1 = raw_LCMV1),
-                   min.genes.per.cell = 100,
+                   min.genes.per.cell = 10,
                    max.genes.per.cell.quantile = 1,
                    max.UMIs.per.cell.quantile = 1,
                    min.cells.per.gene = 1)
@@ -18,12 +18,12 @@ LCMV1 <- read.data(LCMV1,
 # Tests for filtering and normalization
 
 test_that("The number of cells and genes left after filtering ", {
-  expect_equal(dim(LCMV1$counts), c(1408, 97))
+  expect_equal(dim(LCMV1$counts), c(1390, 27))
 })
 
 test_that("The normalization and scaling ", {
-  expect_equal(LCMV1$normalized[1,2], 0, tolerance = 1e-6)
-  expect_equal(LCMV1$normalized[11,1], 4.787888, tolerance = 1e-6)
+  expect_equal(LCMV1$normalized[1,2], 3.920285, tolerance = 1e-6)
+  expect_equal(LCMV1$normalized[11,1], 5.009584, tolerance = 1e-6)
 })
 
 
@@ -31,9 +31,10 @@ test_that("The normalization and scaling ", {
 
 context("Get variable genes")
 
-LCMV1 <- get.variable.genes(LCMV1)
+LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
+                            min.dispersion.scaled = 0.1, rerun = T)
 test_that("The number of variable genes ", {
-  expect_equal(length(LCMV1$HVG), 188)
+  expect_equal(length(LCMV1$HVG), 641)
 })
 
 # Tests for score computation
@@ -47,8 +48,8 @@ cell.cycle.score <- cell.cycle.score(LCMV1)
 Exhaustion <- controlled.mean.score(LCMV1, exhaustion_markers)
 
 test_that("The scoring function ", {
-  expect_equal(unname(ribosomal.score[10]), 1.169199, tolerance = 1e-6)
-  expect_equal(unname(mitochondrial.score[11]), 0.3617106, tolerance = 1e-6)
-  expect_equal(unname(cell.cycle.score[12, 3]), 2.023011, tolerance = 1e-6)
-  expect_equal(unname(Exhaustion[13]), -0.2528447, tolerance = 1e-6)
+  expect_equal(unname(ribosomal.score[10]), 2.889561, tolerance = 1e-6)
+  expect_equal(unname(mitochondrial.score[11]), 0.5267472, tolerance = 1e-6)
+  expect_equal(unname(cell.cycle.score[12, 3]), -0.3081372, tolerance = 1e-6)
+  expect_equal(unname(Exhaustion[13]), -0.1526918, tolerance = 1e-6)
 })

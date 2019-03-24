@@ -18,6 +18,6 @@ add.confounder.variables(environment, ...)
 Add confounder variables' activation level per cell to \code{environment} object.
 }
 \examples{
-LCMV1 <- setup_LCMV1_example()
+LCMV1 <- setup_LCMV_example()
 LCMV1 <- add.confounder.variables(LCMV1, ribosomal.score = ribosomal.score(LCMV1))
 }
