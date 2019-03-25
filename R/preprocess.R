@@ -401,15 +401,22 @@ regress.covariates <- function(environment, regress, data, groups, rerun = F, sa
 #' \donttest{
 #' # after running cluster.analysis()
 #' LCMV1 <- setup_LCMV_example()
+#' LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
+#' min.dispersion.scaled = 0.1)
+#' LCMV1 <- PCA(LCMV1)
+#' LCMV1 <- cluster.analysis(LCMV1)
 #' summarize(LCMV1)
 #' }
 summarize <- function(environment, perplexity = seq(10, 30, 10), max_iter = 10000,
     rerun = F, order = NA, contrast = "all", min.fold = 1.5, quantile = 0.95) {
 
+    if (check_not_slurm("summarize")) {
+        return()
+    }
     cluster.size <- table(environment$cluster.names)
     if (length(order) == 1 && is.na(order))
         order <- names(cluster.size)[order(cluster.size, decreasing = T)]
-    tSNE.job <- run.tSNE(environment, perplexity, max_iter, rerun)
+    tSNE.job <- run_tSNE(environment, perplexity, max_iter, rerun)
     plot_PCA(environment, quantile = 0.05, order)
     plot.cluster.stats(environment, membership = environment$cluster.names, order = order)
     if (length(environment$seurat.cluster.association) > 1)

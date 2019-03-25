@@ -22,7 +22,7 @@ check_not_slurm <- function(func_name) {
 #' @param time HPC time
 #' @param rerun whether to rerun the analysis rather than load from cache
 #' @param clear.previously.calculated.clustering whether to clear previous clustering analysis
-#' @param local whether to run jobs locally rather than using distributed slurm system
+#' @param local whether to run jobs locally on slurm instead of submitting the job
 #' @return \code{environment} parameter containing PC coordinates
 #' @export
 #' @import rslurm
@@ -31,12 +31,12 @@ check_not_slurm <- function(func_name) {
 #' LCMV1 <- setup_LCMV_example()
 #' LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
 #' min.dispersion.scaled = 0.1)
-#' LCMV1 <- PCA(LCMV1, local = TRUE)
+#' LCMV1 <- PCA(LCMV1)
 #' }
 PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, threshold = 0.1,
     maxPCs = 100, label = NA, mem = "2GB", time = "0:10:00", rerun = F, clear.previously.calculated.clustering = T, local = F) {
 
-    if (!local && check_not_slurm("PCA")) {
+    if (check_not_slurm("PCA")) {
         return(environment)
     }
     if (length(regress) > 1 || !is.na(regress)) {

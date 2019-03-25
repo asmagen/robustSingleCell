@@ -28,6 +28,21 @@ setup_LCMV_example <- function(dataset = "LCMV1") {
     LCMV_small
 }
 
+#' Set up the pooled environment
+#'
+#' Set the path in the LCMV object
+#' @return An environment object containing the two LCMV datasets
+#' @export
+#' @examples
+#' pooled_env <- setup_pooled_env()
+setup_pooled_env <- function() {
+    data.path <- system.file("extdata", package = "robustSingleCell")
+    pooled_env <- initialize.project(datasets = c("LCMV1", "LCMV2"),
+                                     origins = rep("CD44+ cells", 2),
+                                     experiments = c("Rep1", "Rep2"),
+                                     data.path = data.path)
+    pooled_env
+}
 
 #' Download Example Dataset
 #'

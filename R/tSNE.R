@@ -7,7 +7,7 @@
 #' @param max_iter maximum number of iterations to run the tSNE
 #' @param rerun whether to rerun or load from cache
 #' @return Distributed job identified object
-run.tSNE <- function(environment, perplexity, max_iter, rerun) {
+run_tSNE <- function(environment, perplexity, max_iter, rerun) {
 
     tSNEs.dir <- file.path(environment$res.data.path, "tSNEs")
     list.files(tSNEs.dir)

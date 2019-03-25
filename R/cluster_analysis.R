@@ -99,11 +99,18 @@ get.clustering.results <- function(clustering.dir, knn.ratio, shuffledKNN) {
 #' @examples
 #' \donttest{
 #' LCMV1 <- setup_LCMV_example()
-#' LCMV1 <- cluster.analysis(LCMV1) # need to be run on slurm
+#' LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
+#' min.dispersion.scaled = 0.1)
+#' LCMV1 <- PCA(LCMV1)
+#' LCMV1 <- cluster.analysis(LCMV1)
 #' }
 cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuffleRuns = 10,
     shuffledKNN = 10, loadPreviousKnn = T, rerun = F, deleteCache = F, mem = "4GB",
     time = "0:15:00", plot = T, local = F) {
+
+    if (check_not_slurm("cluster.analysis")) {
+        return(environment)
+    }
 
     clustering.dir <- file.path(environment$res.data.path, "clustering")
     nresults = length(list.files(clustering.dir, pattern = paste("*.rds", sep = "")))

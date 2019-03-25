@@ -31,11 +31,18 @@ Visualize normalized expression contours of a selected gene pair across selected
 }
 \examples{
 \donttest{
-plot_pair_scatter (environment,
+LCMV1 <- setup_LCMV_example()
+LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
+min.dispersion.scaled = 0.1)
+LCMV1 <- PCA(LCMV1)
+LCMV1 <- cluster.analysis(LCMV1)
+cluster_names <- get.cluster.names(LCMV1, types, min.fold = 1.0, max.Qval = 0.01)
+LCMV1 <- set.cluster.names(LCMV1, names = cluster_names)
+plot_pair_scatter(LCMV1,
 gene1 = 'Cd4',
 gene2 = 'Cd8',
-cluster_group1 = c('cluster_name_1','cluster_name_2'),
-cluster_group2 = c('cluster_name_3','cluster_name_4'),
+cluster_group1 = cluster_names[1:2],
+cluster_group2 = cluster_names[3:4],
 group1_label = 'CD4 T Cells',
 group2_label = 'CD8 T Cells')
 }
