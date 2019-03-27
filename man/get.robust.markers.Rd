@@ -32,8 +32,14 @@ Analysis of robust subpopulation marker prioritization
 }
 \examples{
 \donttest{
-get.robust.markers(environment,cluster_group1 = c('cluster_name_1','cluster_name_2'),
-cluster_group2 = c('cluster_name_3','cluster_name_4'),
+LCMV1 <- setup_LCMV_example()
+LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
+min.dispersion.scaled = 0.1)
+LCMV1 <- PCA(LCMV1)
+LCMV1 <- cluster.analysis(LCMV1)
+diff_exp <- get.robust.markers(LCMV1,
+cluster_group1 = c('1','2'),
+cluster_group2 = c('3','4'),
 group1_label = 'CD4 T Cells',
 group2_label = 'CD8 T Cells')
 }
