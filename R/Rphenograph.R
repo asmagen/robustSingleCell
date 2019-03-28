@@ -53,7 +53,7 @@
 #' @useDynLib robustSingleCell
 #'
 #' @export
-Rphenograph <- function(data, k = 30, verbose = F) {
+Rphenograph <- function(data, k = 30) {
     if (is.data.frame(data))
         data <- as.matrix(data)
 
@@ -66,14 +66,15 @@ Rphenograph <- function(data, k = 30, verbose = F) {
         stop("k must be smaller than the total number of points!")
     }
 
-    if (verbose) message("Run Rphenograph starts:", "\n", "  -Input data of ", nrow(data), " rows and ", ncol(data), " columns", "\n", "  -k is set to ", k)
+    message("Run Rphenograph starts:", "\n", "  -Input data of ", nrow(data), " rows and ",
+        ncol(data), " columns", "\n", "  -k is set to ", k)
 
-    if (verbose) cat("  Finding nearest neighbors...")
+    cat("  Finding nearest neighbors...")
     t1 <- system.time(neighborMatrix <- find_neighbors(data, k = k + 1)[, -1])
-    if (verbose) cat("DONE ~", t1[3], "s\n", " Compute jaccard coefficient between nearest-neighbor sets...")
+    cat("DONE ~", t1[3], "s\n", " Compute jaccard coefficient between nearest-neighbor sets...")
     t2 <- system.time(links <- jaccard_coeff(neighborMatrix))
 
-    if (verbose) cat("DONE ~", t2[3], "s\n", " Build undirected graph from the weighted links...")
+    cat("DONE ~", t2[3], "s\n", " Build undirected graph from the weighted links...")
     links <- links[links[, 1] > 0, ]
     relations <- as.data.frame(links)
     colnames(relations) <- c("from", "to", "weight")
@@ -82,13 +83,15 @@ Rphenograph <- function(data, k = 30, verbose = F) {
     # Other community detection algorithms: cluster_walktrap, cluster_spinglass,
     # cluster_leading_eigen, cluster_edge_betweenness, cluster_fast_greedy,
     # cluster_label_prop
-    if (verbose) cat("DONE ~", t3[3], "s\n", " Run louvain clustering on the graph ...")
+    cat("DONE ~", t3[3], "s\n", " Run louvain clustering on the graph ...")
     t4 <- system.time(community <- cluster_louvain(g))
-    if (verbose) cat("DONE ~", t4[3], "s\n")
+    cat("DONE ~", t4[3], "s\n")
 
-    if (verbose) message("Run Rphenograph DONE, totally takes ", sum(c(t1[3], t2[3], t3[3], t4[3])), "s.")
-    if (verbose) cat("  Return a community class\n  -Modularity value:", modularity(community), "\n")
-    if (verbose) cat("  -Number of clusters:", length(unique(membership(community))))
+    message("Run Rphenograph DONE, totally takes ", sum(c(t1[3], t2[3], t3[3], t4[3])),
+        "s.")
+    cat("  Return a community class\n  -Modularity value:", modularity(community),
+        "\n")
+    cat("  -Number of clusters:", length(unique(membership(community))))
 
     return(list(g, community))
 }
