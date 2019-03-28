@@ -394,25 +394,31 @@ plot.expression.heatmap.based.on.FC.marker <- function(measurements, clustering,
     rownames(others)
 }
 
-#' Plot heatmap given a set of markers
+#' Plot heatmap
+#'
+#' Plot heatmap given a set of markers.
 #'
 #' @param environment The \code{environment} object
-#' @param name The name of the markers
+#' @param name The file name of the figure
 #' @param markers The markers to be plotted
 #' @param path The path where the plot is saved; by default in TMPDIR
 #' @param membership The cluster membership
 #' @param normalized The normalized data matrix
+#' @param order The ordering of markers
+#' @param width The width of the pdf figure
+#' @param height The height of the pdf figure
+#' @param save The path where the plot is saved
 #' @param counts Plot count matrix or not
 #' @param filter.diff.exp Whether to filter for differentially expressed genes
 #' @param sort.rows Whether to sort rows
 #' @param sort.cols Whether to sort columns
 #' @inheritParams gplots::heatmap.2
 #' @export
-plot.simple.heatmap <- function(environment, name, markers, path = NA, membership = NA,
+plot_simple_heatmap <- function(environment, name, markers, path = NA, membership = NA,
     normalized = NA, order = NA, width = 5, height = 5, scale = "row", RowSideColors = NA,
     counts = F, filter.diff.exp = F, cellnote = F, key = F, save = NA, sort.rows = T,
     sort.cols = T, Colv = F, Rowv = F, dendrogram = "none", main = NA) {
-    if (check_not_slurm("plot.simple.heatmap")) {
+    if (check_not_slurm("plot_simple_heatmap")) {
         return(NULL)
     }
     if (is.na(path))

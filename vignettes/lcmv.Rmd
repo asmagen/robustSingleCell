@@ -155,7 +155,7 @@ We can also visualize the average expression of selected T cells marker genes fo
 canonical_genes <- c("Cd8a", "Cd4", "Mki67", "Foxp3", "Il2ra", "Bcl6",
                      "Cxcr5", "Cxcr6", "Ifng", "Tbx21", "Id2", "Rora",
                      "Cxcr3", "Tcf7", "Ccr7", "Cxcr4", "Pdcd1", "Ctla4")
-plot.simple.heatmap(LCMV1, name = "canonical", markers = canonical_genes, main = "Expression of marker genes")
+plot_simple_heatmap(LCMV1, name = "canonical", markers = canonical_genes, main = "Expression of marker genes")
 ```
 
 <figure>
@@ -190,7 +190,7 @@ summarize(LCMV2)
 
 
 ```{r plotLCMV2, include = F}
-plot.simple.heatmap(LCMV2, name = "canonical", markers = canonical_genes, main = "Expression of marker genes")
+plot_simple_heatmap(LCMV2, name = "canonical", markers = canonical_genes, main = "Expression of marker genes")
 ```
 
 
