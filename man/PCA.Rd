@@ -32,7 +32,7 @@ PCA(environment, regress = NA, groups = NA, nShuffleRuns = 10,
 
 \item{clear.previously.calculated.clustering}{whether to clear previous clustering analysis}
 
-\item{local}{whether to run jobs locally rather than using distributed slurm system}
+\item{local}{whether to run jobs locally on slurm instead of submitting the job}
 }
 \value{
 \code{environment} parameter containing PC coordinates
@@ -41,6 +41,10 @@ PCA(environment, regress = NA, groups = NA, nShuffleRuns = 10,
 Run PCA analysis with a simulation analysis of shuffled data to determine the appropriate number of PCs.
 }
 \examples{
-LCMV1 <- setup_LCMV1_example()
+\donttest{
+LCMV1 <- setup_LCMV_example()
+LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
+min.dispersion.scaled = 0.1)
 LCMV1 <- PCA(LCMV1)
+}
 }

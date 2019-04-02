@@ -43,7 +43,11 @@ putative cell type or state labels.
 
 \examples{
 \donttest{
-LCMV1 <- setup_LCMV1_example()
+LCMV1 <- setup_LCMV_example()
+LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
+min.dispersion.scaled = 0.1)
+LCMV1 <- PCA(LCMV1)
+LCMV1 <- cluster.analysis(LCMV1)
 types = rbind(
 data.frame(type='Tfh',gene=c('Tcf7','Cxcr5','Bcl6')),
 data.frame(type='Th1',gene=c('Cxcr6','Ifng','Tbx21')),
@@ -54,6 +58,7 @@ data.frame(type='CD8',gene=c('Cd8a')),
 data.frame(type='CD4', gene = c("Cd4")),
 data.frame(type='Cycle',gene=c('Mki67','Top2a','Birc5'))
 )
+summarize(LCMV1)
 cluster_names <- get.cluster.names(LCMV1, types, min.fold = 1.0, max.Qval = 0.01)
 LCMV1 <- set.cluster.names(LCMV1, names = cluster_names)
 }

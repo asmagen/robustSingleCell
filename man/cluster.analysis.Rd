@@ -40,7 +40,10 @@ Perform clustering analysis for a range of hyperparameter (KNN Ratios) values an
 }
 \examples{
 \donttest{
-LCMV1 <- setup_LCMV1_example()
-LCMV1 <- cluster.analysis(LCMV1) # need to be run on slurm
+LCMV1 <- setup_LCMV_example()
+LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
+min.dispersion.scaled = 0.1)
+LCMV1 <- PCA(LCMV1)
+LCMV1 <- cluster.analysis(LCMV1)
 }
 }

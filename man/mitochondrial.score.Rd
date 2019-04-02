@@ -20,6 +20,6 @@ a vector of mitochondrial genes activation score
 Compute the activation level of mitochondrial genes.
 }
 \examples{
-LCMV1 <- setup_LCMV1_example()
+LCMV1 <- setup_LCMV_example()
 mitochondrial.score <- mitochondrial.score(LCMV1)
 }

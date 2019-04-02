@@ -21,11 +21,33 @@ Read previous analysis of multiple datasets to perform integrated analysis.
 }
 \examples{
 \donttest{
-pooled_env <- initialize.project(datasets = c("LCMV1", "LCMV2"),
-origins = rep("CD44+ cells", 2),
-experiments = c("Rep1", "Rep2"),
-data.path = "~/LCMV/",
-work.path = "~/LCMV/LCMV_analysis")
+LCMV1 <- setup_LCMV_example()
+LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
+min.dispersion.scaled = 0.1)
+LCMV1 <- PCA(LCMV1)
+LCMV1 <- cluster.analysis(LCMV1)
+types = rbind(
+data.frame(type='Tfh',gene=c('Tcf7','Cxcr5','Bcl6')),
+data.frame(type='Th1',gene=c('Cxcr6','Ifng','Tbx21')),
+data.frame(type='Tcmp',gene=c('Ccr7','Bcl2','Tcf7')),
+data.frame(type='Treg',gene=c('Foxp3','Il2ra')),
+data.frame(type='Tmem',gene=c('Il7r','Ccr7')),
+data.frame(type='CD8',gene=c('Cd8a')),
+data.frame(type='CD4', gene = c("Cd4")),
+data.frame(type='Cycle',gene=c('Mki67','Top2a','Birc5'))
+)
+summarize(LCMV1)
+cluster_names <- get.cluster.names(LCMV1, types, min.fold = 1.0, max.Qval = 0.01)
+LCMV1 <- set.cluster.names(LCMV1, names = cluster_names)
+LCMV2 <- setup_LCMV_example("LCMV2")
+LCMV2 <- get.variable.genes(LCMV2, min.mean = 0.1, min.frac.cells = 0,
+min.dispersion.scaled = 0.1)
+LCMV2 <- PCA(LCMV2)
+LCMV2 <- cluster.analysis(LCMV2)
+summarize(LCMV2)
+cluster_names <- get.cluster.names(LCMV2, types, min.fold = 1.0, max.Qval = 0.01)
+LCMV2 <- set.cluster.names(LCMV2, names = cluster_names)
+pooled_env <- setup_pooled_env()
 pooled_env <- read.preclustered.datasets(pooled_env)
 }
 }

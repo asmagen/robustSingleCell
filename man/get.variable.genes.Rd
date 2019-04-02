@@ -25,6 +25,6 @@ get.variable.genes(environment, min.mean = 0.05, min.frac.cells = 0,
 Get highly variable genes by Heteroscedasticity controlled binning of gene expression measurements within each dataset separately.
 }
 \examples{
-LCMV1 <- setup_LCMV1_example()
+LCMV1 <- setup_LCMV_example()
 LCMV1 <- get.variable.genes(LCMV1)
 }

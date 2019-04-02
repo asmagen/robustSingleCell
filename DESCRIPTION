@@ -10,7 +10,7 @@ Authors@R:
     person("Hao", "Chen", role = "ctb")
   )
 Description: Robust single cell clustering and comparison of population compositions across tissues and 
-  experimental models via similarity analysis from Magen et al. (2019) <doi:10.1101/543199>. 
+  experimental models via similarity analysis from Magen 2019 <doi:10.1101/543199>. 
 Depends: R (>= 3.2.0)
 Imports:
   utils,

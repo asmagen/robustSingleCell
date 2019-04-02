@@ -4,7 +4,7 @@
 \alias{download_LCMV}
 \title{Download Example Dataset}
 \usage{
-download_LCMV(base_dir)
+download_LCMV(base_dir = NULL)
 }
 \arguments{
 \item{base_dir}{Full path to a directory where data and analysis will be stored}
@@ -16,5 +16,7 @@ download_LCMV(base_dir)
 Download two replicates of CD44+ T cell 10X scRNAseq data sets (Ciucci 2018).
 }
 \examples{
-download_LCMV(tempdir())
+\donttest{
+download_LCMV()
+}
 }

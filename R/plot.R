@@ -394,11 +394,33 @@ plot.expression.heatmap.based.on.FC.marker <- function(measurements, clustering,
     rownames(others)
 }
 
-plot.simple.heatmap <- function(environment, name, path = NA, markers, membership = NA,
+#' Plot heatmap
+#'
+#' Plot heatmap given a set of markers.
+#'
+#' @param environment The \code{environment} object
+#' @param name The file name of the figure
+#' @param markers The markers to be plotted
+#' @param path The path where the plot is saved; by default in TMPDIR
+#' @param membership The cluster membership
+#' @param normalized The normalized data matrix
+#' @param order The ordering of markers
+#' @param width The width of the pdf figure
+#' @param height The height of the pdf figure
+#' @param save The path where the plot is saved
+#' @param counts Plot count matrix or not
+#' @param filter.diff.exp Whether to filter for differentially expressed genes
+#' @param sort.rows Whether to sort rows
+#' @param sort.cols Whether to sort columns
+#' @inheritParams gplots::heatmap.2
+#' @export
+plot_simple_heatmap <- function(environment, name, markers, path = NA, membership = NA,
     normalized = NA, order = NA, width = 5, height = 5, scale = "row", RowSideColors = NA,
     counts = F, filter.diff.exp = F, cellnote = F, key = F, save = NA, sort.rows = T,
     sort.cols = T, Colv = F, Rowv = F, dendrogram = "none", main = NA) {
-
+    if (check_not_slurm("plot_simple_heatmap")) {
+        return(NULL)
+    }
     if (is.na(path))
         path <- environment$work.path
     grDevices::pdf(file = file.path(path, paste(name, "heatmap.pdf", sep = ".")),
@@ -572,10 +594,17 @@ plot.heatmaps <- function(environment, diff.exp, membership, order = NA, nTopRan
 #' @export
 #' @examples
 #' \donttest{
-#' plot_contour.overlay_tSNE (environment,genes = c('Cd4','Cd8a'))
+#' LCMV1 <- setup_LCMV_example()
+#' LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
+#' min.dispersion.scaled = 0.1)
+#' LCMV1 <- PCA(LCMV1)
+#' LCMV1 <- cluster.analysis(LCMV1)
+#' plot_contour_overlay_tSNE(LCMV1,genes = c('Cd4','Cd8a'))
 #' }
 plot_contour_overlay_tSNE <- function (environment,genes,perplexity = 30,max_iter = 10000,width = 10, height = 10) {
-
+    if (check_not_slurm("plot_contour_overlay_tSNE")) {
+        return()
+    }
     if (any(!genes %in% environment$genes)) {
         cat('Removing genes not found in dataset:')
         print(genes[!genes %in% environment$genes])
@@ -613,16 +642,25 @@ plot_contour_overlay_tSNE <- function (environment,genes,perplexity = 30,max_ite
 #' @export
 #' @examples
 #' \donttest{
-#' plot_pair_scatter (environment,
+#' LCMV1 <- setup_LCMV_example()
+#' LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
+#' min.dispersion.scaled = 0.1)
+#' LCMV1 <- PCA(LCMV1)
+#' LCMV1 <- cluster.analysis(LCMV1)
+#' cluster_names <- get.cluster.names(LCMV1, types, min.fold = 1.0, max.Qval = 0.01)
+#' LCMV1 <- set.cluster.names(LCMV1, names = cluster_names)
+#' plot_pair_scatter(LCMV1,
 #' gene1 = 'Cd4',
 #' gene2 = 'Cd8',
-#' cluster_group1 = c('cluster_name_1','cluster_name_2'),
-#' cluster_group2 = c('cluster_name_3','cluster_name_4'),
+#' cluster_group1 = cluster_names[1:2],
+#' cluster_group2 = cluster_names[3:4],
 #' group1_label = 'CD4 T Cells',
 #' group2_label = 'CD8 T Cells')
 #' }
 plot_pair_scatter <- function (environment,gene1,gene2,cluster_group1,cluster_group2,group1_label,group2_label,width = 10, height = 10) {
-
+    if (check_not_slurm("plot_pair_scatter")) {
+        return()
+    }
     clusters <- c(cluster_group1,cluster_group2)
     plot.data <- data.frame(gene1 = environment$normalized[gene1,environment$cluster.name %in% clusters],gene2 = environment$normalized[gene2,environment$cluster.name %in% clusters]);head(plot.data)
 
@@ -653,15 +691,50 @@ plot_pair_scatter <- function (environment,gene1,gene2,cluster_group1,cluster_gr
 #' @export
 #' @examples
 #' \donttest{
+#' LCMV1 <- setup_LCMV_example()
+#' LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
+#' min.dispersion.scaled = 0.1)
+#' LCMV1 <- PCA(LCMV1)
+#' LCMV1 <- cluster.analysis(LCMV1)
+#' types = rbind(
+#' data.frame(type='Tfh',gene=c('Tcf7','Cxcr5','Bcl6')),
+#' data.frame(type='Th1',gene=c('Cxcr6','Ifng','Tbx21')),
+#' data.frame(type='Tcmp',gene=c('Ccr7','Bcl2','Tcf7')),
+#' data.frame(type='Treg',gene=c('Foxp3','Il2ra')),
+#' data.frame(type='Tmem',gene=c('Il7r','Ccr7')),
+#' data.frame(type='CD8',gene=c('Cd8a')),
+#' data.frame(type='CD4', gene = c("Cd4")),
+#' data.frame(type='Cycle',gene=c('Mki67','Top2a','Birc5'))
+#' )
+#' summarize(LCMV1)
+#' cluster_names <- get.cluster.names(LCMV1, types, min.fold = 1.0, max.Qval = 0.01)
+#' LCMV1 <- set.cluster.names(LCMV1, names = cluster_names)
+#' LCMV2 <- setup_LCMV_example("LCMV2")
+#' LCMV2 <- get.variable.genes(LCMV2, min.mean = 0.1, min.frac.cells = 0,
+#' min.dispersion.scaled = 0.1)
+#' LCMV2 <- PCA(LCMV2)
+#' LCMV2 <- cluster.analysis(LCMV2)
+#' summarize(LCMV2)
+#' cluster_names <- get.cluster.names(LCMV2, types, min.fold = 1.0, max.Qval = 0.01)
+#' LCMV2 <- set.cluster.names(LCMV2, names = cluster_names)
+#' pooled_env <- setup_pooled_env()
+#' pooled_env <- read.preclustered.datasets(pooled_env)
+#' pooled_env <- PCA(pooled_env, clear.previously.calculated.clustering = F)
+#' summarize(pooled_env, contrast = "datasets")
 #' cluster.similarity <- assess.cluster.similarity(pooled_env)
 #' similarity <- cluster.similarity$similarity
 #' map <- cluster.similarity$map
 #' filtered.similarity <- get.robust.cluster.similarity(
-#'     pooled_env, similarity, min.sd = qnorm(.9), max.q.val = 0.01, rerun = F)
-#' visualize.cluster.cors.heatmaps(pooled_env, pooled_env$work.path, filtered.similarity)
+#'    pooled_env, similarity, min.sd = qnorm(.9), max.q.val = 0.01, rerun = F)
+#' robust.clusters <- sort(unique(c(filtered.similarity$cluster1,
+#' filtered.similarity$cluster2)))
+#' visualize.cluster.cors.heatmaps(pooled_env, pooled_env$work.path,
+#'                                filtered.similarity)
 #' }
 visualize.cluster.cors.heatmaps <- function(environment, work.path, similarity) {
-
+    if (check_not_slurm("visualize.cluster.cors.heatmaps")) {
+        return()
+    }
     name <- "cross.sample.similarities"
     work.path <- file.path(environment$work.path, name)
     if (file.exists(work.path)) {
@@ -731,15 +804,47 @@ visualize.cluster.cors.heatmaps <- function(environment, work.path, similarity) 
 #' @export
 #' @examples
 #' \donttest{
+#' LCMV1 <- setup_LCMV_example()
+#' LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
+#' min.dispersion.scaled = 0.1)
+#' LCMV1 <- PCA(LCMV1)
+#' LCMV1 <- cluster.analysis(LCMV1)
+#' types = rbind(
+#' data.frame(type='Tfh',gene=c('Tcf7','Cxcr5','Bcl6')),
+#' data.frame(type='Th1',gene=c('Cxcr6','Ifng','Tbx21')),
+#' data.frame(type='Tcmp',gene=c('Ccr7','Bcl2','Tcf7')),
+#' data.frame(type='Treg',gene=c('Foxp3','Il2ra')),
+#' data.frame(type='Tmem',gene=c('Il7r','Ccr7')),
+#' data.frame(type='CD8',gene=c('Cd8a')),
+#' data.frame(type='CD4', gene = c("Cd4")),
+#' data.frame(type='Cycle',gene=c('Mki67','Top2a','Birc5'))
+#' )
+#' summarize(LCMV1)
+#' cluster_names <- get.cluster.names(LCMV1, types, min.fold = 1.0, max.Qval = 0.01)
+#' LCMV1 <- set.cluster.names(LCMV1, names = cluster_names)
+#' LCMV2 <- setup_LCMV_example("LCMV2")
+#' LCMV2 <- get.variable.genes(LCMV2, min.mean = 0.1, min.frac.cells = 0,
+#' min.dispersion.scaled = 0.1)
+#' LCMV2 <- PCA(LCMV2)
+#' LCMV2 <- cluster.analysis(LCMV2)
+#' summarize(LCMV2)
+#' cluster_names <- get.cluster.names(LCMV2, types, min.fold = 1.0, max.Qval = 0.01)
+#' LCMV2 <- set.cluster.names(LCMV2, names = cluster_names)
+#' pooled_env <- setup_pooled_env()
+#' pooled_env <- read.preclustered.datasets(pooled_env)
+#' pooled_env <- PCA(pooled_env, clear.previously.calculated.clustering = F)
+#' summarize(pooled_env, contrast = "datasets")
 #' cluster.similarity <- assess.cluster.similarity(pooled_env)
 #' similarity <- cluster.similarity$similarity
 #' map <- cluster.similarity$map
 #' filtered.similarity <- get.robust.cluster.similarity(
-#'     pooled_env, similarity, min.sd = qnorm(.9), max.q.val = 0.01, rerun = F)
-#' visualize.cluster.cors.heatmaps(pooled_env, pooled_env$work.path, filtered.similarity)
-#' visualize.cluster.similarity.stats(pooled_env, similarity)
+#'    pooled_env, similarity, min.sd = qnorm(.9), max.q.val = 0.01, rerun = F)
+#' visualize.cluster.similarity.stats(pooled_env, filtered_similarity)
 #' }
 visualize.cluster.similarity.stats <- function(environment, similarity) {
+    if (check_not_slurm("visualize.cluster.similarity.stats")) {
+        return()
+    }
     net <- igraph::graph_from_data_frame(d = similarity[similarity$similarity > 0.1,
         c("name1", "name2")], directed = F)
     deg <- igraph::degree(net, mode = "all")

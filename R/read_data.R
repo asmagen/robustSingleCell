@@ -38,7 +38,7 @@ read_10x_data <- function(path) {
 #' @export
 #' @import ggplot2
 #' @examples
-#' LCMV1 <- setup_LCMV1_example()
+#' LCMV1 <- setup_LCMV_example()
 #' data.path <- system.file("extdata/LCMV1_small.txt", package = "robustSingleCell")
 #' # name of list should be the same as LCMV1$datasets
 #' raw_LCMV1 <- as.matrix(read.table(data.path, check.names = FALSE))
@@ -81,16 +81,18 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
                 print.message("Loading", dataset)
                 measurements <- read_10x_data(path = file.path(environment$data.path,
                   dataset))
+
                 measurements <- as.matrix(measurements[, Matrix::colSums(measurements >
                   0) >= min.genes.per.cell])
+                if (!is.null(subsample) && subsample < ncol(measurements)) {
+                    measurements <- measurements[, sample(seq(ncol(measurements)), subsample)]
+                }
             } else {
                 print.message("Using input", dataset)
                 measurements <- raw.data.matrices[[dataset]]
                 stopifnot(is.matrix(measurements))
             }
-            if (!is.null(subsample) && subsample < ncol(measurements)) {
-                measurements <- measurements[, sample(seq(ncol(measurements)), subsample)]
-            }
+
 
             colnames(measurements) <- rep(environment$datasets[environment$datasets ==
                 dataset], ncol(measurements))
@@ -332,15 +334,40 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
 #' @export
 #' @examples
 #' \donttest{
-#' pooled_env <- initialize.project(datasets = c("LCMV1", "LCMV2"),
-#' origins = rep("CD44+ cells", 2),
-#' experiments = c("Rep1", "Rep2"),
-#' data.path = "~/LCMV/",
-#' work.path = "~/LCMV/LCMV_analysis")
+#' LCMV1 <- setup_LCMV_example()
+#' LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
+#' min.dispersion.scaled = 0.1)
+#' LCMV1 <- PCA(LCMV1)
+#' LCMV1 <- cluster.analysis(LCMV1)
+#' types = rbind(
+#' data.frame(type='Tfh',gene=c('Tcf7','Cxcr5','Bcl6')),
+#' data.frame(type='Th1',gene=c('Cxcr6','Ifng','Tbx21')),
+#' data.frame(type='Tcmp',gene=c('Ccr7','Bcl2','Tcf7')),
+#' data.frame(type='Treg',gene=c('Foxp3','Il2ra')),
+#' data.frame(type='Tmem',gene=c('Il7r','Ccr7')),
+#' data.frame(type='CD8',gene=c('Cd8a')),
+#' data.frame(type='CD4', gene = c("Cd4")),
+#' data.frame(type='Cycle',gene=c('Mki67','Top2a','Birc5'))
+#' )
+#' summarize(LCMV1)
+#' cluster_names <- get.cluster.names(LCMV1, types, min.fold = 1.0, max.Qval = 0.01)
+#' LCMV1 <- set.cluster.names(LCMV1, names = cluster_names)
+#' LCMV2 <- setup_LCMV_example("LCMV2")
+#' LCMV2 <- get.variable.genes(LCMV2, min.mean = 0.1, min.frac.cells = 0,
+#' min.dispersion.scaled = 0.1)
+#' LCMV2 <- PCA(LCMV2)
+#' LCMV2 <- cluster.analysis(LCMV2)
+#' summarize(LCMV2)
+#' cluster_names <- get.cluster.names(LCMV2, types, min.fold = 1.0, max.Qval = 0.01)
+#' LCMV2 <- set.cluster.names(LCMV2, names = cluster_names)
+#' pooled_env <- setup_pooled_env()
 #' pooled_env <- read.preclustered.datasets(pooled_env)
 #' }
 read.preclustered.datasets <- function(environment, path = NA, recursive = T, rerun = F) {
 
+    if (check_not_slurm("read.preclustered.datasets")) {
+        return(environment)
+    }
     cache <- file.path(environment$baseline.data.path, "preclustered.datasets.rds")
 
     if (!rerun & file.exists(cache)) {

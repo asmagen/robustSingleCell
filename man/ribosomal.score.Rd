@@ -20,6 +20,6 @@ a vector of ribosomal genes activation score
 Compute the activation level of ribosomal genes.
 }
 \examples{
-LCMV1 <- setup_LCMV1_example()
+LCMV1 <- setup_LCMV_example()
 ribosomal.score <- ribosomal.score(LCMV1)
 }

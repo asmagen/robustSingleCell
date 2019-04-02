@@ -14,7 +14,11 @@
 #' @export
 #' @examples
 #' \donttest{
-#' LCMV1 <- setup_LCMV1_example()
+#' LCMV1 <- setup_LCMV_example()
+#' LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
+#' min.dispersion.scaled = 0.1)
+#' LCMV1 <- PCA(LCMV1)
+#' LCMV1 <- cluster.analysis(LCMV1)
 #' types = rbind(
 #' data.frame(type='Tfh',gene=c('Tcf7','Cxcr5','Bcl6')),
 #' data.frame(type='Th1',gene=c('Cxcr6','Ifng','Tbx21')),
@@ -25,12 +29,16 @@
 #' data.frame(type='CD4', gene = c("Cd4")),
 #' data.frame(type='Cycle',gene=c('Mki67','Top2a','Birc5'))
 #' )
+#' summarize(LCMV1)
 #' cluster_names <- get.cluster.names(LCMV1, types, min.fold = 1.0, max.Qval = 0.01)
 #' LCMV1 <- set.cluster.names(LCMV1, names = cluster_names)
 #' }
 get.cluster.names <- function(environment, types, min.fold = 1.25, max.Qval = 0.1,
     print = T) {
 
+    if (check_not_slurm("get.cluster.names")) {
+        return(environment)
+    }
     precomputed <- readRDS(file.path(environment$res.data.path, paste("main", "all",
         "diff.exp.rds", sep = ".")))
     limma.all <- precomputed$limma.all
@@ -93,7 +101,9 @@ get.cluster.names.with.diff <- function(cluster.diff, types, print) {
 #' @export
 #' @describeIn get.cluster.names set annotations to clusters
 set.cluster.names <- function(environment, names) {
-
+    if (check_not_slurm("set.cluster.names")) {
+        return(environment)
+    }
     cluster.name.map <- data.frame(id = seq(length(names)), name = names)
     environment$cluster.names <- cluster.names <- names[environment$clustering$membership]
     saveRDS(list(cluster.names = cluster.names, cluster.name.map = cluster.name.map),
