@@ -29,6 +29,7 @@ run.diff.expression <- function(environment, clustering, min.fold, quantile, lab
     } else {
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"), split = T)
+        on.exit(end(t))
         membership <- as.vector(clustering$membership)
 
         empirical.diff <- NA
@@ -91,7 +92,6 @@ run.diff.expression <- function(environment, clustering, min.fold, quantile, lab
 
         saveRDS(list(final.diff = final.diff, limma.diff = limma.diff, empirical.diff = empirical.diff,
             limma.all = limma.all), file = cache)
-        end(t)
     }
 
     return(final.diff)

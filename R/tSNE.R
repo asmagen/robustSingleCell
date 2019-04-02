@@ -15,6 +15,7 @@ run_tSNE <- function(environment, perplexity, max_iter, rerun) {
 
     if (rerun || !dir.exists(tSNEs.dir)) {
         t <- start(file.path(environment$work.path, "tracking"), split = T)
+        on.exit(end(t))
         print(tSNEs.dir)
         # unlink(tSNEs.dir,recursive=T,force=T)
         dir.create(tSNEs.dir)
@@ -55,7 +56,6 @@ run_tSNE <- function(environment, perplexity, max_iter, rerun) {
         sjob <- slurm_apply(tSNE, params, nodes = nrow(params), cpus_per_node = 1,
             add_objects = c("data.path", "tSNEs.dir"), submit = TRUE, slurm_options = sopt)
         waiting <- get_slurm_out(sjob)
-        end()
     }
 
     return(sjob)

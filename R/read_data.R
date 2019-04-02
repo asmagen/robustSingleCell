@@ -70,6 +70,7 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
 
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"))
+        on.exit(end(t))
         #browser()
         merged <- NA
         dataset <- environment$datasets[1]
@@ -281,6 +282,7 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
         corner(normalized)
 
         t <- start(file.path(environment$work.path, "tracking"), append = T, split = T)
+        on.exit(end(t), add = T)
         duplicated.indices <- duplicated(t(counts[genes.filter, ])) | duplicated(t(counts[genes.filter,
             ]), fromLast = T)
         if (sum(duplicated.indices) > 0) {
@@ -293,13 +295,11 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
             experiments <- experiments[!duplicated.indices]
             criteria[criteria == T][duplicated.indices] <- FALSE
         }
-        end(t)
 
         saveRDS(list(genes.filter = genes.filter, counts = counts, normalized = normalized,
             dataset.labels = dataset.labels, origins = origins, experiments = experiments,
             criteria = criteria), file = cache)
 
-        end(t)
     }
 
     counts <- counts[genes.filter, ]
@@ -389,7 +389,7 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
 
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"), split = T)
-
+        on.exit(end(t))
         if (is.na(path))
             path <- dirname(environment$baseline.work.path)
         dataset <- environment$datasets[1]
@@ -575,7 +575,6 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
             merged.original.clustering = merged.original.clustering, cluster.names = cluster.names),
             file = cache)
 
-        end(t)
     }
     counts <- counts[genes.filter, ]
     normalized <- normalized[genes.filter, ]

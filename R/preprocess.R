@@ -23,7 +23,7 @@ get.variable.genes <- function(environment, min.mean = 0.05, min.frac.cells = 0,
     } else {
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"))
-
+        on.exit(end(t))
         normalized <- environment$normalized
 
         datasets <- environment$dataset_ids
@@ -90,8 +90,6 @@ get.variable.genes <- function(environment, min.mean = 0.05, min.frac.cells = 0,
         print(genes[genes %in% HVG])
 
         saveRDS(HVG, file = cache)
-
-        end(t)
     }
 
     environment$HVG <- HVG
@@ -140,6 +138,7 @@ add.confounder.variables <- function(environment, ...) {
 #' ribosomal.score <- ribosomal.score(LCMV1)
 ribosomal.score <- function(environment, control = T, knn = 10) {
     t <- start(file.path(environment$work.path, "tracking"))
+    on.exit(end(t))
     genes <- get.ribo.genes(environment$genes)
     print.message("Using genes:")
     print(genes)
@@ -148,7 +147,6 @@ ribosomal.score <- function(environment, control = T, knn = 10) {
     } else {
         score <- colMeans(environment$normalized[genes, ])
     }
-    end(t)
     return(score)
 }
 
@@ -171,6 +169,7 @@ get.ribo.genes <- function(genes) {
 mitochondrial.score <- function(environment, control = F, knn = 10) {
     # browser()
     t <- start(file.path(environment$work.path, "tracking"))
+    on.exit(end(t))
     genes <- get.mito.genes(environment$genes)
     print.message("Using genes:")
     print(genes)
@@ -180,7 +179,6 @@ mitochondrial.score <- function(environment, control = F, knn = 10) {
         score <- Matrix::colMeans(environment$normalized[genes %in% rownames(environment$normalized),
             ])
     }
-    end(t)
     return(score)
 }
 
@@ -202,6 +200,7 @@ get.mito.genes <- function(genes) {
 #' cell.cycle.score <- cell.cycle.score(LCMV1)
 cell.cycle.score <- function(environment, knn = 10, cc.genes.path = NA) {
     t <- start(file.path(environment$work.path, "tracking"))
+    on.exit(end(t))
 
     if (is.na(cc.genes.path)) {
         cc.genes <- capwords(cell_cycle_genes)
@@ -224,7 +223,6 @@ cell.cycle.score <- function(environment, knn = 10, cc.genes.path = NA) {
     print.message("# s.score > 0:", sum(s.score > 0), "fraction", sum(s.score > 0)/length(s.score))
     print.message("# g2m.score > 0:", sum(g2m.score > 0), "fraction", sum(g2m.score >
         0)/length(g2m.score))
-    end(t)
 
     return(data.frame(S.stage = s.score, G2M.stage = g2m.score, aggregate_S_G2M.stage = cell.cycle.score))
 }
@@ -279,6 +277,8 @@ controlled.mean.score <- function(environment, genes, knn = 10, exclude.missing.
 get.technically.similar.genes <- function(environment, knn = 10) {
 
     t <- start(file.path(environment$work.path, "tracking"))
+    on.exit(t)
+
     cache <- file.path(environment$baseline.data.path, paste(knn, "technical.background.genes.distances.rds",
         sep = "."))
 
@@ -306,7 +306,6 @@ get.technically.similar.genes <- function(environment, knn = 10) {
         }
         saveRDS(list(knns = knns, technical.variables = technical.variables), file = cache)
     }
-    end(t)
 
     return(list(knns = knns, technical.variables = technical.variables))
 }
@@ -330,6 +329,7 @@ get_dist <- function(dist_obj, i, n, names) {
 background.genes <- function(environment, foreground.genes, knn) {
 
     t <- start(file.path(environment$work.path, "tracking"))
+    on.exit(end(t))
     foreground.genes <- foreground.genes[foreground.genes %in% environment$genes]
     technically.similar.genes <- get.technically.similar.genes(environment, knn)
     knns <- technically.similar.genes$knns
@@ -342,7 +342,6 @@ background.genes <- function(environment, foreground.genes, knn) {
     print(utils::head(technical.variables[background.genes, ]))
     print.message("background.genes")
     print(background.genes)
-    end(t)
     return(background.genes)
 }
 
@@ -357,7 +356,7 @@ regress.covariates <- function(environment, regress, data, groups, rerun = F, sa
     } else {
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"))
-
+        on.exit(end(t))
         formula.str <- paste("gene", paste(colnames(regress), collapse = " + "),
             sep = " ~ ")
         formula <- stats::as.formula(formula.str)
@@ -378,7 +377,6 @@ regress.covariates <- function(environment, regress, data, groups, rerun = F, sa
         }
         if (save)
             saveRDS(corrected, file = cache)
-        end(t)
     }
 
     return(corrected)

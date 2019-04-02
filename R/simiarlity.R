@@ -302,7 +302,7 @@ assess.cluster.similarity <- function(environment, diff.exp.file = "main.dataset
     } else {
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"), split = F)
-
+        on.exit(end(t))
         name <- paste("assess.cluster.similarity", label, sep = "_")
         work.path <- file.path(environment$work.path, name)
         if (file.exists(work.path)) {
@@ -519,7 +519,7 @@ assess.cluster.similarity <- function(environment, diff.exp.file = "main.dataset
         grDevices::dev.off()
 
         saveRDS(list(similarity = similarity, map = map), file = cache)
-        end(t)
+
     }
 
     return(list(map = map, similarity = similarity))

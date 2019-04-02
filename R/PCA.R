@@ -80,7 +80,7 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
     } else {
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"))
-
+        on.exit(end(t))
         if (clear.previously.calculated.clustering)
             unlink(file.path(environment$res.data.path, "clustering"), recursive = T,
                 force = T)
@@ -138,14 +138,15 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
         var.perm <- get_slurm_out(sjob)
         dim(var.perm)
 
-        end(t)
-        start(file.path(environment$work.path, "tracking"), append = T, split = T)
+        t <- start(file.path(environment$work.path, "tracking"), append = T, split = T)
+        on.exit(end(t), add = T)
+
         if (length(var.perm) == 0 || nrow(var.perm) < nShuffleRuns) {
             print.message("JOB ERROR: Not enough shuffled results:", nrow(var.perm),
                 "<", nShuffleRuns, "\nCHECK FOR FAILED JOBS\n\n\n")
             terminate <- readline(prompt = "Terminate? (y/n) ")
             if (terminate != "n") {
-                end(t)
+                #end(t)
                 tryCatch({
                   cleanup_files(sjob)
                   cleanup_files(sjob)
@@ -154,8 +155,11 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
                 return(environment)
             }
         }
-        end(t)
-        start(file.path(environment$work.path, "tracking"), append = T)
+
+
+        t <- start(file.path(environment$work.path, "tracking"), append = T)
+        on.exit(end(t), add = T)
+
         tryCatch({
             cleanup_files(sjob)
             cleanup_files(sjob)
@@ -184,7 +188,7 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
 
         saveRDS(list(PCA = PCA, Rotation = Rotation), file = cache)
 
-        end(t)
+
     }
 
     environment$PCA <- PCA

@@ -133,7 +133,7 @@ cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuf
     if (rerun || !dir.exists(clustering.dir) || nresults == 0) {
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"))
-
+        on.exit(end(t))
         if (deleteCache)
             unlink(clustering.dir, recursive = T, force = T)
         dir.create(clustering.dir)
@@ -163,7 +163,6 @@ cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuf
             get_slurm_out(sjob)
         }, error = function(v) v)
 
-        end(t)
     }
 
     if (loadPreviousKnn && file.exists(cache)) {
@@ -172,7 +171,7 @@ cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuf
     } else {
         t <- start(file.path(environment$work.path, "tracking"), name = "KNN.stats",
             split = T)
-
+        on.exit(end(t), add = T)
         nResults <- length(list.files(clustering.dir, pattern = paste("*.rds", sep = "")))
         if (nResults < nrow(params)) {
             cat("\nERROR: Found just", nResults, "shuffled clusterings instead of",
@@ -285,7 +284,6 @@ cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuf
         }
         unlink(file.path(environment$work.path, "diff.exp"), recursive = T, force = T)
         saveRDS(clustering, file = cache)
-        end(t)
     }
 
     environment$clustering <- clustering

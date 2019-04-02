@@ -56,8 +56,9 @@ initialize.project <- function(datasets, origins, experiments, data.path, work.p
     }
     environment$marker.genes <- marker.genes
     t <- start(file.path(environment$work.path, "tracking"))
+    on.exit(end(t))
     print(environment)
-    end(t)
+
 
     return(environment)
 }
