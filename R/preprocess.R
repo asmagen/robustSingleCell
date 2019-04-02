@@ -26,7 +26,7 @@ get.variable.genes <- function(environment, min.mean = 0.05, min.frac.cells = 0,
 
         normalized <- environment$normalized
 
-        datasets <- environment$datasets
+        datasets <- environment$dataset_ids
         table(datasets)
         dataset <- sort(unique(datasets))[1]
         dataset

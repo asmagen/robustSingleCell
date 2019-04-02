@@ -10,8 +10,8 @@ raw_LCMV1 <- as.matrix(read.table(file.path(data.path, "LCMV1_small.txt"), check
 LCMV1 <- initialize.project(datasets = "LCMV1",
                             origins = "CD44+ cells",
                             experiments = "Rep1",
-                            work.path = "~/LCMV/LCMV_analysis",
-                            data.path = data.path)
+                            data.path = data.path,
+                            work.path = file.path(tempdir(), "LCMV/LCMV_analysis"))
 
 LCMV1 <- read.data(LCMV1,
                    raw.data.matrices = list(LCMV1 = raw_LCMV1),

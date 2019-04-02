@@ -20,7 +20,9 @@ library(robustSingleCell)
 ```
 
 
-We used two replicates of CD44<sup>+</sup> T cell data sets from Ciucci et al. 2019 [^1] as an example to demonstrate the use of `robustSingleCell`. The analysis requires at least 8G of memory on *slurm* [^2] high performance computing workload manager.  We first download the raw 10X data from GEO using `GEOquery`, which can be obtained using the following command if not already installed:
+We used two replicates of CD44<sup>+</sup> T cell data sets from Ciucci et al. 2019 [^1] as an example to demonstrate the use of `robustSingleCell`. The analysis requires at least 8G of memory on *slurm* [^2] high performance computing workload manager (for example, you can start by requesting `srun --pty -p <partition> --mem=8G -t 1:00:00 bash` to start an interactive session).
+
+We first download the raw 10X data from GEO using `GEOquery`, which can be obtained using the following command if not already installed:
 
 ```r
 source("https://bioconductor.org/biocLite.R")

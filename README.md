@@ -1,8 +1,8 @@
 robustSingleCell
 ================
 
-[![CRAN
-status](https://www.r-pkg.org/badges/version/robustSingleCell)](https://cran.r-project.org/package=robustSingleCell)
+<!--[![CRAN status](https://www.r-pkg.org/badges/version/robustSingleCell)](https://cran.r-project.org/package=robustSingleCell)-->
+
 [![Travis build
 status](https://travis-ci.org/asmagen/robustSingleCell.svg?branch=master)](https://travis-ci.org/asmagen/robustSingleCell)
 
@@ -55,9 +55,11 @@ reproducible example.
 We used two replicates of CD44<sup>+</sup> T cell data sets from Ciucci
 et al. 2019 \[2\] as an example to demonstrate the use of
 `robustSingleCell`. The analysis requires at least 8G of memory on
-*slurm* \[3\] high performance computing workload manager. We first
-download the raw 10X data from GEO using `GEOquery`, which can be
-obtained using the following command if not already installed:
+*slurm* \[3\] high performance computing workload manager (for example,
+you can start by requesting `srun --pty -p <partition> --mem=8G
+-t 1:00:00 bash` to start an interactive session). We first download the
+raw 10X data from GEO using `GEOquery`, which can be obtained using the
+following command if not already installed:
 
 ``` r
 source("https://bioconductor.org/biocLite.R")
@@ -70,7 +72,7 @@ in 10X genomics format.
 
 ``` r
 library(robustSingleCell)
-download_LCMV(base_dir = "~/LCMV")
+download_LCMV()
 ```
 
 We cluster each dataset separately to account for dataset-specific
@@ -87,8 +89,8 @@ stored.
 LCMV1 <- initialize.project(datasets = "LCMV1", 
                           origins = "CD44+ cells",
                           experiments = "Rep1",
-                          data.path = "~/LCMV/",
-                          work.path = "~/LCMV/LCMV_analysis")
+                          data.path = file.path(tempdir(), "LCMV"),
+                          work.path = file.path(tempdir(), "LCMV/LCMV_analysis"))
 ```
 
 `read.data` function reads the data in 10X genomics format and performs
@@ -295,8 +297,8 @@ We repeat the same procedure for `LCMV2` dataset.
 LCMV2 <- initialize.project(datasets = "LCMV2",
                           origins = "CD44+ cells",
                           experiments = "Rep2",
-                          data.path = "~/LCMV/",
-                          work.path = "~/LCMV/LCMV_analysis")
+                          data.path = file.path(tempdir(), "LCMV"),
+                          work.path = file.path(tempdir(), "LCMV/LCMV_analysis"))
 LCMV2 <- read.data(LCMV2, subsample = 1000)
 LCMV2 <- get.variable.genes(LCMV2)
 LCMV2 <- add.confounder.variables(
@@ -324,8 +326,8 @@ pull the data for integration.
 pooled_env <- initialize.project(datasets = c("LCMV1", "LCMV2"),
                           origins = rep("CD44+ cells", 2),
                           experiments = c("Rep1", "Rep2"),
-                          data.path = "~/LCMV/",
-                          work.path = "~/LCMV/LCMV_analysis")
+                          data.path = file.path(tempdir(), "LCMV"),
+                          work.path = file.path(tempdir(), "LCMV/LCMV_analysis"))
 pooled_env <- read.preclustered.datasets(pooled_env)
 pooled_env <- add.confounder.variables(
   pooled_env, 

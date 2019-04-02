@@ -70,7 +70,7 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
 
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"))
-
+        #browser()
         merged <- NA
         dataset <- environment$datasets[1]
         merged.dataset.labels <- merged.origins <- merged.experiments <- merged.criteria <- {
@@ -309,7 +309,7 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
     environment$counts <- counts
     environment$normalized <- normalized
     environment$genes <- rownames(normalized)
-    environment$datasets <- colnames(normalized)
+    environment$dataset_ids <- colnames(normalized)
     environment$dataset.labels <- dataset.labels
     environment$origins <- origins
     environment$experiments <- experiments
@@ -585,7 +585,7 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
     environment$normalized <- normalized
     environment$genes <- rownames(normalized)
     environment$datasets <- colnames(environment$normalized)
-    environment$dataset.labels <- dataset.labels
+    #environment$dataset.labels <- dataset.labels
     environment$origins <- origins
     environment$experiments <- experiments
     environment$confounders <- data.frame(nUMI = colSums(counts), nGenes = colSums(counts >
