@@ -147,7 +147,7 @@ ribosomal.score <- function(environment, control = T, knn = 10) {
     } else {
         score <- colMeans(environment$normalized[genes, ])
     }
-    return(score)
+    score
 }
 
 get.ribo.genes <- function(genes) {

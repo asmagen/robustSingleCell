@@ -130,9 +130,8 @@ start <- function(track_dir_path, name = NA, append = F, split = F, print = T) {
 }
 
 end <- function(time = NA) {
-    if (!is.na(time))
-        elapsed.time(time)
-    sink()
+    if (!is.na(time)) elapsed.time(time)
+    closeAllConnections() #sink()
 }
 
 print.message <- function(...) {
