@@ -76,19 +76,18 @@ Figure 1 shows the mitochondrial score versus number of UMIs, pre and post filte
 <figcaption> Fig 1. Mitochondrial genes score vs. number of UMIs for pre (top) and post (bottom) quality control filtering.</figcaption>
 </figure>
 
-The `PCA` function performs multiple simulation analyses of shuffled data to determine the appropriate number of PCs.
+The `PCA` function performs multiple simulation analyses of shuffled data to determine the appropriate number of PCs. You can also run each simulation in parallel using the option `local = F`.
 
 ```{r PCA}
-LCMV1 <- PCA(LCMV1)
+LCMV1 <- PCA(LCMV1, local = T)
 ```
 
-We then perform clustering analysis for a range of clustering resolutions.
+We then perform clustering analysis for a range of clustering resolutions. The analysis is repeated multiple times over shuffled data to estimate the appropriate clustering resolution and control for false discovery of clusters. At the end of the clustering, the function will prompt you to choose an optimal clustering resolution. We choose 0.05 for our KNN ratio, which is the smallest value tested with `mdlrty/mean.shfl` > 2. 
 
 ```{r cluster}
-LCMV1 <- cluster.analysis(LCMV1)
+LCMV1 <- cluster.analysis(LCMV1, local = T)
 ```
 
-The analysis is repeated multiple times over shuffled data to estimate the appropriate clustering resolution and control for false discovery of clusters, as described in *Magen et al 2019*. The summary of this analysis is presented in Figure 2.
 
 <figure>
 <img src="figs/Clustering.modularity.png">

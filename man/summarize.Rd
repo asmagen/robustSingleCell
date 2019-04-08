@@ -6,7 +6,7 @@
 \usage{
 summarize(environment, perplexity = seq(10, 30, 10), max_iter = 10000,
   rerun = F, order = NA, contrast = "all", min.fold = 1.5,
-  quantile = 0.95)
+  quantile = 0.95, local = F)
 }
 \arguments{
 \item{environment}{\code{environment} object}

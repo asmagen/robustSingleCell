@@ -4,7 +4,7 @@
 \alias{run_tSNE}
 \title{Perform tSNE Analyses}
 \usage{
-run_tSNE(environment, perplexity, max_iter, rerun)
+run_tSNE(environment, perplexity, max_iter, rerun, local = F)
 }
 \arguments{
 \item{environment}{\code{environment} object}
@@ -14,6 +14,8 @@ run_tSNE(environment, perplexity, max_iter, rerun)
 \item{max_iter}{maximum number of iterations to run the tSNE}
 
 \item{rerun}{whether to rerun or load from cache}
+
+\item{local}{whether to run tSNE locally}
 }
 \value{
 Distributed job identified object
