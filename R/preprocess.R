@@ -394,6 +394,7 @@ regress.covariates <- function(environment, regress, data, groups, rerun = F, sa
 #' @param contrast either 'all' indicating differential expression between one cluster against all others or 'datasets' indicating differential expression analysis comparing one cluster to all other within each dataset separately ('datasets' should be used in pooled analysis for optimal results)
 #' @param min.fold minimum fold change for filtering final differentially expressed gene lists
 #' @param quantile q-value cutoff for differential expression analysis
+#' @param local Whether to run tSNE locally on SLURM
 #' @export
 #' @examples
 #' \donttest{
