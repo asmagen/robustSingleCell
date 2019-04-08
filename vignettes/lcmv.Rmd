@@ -53,7 +53,7 @@ LCMV1 <- initialize.project(datasets = "LCMV1",
 `read.data` function reads the data in 10X genomics format and performs quality filtering as described in *Magen et al 2019* [^3]. We randomly downsampled the datasets to 1000 cells to shorten the simplify this example.
 
 ```{r read_LCMV1}
-LCMV1 <- read.data(LCMV1, subsample = 1000)
+LCMV1 <- read.data(LCMV1, subsample = 500)
 ```
 
 Next, we identify highly variable genes on which we base the PCA and clustering analyses. We also compute the activation of gene sets of interest, such as cell cycle genes, which can be used for confounder correction using the `regress` parameter in the PCA analysis.
@@ -109,10 +109,10 @@ types = rbind(
                 data.frame(type='CD4', gene = c("Cd4")),
                 data.frame(type='Cycle',gene=c('Mki67','Top2a','Birc5'))
 )
-summarize(LCMV1)
+summarize(LCMV1, local = T)
 LCMV1_cluster_names <- get.cluster.names(LCMV1, types, min.fold = 1.0, max.Qval = 0.01)
 LCMV1 <- set.cluster.names(LCMV1, names = LCMV1_cluster_names)
-summarize(LCMV1)
+summarize(LCMV1, local = T)
 ```
 
 Figure 3 shows violin plots indicating the activation of the cell cycle genes. 
@@ -172,7 +172,7 @@ LCMV2 <- initialize.project(datasets = "LCMV2",
                           experiments = "Rep2",
                           data.path = file.path(tempdir(), "LCMV"),
                           work.path = file.path(tempdir(), "LCMV/LCMV_analysis"))
-LCMV2 <- read.data(LCMV2, subsample = 1000)
+LCMV2 <- read.data(LCMV2, subsample = 500)
 LCMV2 <- get.variable.genes(LCMV2)
 LCMV2 <- add.confounder.variables(
   LCMV2, 
@@ -181,12 +181,12 @@ LCMV2 <- add.confounder.variables(
   cell.cycle.score = cell.cycle.score(LCMV2),
   Exhaustion = controlled.mean.score(LCMV2, exhaustion_markers))
 
-LCMV2 <- PCA(LCMV2)
-LCMV2 <- cluster.analysis(LCMV2)
-summarize(LCMV2)
+LCMV2 <- PCA(LCMV2, local = T)
+LCMV2 <- cluster.analysis(LCMV2, local = T)
+summarize(LCMV2, local = T)
 LCMV2_cluster_names <- get.cluster.names(LCMV2, types, min.fold = 1.0, max.Qval = 0.01)
 LCMV2 <- set.cluster.names(LCMV2, names = LCMV2_cluster_names)
-summarize(LCMV2)
+summarize(LCMV2, local = T)
 ```
 
 
@@ -201,7 +201,7 @@ We then initialize the aggregate analysis of the two independent runs, providing
 
 ```{r initialize_pooled}
 pooled_env <- initialize.project(datasets = c("LCMV1", "LCMV2"),
-                          origins = rep("CD44+ cells", 2),
+                          origins = c("CD44+ cells", "CD44+ cells"),
                           experiments = c("Rep1", "Rep2"),
                           data.path = file.path(tempdir(), "LCMV"),
                           work.path = file.path(tempdir(), "LCMV/LCMV_analysis"))
@@ -212,8 +212,8 @@ pooled_env <- add.confounder.variables(
   mitochondrial.score = mitochondrial.score(pooled_env),
   cell.cycle.score = cell.cycle.score(pooled_env),
   Exhaustion = controlled.mean.score(pooled_env, exhaustion_markers))
-pooled_env <- PCA(pooled_env, clear.previously.calculated.clustering = F)
-summarize(pooled_env, contrast = "datasets")
+pooled_env <- PCA(pooled_env, clear.previously.calculated.clustering = F, local = T)
+summarize(pooled_env, contrast = "datasets", local = T)
 ```
 
 We assessed the similarity between pairs of clusters and identify reproducible subpopulations across the two replicates. Figure 9 shows the correlation between clusters' FC vectors across replicates (as described in *Magen et al 2019*).

@@ -323,7 +323,7 @@ assess.cluster.similarity <- function(environment, diff.exp.file = "main.dataset
         clusters <- sort(unique(membership))
         map <- data.frame(t(sapply(clusters, function(c) c(unique(environment$cluster.names[membership ==
             c][1]), unique(environment$origins[membership == c][1]), unique(environment$experiments[membership ==
-            c][1]), unique(environment$dataset_ids[membership == c][1]), unique(original.membership[membership ==
+            c][1]), unique(environment$dataset.labels[membership == c][1]), unique(original.membership[membership ==
             c][1]), c))))
         colnames(map) <- c("name", "origin", "experiments", "sample", "original.membership",
             "membership")
@@ -334,8 +334,8 @@ assess.cluster.similarity <- function(environment, diff.exp.file = "main.dataset
         for (cluster.index in seq(nclusters)) {
             cluster <- clusters[cluster.index]
             indices <- membership == cluster
-            diff.exp.indices <- configs == paste(environment$dataset_ids[indices][1],
-                membership[indices][1], sep = "_ ") | configs == paste(environment$dataset_ids[indices][1],
+            diff.exp.indices <- configs == paste(environment$dataset.labels[indices][1],
+                membership[indices][1], sep = "_ ") | configs == paste(environment$dataset.labels[indices][1],
                 membership[indices][1], sep = "_")
             diff <- final.diff[diff.exp.indices, ]
             rownames(diff) <- diff$gene
@@ -363,8 +363,8 @@ assess.cluster.similarity <- function(environment, diff.exp.file = "main.dataset
         for (cluster.index1 in seq(nclusters - 1)) {
             cluster1 <- clusters[cluster.index1]
             indices <- membership == cluster1
-            diff.exp.indices1 <- configs == paste(environment$dataset_ids[indices][1],
-                membership[indices][1], sep = "_ ") | configs == paste(environment$dataset_ids[indices][1],
+            diff.exp.indices1 <- configs == paste(environment$dataset.labels[indices][1],
+                membership[indices][1], sep = "_ ") | configs == paste(environment$dataset.labels[indices][1],
                 membership[indices][1], sep = "_")
             diff1 <- final.diff[diff.exp.indices1, ]
             rownames(diff1) <- diff1$gene
@@ -373,8 +373,8 @@ assess.cluster.similarity <- function(environment, diff.exp.file = "main.dataset
             for (cluster.index2 in (cluster.index1 + 1):nclusters) {
                 cluster2 <- clusters[cluster.index2]
                 indices <- membership == cluster2
-                diff.exp.indices2 <- configs == paste(environment$dataset_ids[indices][1],
-                  membership[indices][1], sep = "_ ") | configs == paste(environment$dataset_ids[indices][1],
+                diff.exp.indices2 <- configs == paste(environment$dataset.labels[indices][1],
+                  membership[indices][1], sep = "_ ") | configs == paste(environment$dataset.labels[indices][1],
                   membership[indices][1], sep = "_")
                 diff2 <- final.diff[diff.exp.indices2, ]
                 rownames(diff2) <- diff2$gene

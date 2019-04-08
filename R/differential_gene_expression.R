@@ -43,7 +43,7 @@ run.diff.expression <- function(environment, clustering, min.fold, quantile, lab
         if (contrast == "all") {
             contrast.groups <- rep(1, length(membership))
         } else if (contrast == "datasets") {
-            contrast.groups <- environment$dataset_ids
+            contrast.groups <- environment$dataset.labels
         }
 
         print.message("contrast =", contrast)
