@@ -242,10 +242,47 @@ Finally, the cluster similarity between all clusters integrated by this analysis
 similarity <- filtered.similarity
 visualize.cluster.similarity.stats(pooled_env, similarity)
 ```
-
 <figure>
 <img src="figs/cor_FC.png" width = "500"> 
 <figcaption> Fig 10. Correlation among all the clusters in the two datasets.</figcaption>
+</figure>
+
+## Identification and visualization of robust novel marker genes
+
+```{r robust_markers}
+differential.expression.statistics = get.robust.markers(
+   pooled_env, cluster_group1 = c('LCMV2_Tfh_CD4', 'LCMV2_Tfh_Tcmp_CD4'),
+   cluster_group2 = c('LCMV2_CD8_1', 'LCMV2_CD8_2'),
+   group1_label = 'CD4 T Cells', group2_label = 'CD8 T Cells')
+}
+
+<figure>
+<img src="figs/X.png" width = "500"> 
+<figcaption> Fig 11. Scatter plot indicating gene activation across two independent groups of cells. X and Y axis values annotate fractions of cells expressing (>0 UMIs) each gene.</figcaption>
+</figure>
+
+
+Using the expression statistics output and the figure (generated to 'robust.diff.exp.pdf') you may identify genes showing exclusive expression in one (or more) selected population (cluster_group1) versus the others (cluster_group2). We can annotate the tSNE with the expression level of selected genes or draw contour plots resembling Flow Cytometric analysis.
+
+```{r tSNE_overlay}
+plot_contour_overlay_tSNE(pooled_env, genes = c('Cd4','Cd8a'))
+}
+
+<figure>
+<img src="figs/X.png" width = "500"> 
+<figcaption> Fig 12. tSNE overlay with contour annotation of normalized expression level of CD4 and CD8a.</figcaption>
+</figure>
+
+```{r}
+plot_pair_scatter(pooled_env, gene1 = 'Cd4', gene2 = 'Cd8a',
+   cluster_group1 = c('LCMV2_Tfh_CD4', 'LCMV2_Tfh_Tcmp_CD4'),
+   cluster_group2 = c('LCMV2_CD8_1','LCMV2_CD8_2'),
+   group1_label = 'CD4 T Cells', group2_label = 'CD8 T Cells')
+```
+
+<figure>
+<img src="figs/X.png" width = "500"> 
+<figcaption> Fig 13. Contours of CD4 vs CD8 normalized expression level.</figcaption>
 </figure>
 
 

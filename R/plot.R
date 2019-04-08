@@ -661,7 +661,7 @@ plot_pair_scatter <- function (environment,gene1,gene2,cluster_group1,cluster_gr
     if (check_not_slurm("plot_pair_scatter")) {
         return()
     }
-    clusters <- c(cluster_group1,cluster_group2)
+    clusters <- c(cluster_group1, cluster_group2)
     plot.data <- data.frame(gene1 = environment$normalized[gene1,environment$cluster.name %in% clusters],gene2 = environment$normalized[gene2,environment$cluster.name %in% clusters]);head(plot.data)
 
     plot.data[,1][plot.data[,1]==0] <- rnorm(sum(plot.data[,1]==0),sd = min(plot.data[,1][plot.data[,1]!=0])/5)
