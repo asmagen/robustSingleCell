@@ -377,7 +377,7 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
         genes.filter <- precomputed$genes.filter
         dataset.labels <- precomputed$dataset.labels
         origins <- precomputed$origins
-        experiments <- precomputed$origins
+        experiments <- precomputed$experiments
         clustering <- precomputed$clustering
         merged.original.clustering <- precomputed$merged.original.clustering
         merged.diff.exp <- precomputed$merged.diff.exp
