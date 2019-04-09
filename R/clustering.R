@@ -127,6 +127,14 @@ remove.cluster.names <- function(environment) {
     return(environment)
 }
 
+#' Remove selected clusters
+#'
+#' Remove selected clusters from the environment object.
+#'
+#' @param environment The \code{environment} object
+#' @param remove.clusters A character vector of the clusters to be removed
+#' @return An environment object with selected clusters removed
+#' @export
 filter.cluster.data <- function(environment, remove.clusters) {
     membership <- as.vector(environment$clustering$membership)
     keep <- !membership %in% remove.clusters
