@@ -688,6 +688,7 @@ plot_pair_scatter <- function (environment,gene1,gene2,cluster_group1,cluster_gr
 #' @param environment \code{environment} object
 #' @param work.path where to locate the figures
 #' @param similarity similarity matrix defined in compare.cluster.similarity or get.robust.cluster.similarity
+#' @param margins The margins to the plot
 #' @export
 #' @examples
 #' \donttest{
@@ -731,7 +732,7 @@ plot_pair_scatter <- function (environment,gene1,gene2,cluster_group1,cluster_gr
 #' visualize.cluster.cors.heatmaps(pooled_env, pooled_env$work.path,
 #'                                filtered.similarity)
 #' }
-visualize.cluster.cors.heatmaps <- function(environment, work.path, similarity) {
+visualize.cluster.cors.heatmaps <- function(environment, work.path, similarity, margins = c(17, 17)) {
     if (check_not_slurm("visualize.cluster.cors.heatmaps")) {
         return()
     }
@@ -787,8 +788,8 @@ visualize.cluster.cors.heatmaps <- function(environment, work.path, similarity) 
                   1), notecol = "white", main = "Pearson Correlation Between Cluster FC"))
             print(heatmap.2(ocl.similarity.matrix, col = color.palette, key = T,
                 cexRow = 1, cexCol = 1, srtCol = 45, scale = "none", density.info = "none",
-                trace = "none", Rowv = F, Colv = F, dendrogram = "none", margins = c(17,
-                  17), cellnote = round(ocl.similarity.matrix, 1), notecol = "white",
+                trace = "none", Rowv = F, Colv = F, dendrogram = "none", margins = margins,
+                cellnote = round(ocl.similarity.matrix, 1), notecol = "white",
                 main = "Cluster mean Euclidean similarity"))
             grDevices::dev.off()
         }
