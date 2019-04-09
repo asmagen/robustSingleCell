@@ -7,8 +7,10 @@
 #' @param max_iter maximum number of iterations to run the tSNE
 #' @param rerun whether to rerun or load from cache
 #' @param local whether to run tSNE locally
+#' @param mem Memory for each job; default 4 GB
+#' @param time Time for each job; default 15 minutes
 #' @return Distributed job identified object
-run_tSNE <- function(environment, perplexity, max_iter, rerun, local = F) {
+run_tSNE <- function(environment, perplexity, max_iter, rerun, local = F, mem = "4GB", time = "0:15:00") {
 
     tSNEs.dir <- file.path(environment$res.data.path, "tSNEs")
     list.files(tSNEs.dir)
@@ -53,7 +55,7 @@ run_tSNE <- function(environment, perplexity, max_iter, rerun, local = F) {
             }
         }
 
-        sopt <- list(mem = "4GB", time = "0:15:00", share = TRUE)
+        sopt <- list(mem = mem, time = time, share = TRUE)
 
         if (local) {
             sjob <- slurm_apply(tSNE, params, nodes = nrow(params),
