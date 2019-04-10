@@ -122,8 +122,8 @@ post filtering.
 
 <figure>
 
-<img src="vignettes/figs/pre_stats.png" width = "250">
-<img src="vignettes/figs/post_stats.png" width = "250">
+<img src="vignettes/figs/pre_stats.png" width = "700">
+<img src="vignettes/figs/post_stats.png" width = "700">
 
 <figcaption>
 
@@ -156,7 +156,7 @@ LCMV1 <- cluster.analysis(LCMV1, local = T)
 
 <figure>
 
-<img src="vignettes/figs/Clustering.modularity.png" width = "500">
+<img src="vignettes/figs/Clustering.modularity.png" width = "700">
 
 <figcaption>
 
@@ -201,7 +201,7 @@ genes.
 
 <figure>
 
-<img src="vignettes/figs/violin.png" width = "500">
+<img src="vignettes/figs/violin.png" width = "700">
 
 <figcaption>
 
@@ -217,7 +217,7 @@ created in the next step via `summarize` function below).
 
 <figure>
 
-<img src="vignettes/figs/PCA.png" width = "500">
+<img src="vignettes/figs/PCA.png" width = "700">
 
 <figcaption>
 
@@ -233,7 +233,7 @@ PCA loadings after removing the lowly ranked genes.
 
 <figure>
 
-<img src="vignettes/figs/rotation.png" width = "500">
+<img src="vignettes/figs/rotation.png" width = "700">
 
 <figcaption>
 
@@ -249,7 +249,7 @@ removing the lowly ranked genes.
 
 <figure>
 
-<img src="vignettes/figs/PC1_heatmap.png" width="500">
+<img src="vignettes/figs/PC1_heatmap.png" width="700">
 
 <figcaption>
 
@@ -264,7 +264,7 @@ cluster assignment.
 
 <figure>
 
-<img src="vignettes/figs/tsne.png" width="500">
+<img src="vignettes/figs/tsne.png" width="700">
 
 <figcaption>
 
@@ -279,7 +279,7 @@ genes for initial evaluation (Figure 8).
 
 <figure>
 
-<img src="vignettes/figs/diff.genes.png" width="500">
+<img src="vignettes/figs/diff.genes.png" width="700">
 
 <figcaption>
 
@@ -358,7 +358,7 @@ visualize.cluster.cors.heatmaps(pooled_env, pooled_env$work.path,
 
 <figure>
 
-<img src="vignettes/figs/LCMV1_LCMV2_similarity.png" width = "500">
+<img src="vignettes/figs/LCMV1_LCMV2_similarity.png" width = "700">
 
 <figcaption>
 
@@ -383,7 +383,7 @@ visualize.cluster.similarity.stats(pooled_env, similarity)
 
 <figure>
 
-<img src="vignettes/figs/cor_FC.png" width = "500">
+<img src="vignettes/figs/cor_FC.png" width = "700">
 
 <figcaption>
 
@@ -404,7 +404,7 @@ differential.expression.statistics = get.robust.markers(
 
 <figure>
 
-<img src="vignettes/figs/robust.diff.detection.png" width = "500">
+<img src="vignettes/figs/robust.diff.detection.png" width = "700">
 
 <figcaption>
 
@@ -429,8 +429,8 @@ plot_contour_overlay_tSNE(pooled_env, genes = c('Cd4','Cd8a'))
 
 <figure>
 
-<img src="vignettes/figs/CD4.contour.tSNE.png" width = "250">
-<img src="vignettes/figs/CD8.contour.tSNE.png" width = "250">
+<img src="vignettes/figs/CD4.contour.tSNE.png" width = "700">
+<img src="vignettes/figs/CD8.contour.tSNE.png" width = "700">
 
 <figcaption>
 
@@ -450,7 +450,7 @@ plot_pair_scatter(pooled_env, gene1 = 'Cd4', gene2 = 'Cd8a',
 
 <figure>
 
-<img src="vignettes/figs/contour.plot.png" width = "500">
+<img src="vignettes/figs/contour.plot.png" width = "700">
 
 <figcaption>
 
