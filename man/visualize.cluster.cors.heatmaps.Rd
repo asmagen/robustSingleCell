@@ -4,7 +4,8 @@
 \alias{visualize.cluster.cors.heatmaps}
 \title{Visualize Correlation}
 \usage{
-visualize.cluster.cors.heatmaps(environment, work.path, similarity)
+visualize.cluster.cors.heatmaps(environment, work.path, similarity,
+  margins = c(17, 17))
 }
 \arguments{
 \item{environment}{\code{environment} object}
@@ -12,6 +13,8 @@ visualize.cluster.cors.heatmaps(environment, work.path, similarity)
 \item{work.path}{where to locate the figures}
 
 \item{similarity}{similarity matrix defined in compare.cluster.similarity or get.robust.cluster.similarity}
+
+\item{margins}{The margins to the plot}
 }
 \description{
 Plot correlation heatmaps for each pair of datasets.

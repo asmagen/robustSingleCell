@@ -56,7 +56,7 @@ LCMV1 <- initialize.project(datasets = "LCMV1",
 LCMV1 <- read.data(LCMV1, subsample = 500)
 ```
 
-Next, we identify highly variable genes on which we base the PCA and clustering analyses. We also compute the activation of gene sets of interest, such as cell cycle genes, which can be used for confounder correction using the `regress` parameter in the PCA analysis.
+Next, we identify highly variable genes for the following PCA and clustering analyses. We also compute the activation of gene sets of interest, such as cell cycle genes, for confounder correction.
 
 ```{r preprocess}
 LCMV1 <- get.variable.genes(LCMV1) 

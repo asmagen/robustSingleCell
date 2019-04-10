@@ -72,7 +72,7 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
         print.message("Computing")
         t <- start(file.path(environment$work.path, "tracking"))
         on.exit(end(t))
-        #browser()
+
         merged <- NA
         dataset <- environment$datasets[1]
         merged.dataset.labels <- merged.origins <- merged.experiments <- merged.criteria <- {
@@ -366,9 +366,6 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
 #' }
 read.preclustered.datasets <- function(environment, path = NA, recursive = T, rerun = F) {
 
-    if (check_not_slurm("read.preclustered.datasets")) {
-        return(environment)
-    }
     cache <- file.path(environment$baseline.data.path, "preclustered.datasets.rds")
 
     if (!rerun & file.exists(cache)) {
@@ -380,7 +377,7 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
         genes.filter <- precomputed$genes.filter
         dataset.labels <- precomputed$dataset.labels
         origins <- precomputed$origins
-        experiments <- precomputed$origins
+        experiments <- precomputed$experiments
         clustering <- precomputed$clustering
         merged.original.clustering <- precomputed$merged.original.clustering
         merged.diff.exp <- precomputed$merged.diff.exp
@@ -585,13 +582,14 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
             file = cache)
 
     }
-    counts <- counts[genes.filter, ]
-    normalized <- normalized[genes.filter, ]
+    counts <- counts[names(genes.filter)[genes.filter], ]
+    normalized <- normalized[names(genes.filter)[genes.filter], ]
     HVG <- HVG[HVG %in% rownames(normalized)]
 
     environment$counts <- counts
     environment$normalized <- normalized
     environment$genes <- rownames(normalized)
+    environment$genes.filter <- union.genes.filter
     environment$datasets <- colnames(environment$normalized)
     environment$dataset.labels <- dataset.labels
     environment$dataset_ids <- dataset_ids
