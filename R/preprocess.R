@@ -412,9 +412,6 @@ summarize <- function(environment, perplexity = seq(10, 30, 10), max_iter = 1000
     rerun = F, order = NA, contrast = "all", min.fold = 1.5, quantile = 0.95,
     local = F, mem = "4GB", time = "0:15:00") {
 
-    if (check_not_slurm("summarize")) {
-        return()
-    }
     cluster.size <- table(environment$cluster.names)
     if (length(order) == 1 && is.na(order))
         order <- names(cluster.size)[order(cluster.size, decreasing = T)]

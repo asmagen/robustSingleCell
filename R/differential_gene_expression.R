@@ -138,9 +138,6 @@ get.robust.markers <- function (
     min.ratio.diff = 3,
     QValue = 0.05) {
 
-    if (check_not_slurm("get.robust.markers")) {
-        return(environment)
-    }
     indices = environment$cluster.names %in% c(cluster_group1,cluster_group2)
     measurements = environment$normalized[,indices]
     groups = environment$cluster.names[indices] %in% cluster_group1

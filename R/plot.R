@@ -602,9 +602,7 @@ plot.heatmaps <- function(environment, diff.exp, membership, order = NA, nTopRan
 #' plot_contour_overlay_tSNE(LCMV1,genes = c('Cd4','Cd8a'))
 #' }
 plot_contour_overlay_tSNE <- function (environment,genes,perplexity = 30,max_iter = 10000,width = 10, height = 10) {
-    if (check_not_slurm("plot_contour_overlay_tSNE")) {
-        return()
-    }
+
     if (any(!genes %in% environment$genes)) {
         cat('Removing genes not found in dataset:')
         print(genes[!genes %in% environment$genes])
