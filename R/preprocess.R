@@ -395,6 +395,8 @@ regress.covariates <- function(environment, regress, data, groups, rerun = F, sa
 #' @param min.fold minimum fold change for filtering final differentially expressed gene lists
 #' @param quantile q-value cutoff for differential expression analysis
 #' @param local Whether to run tSNE locally on SLURM
+#' @param mem Memory for each job; default 4 GB
+#' @param time Time for each job; default 15 minutes
 #' @export
 #' @examples
 #' \donttest{
@@ -408,7 +410,7 @@ regress.covariates <- function(environment, regress, data, groups, rerun = F, sa
 #' }
 summarize <- function(environment, perplexity = seq(10, 30, 10), max_iter = 10000,
     rerun = F, order = NA, contrast = "all", min.fold = 1.5, quantile = 0.95,
-    local = F) {
+    local = F, mem = "4GB", time = "0:15:00") {
 
     if (check_not_slurm("summarize")) {
         return()
@@ -416,7 +418,8 @@ summarize <- function(environment, perplexity = seq(10, 30, 10), max_iter = 1000
     cluster.size <- table(environment$cluster.names)
     if (length(order) == 1 && is.na(order))
         order <- names(cluster.size)[order(cluster.size, decreasing = T)]
-    tSNE.job <- run_tSNE(environment, perplexity, max_iter, rerun, local = local)
+    tSNE.job <- run_tSNE(environment, perplexity, max_iter, rerun, local = local,
+                         mem = mem, time = time)
     plot_PCA(environment, quantile = 0.05, order)
     plot.cluster.stats(environment, membership = environment$cluster.names, order = order)
     if (length(environment$seurat.cluster.association) > 1)

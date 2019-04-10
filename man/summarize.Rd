@@ -6,7 +6,7 @@
 \usage{
 summarize(environment, perplexity = seq(10, 30, 10), max_iter = 10000,
   rerun = F, order = NA, contrast = "all", min.fold = 1.5,
-  quantile = 0.95, local = F)
+  quantile = 0.95, local = F, mem = "4GB", time = "0:15:00")
 }
 \arguments{
 \item{environment}{\code{environment} object}
@@ -26,6 +26,10 @@ summarize(environment, perplexity = seq(10, 30, 10), max_iter = 10000,
 \item{quantile}{q-value cutoff for differential expression analysis}
 
 \item{local}{Whether to run tSNE locally on SLURM}
+
+\item{mem}{Memory for each job; default 4 GB}
+
+\item{time}{Time for each job; default 15 minutes}
 }
 \description{
 Summarize the clustering results by conducting differential expression analysis and plotting figures.
