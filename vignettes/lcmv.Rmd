@@ -71,8 +71,8 @@ LCMV1 <- add.confounder.variables(LCMV1,
 Figure 1 shows the mitochondrial score versus number of UMIs, pre and post filtering.
 
 <figure>
-  <img src="figs/pre_stats.png"> 
-  <img src="figs/post_stats.png">
+  <img src="figs/pre_stats.png" width = "250"> 
+  <img src="figs/post_stats.png" width = "250">
 <figcaption> Fig 1. Mitochondrial genes score vs. number of UMIs for pre (top) and post (bottom) quality control filtering.</figcaption>
 </figure>
 
@@ -90,7 +90,7 @@ LCMV1 <- cluster.analysis(LCMV1, local = T)
 
 
 <figure>
-<img src="figs/Clustering.modularity.png">
+<img src="figs/Clustering.modularity.png" width = "500">
 <figcaption> Fig 2. Bar plot shows the clustering modularity of the original data versus shuffled data across multiple clustering resolutions. Numbers on top represent the fold change of original versus shuffled analysis for each resolution. </figcaption>
 </figure>
 
@@ -118,21 +118,21 @@ summarize(LCMV1, local = T)
 Figure 3 shows violin plots indicating the activation of the cell cycle genes. 
 
 <figure>
-<img src="figs/violin.png"> 
+<img src="figs/violin.png" width = "500"> 
 <figcaption> Fig 3. Violin plot pf cell cycle score.</figcaption>
 </figure>
 
 Figure 4 places individual cells on a two dimensional grid corresponding to the scores of the first two PCs (note that the PCA figures are created in the next step via `summarize` function below).
 
 <figure>
-<img src="figs/PCA.png"> 
+<img src="figs/PCA.png" width = "500"> 
 <figcaption> Fig 4. Single cells placement on a 2D grid corresponding to the first two PCs.</figcaption>
 </figure>
 
 The genes driving the PCs are visualized in figure 5 according to the PCA loadings after removing the lowly ranked genes.
 
 <figure>
-<img src="figs/rotation.png">
+<img src="figs/rotation.png" width = "500">
 <figcaption> Fig 5. Top ranked genes contribution to PC1 and PC2 scores.</figcaption>
 </figure>
 
@@ -232,7 +232,7 @@ visualize.cluster.cors.heatmaps(pooled_env, pooled_env$work.path,
 ```
 
 <figure>
-<img src="figs/LCMV1_LCMV2_similarity.png"> 
+<img src="figs/LCMV1_LCMV2_similarity.png" width = "500"> 
 <figcaption> Fig 9. Correlation between clusters' FC vectors across the two replicates.</figcaption>
 </figure>
 
@@ -254,10 +254,10 @@ differential.expression.statistics = get.robust.markers(
    pooled_env, cluster_group1 = c('LCMV2_Tfh_CD4', 'LCMV2_Tfh_Tcmp_CD4'),
    cluster_group2 = c('LCMV2_CD8_1', 'LCMV2_CD8_2'),
    group1_label = 'CD4 T Cells', group2_label = 'CD8 T Cells')
-}
+```
 
 <figure>
-<img src="figs/X.png" width = "500"> 
+<img src="figs/robust.diff.detection.png" width = "500"> 
 <figcaption> Fig 11. Scatter plot indicating gene activation across two independent groups of cells. X and Y axis values annotate fractions of cells expressing (>0 UMIs) each gene.</figcaption>
 </figure>
 
@@ -266,10 +266,10 @@ Using the expression statistics output and the figure (generated to 'robust.diff
 
 ```{r tSNE_overlay}
 plot_contour_overlay_tSNE(pooled_env, genes = c('Cd4','Cd8a'))
-}
+```
 
 <figure>
-<img src="figs/X.png" width = "500"> 
+<img src="figs/CD4.contour.tSNE.png" width = "250"> <img src="figs/CD8.contour.tSNE.png" width = "250"> 
 <figcaption> Fig 12. tSNE overlay with contour annotation of normalized expression level of CD4 and CD8a.</figcaption>
 </figure>
 
@@ -281,7 +281,7 @@ plot_pair_scatter(pooled_env, gene1 = 'Cd4', gene2 = 'Cd8a',
 ```
 
 <figure>
-<img src="figs/X.png" width = "500"> 
+<img src="figs/contour.plot.png" width = "500"> 
 <figcaption> Fig 13. Contours of CD4 vs CD8 normalized expression level.</figcaption>
 </figure>
 

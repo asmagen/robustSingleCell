@@ -288,9 +288,9 @@ pearson.correlation <- function(diff1, diff2) {
 assess.cluster.similarity <- function(environment, diff.exp.file = "main.datasets.diff.exp.rds",
     cluster.similarity.function = pearson.correlation, label = "pearson", rerun = F) {
 
-    if (check_not_slurm("assess.cluster.similarity")) {
-        return(environment)
-    }
+    # if (check_not_slurm("assess.cluster.similarity")) {
+    #     return(environment)
+    # }
     cache <- file.path(environment$res.data.path, paste(label, "cluster.similarity.rds",
         sep = "."))
     if (!rerun && file.exists(cache)) {

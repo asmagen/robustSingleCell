@@ -28,6 +28,16 @@ extract_pages ~/LCMV/LCMV_analysis/merged.LCMV1.LCMV2/not.regressed/hclust.dist.
 
 extract_pages ~/LCMV/LCMV_analysis/LCMV1/not.regressed/Thu_Feb_21_2019__16_50_54/Clustering.modularity.pdf figs/Clustering.modularity.pdf 1
 
+extract_pages ~/LCMV/LCMV_analysis/merged.LCMV1.LCMV2/not.regressed/CD4\ T\ Cells_CD8\ T\ Cells_Robust.diff.detection/CD4\ T\ Cells_CD8\ T\ Cells_robust.diff.exp.pdf figs/robust.diff.detection.pdf 1
+
+extract_pages ~/LCMV/LCMV_analysis/merged.LCMV1.LCMV2/not.regressed/CD4\ T\ Cells.CD8\ T\ Cells.Cd4.Cd8a.pdf figs/contour.plot.pdf 1
+
+extract_pages ~/LCMV/LCMV_analysis/merged.LCMV1.LCMV2/not.regressed/CD4\ T\ Cells.CD8\ T\ Cells.Cd4.Cd8a.pdf figs/contour.plot.pdf 1
+
+extract_pages ~/LCMV/LCMV_analysis/merged.LCMV1.LCMV2/not.regressed/contour.overlay.tSNE.pdf figs/CD4.contour.tSNE.pdf 1
+
+extract_pages ~/LCMV/LCMV_analysis/merged.LCMV1.LCMV2/not.regressed/contour.overlay.tSNE.pdf figs/CD8.contour.tSNE.pdf 2
+
 cd figs
 
 find . -type f -name '*.pdf' -print0 |
