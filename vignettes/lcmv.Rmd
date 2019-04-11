@@ -182,15 +182,11 @@ LCMV2 <- add.confounder.variables(
   Exhaustion = controlled.mean.score(LCMV2, exhaustion_markers))
 
 LCMV2 <- PCA(LCMV2, local = T)
-LCMV2 <- cluster.analysis(LCMV2, local = T)
+LCMV2 <- cluster.analysis(LCMV2, local = T) # 0.05 for KNN ratio
 summarize(LCMV2, local = T)
 LCMV2_cluster_names <- get.cluster.names(LCMV2, types, min.fold = 1.0, max.Qval = 0.01)
 LCMV2 <- set.cluster.names(LCMV2, names = LCMV2_cluster_names)
 summarize(LCMV2, local = T)
-```
-
-
-```{r plotLCMV2, include = F}
 plot_simple_heatmap(LCMV2, name = "canonical", markers = canonical_genes, main = "Expression of marker genes")
 ```
 

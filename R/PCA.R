@@ -107,7 +107,7 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
         get.shuffled.var <- function(rep) {
 
             data.perm <- apply(data, 2, sample, replace = FALSE)
-            pca.perm <- stats::prcomp(t(data.perm), retx = TRUE, center = T, scale. = T)
+            pca.perm <- stats::prcomp(t(data.perm), retx = TRUE, center = T, scale = T)
             var.perm <- pca.perm$sdev[1:ndf]^2/sum(pca.perm$sdev[1:ndf]^2)
             saveRDS(list(pca.perm = pca.perm, var.perm = var.perm), file = file.path(shuffled.PCA.data.path,
                 paste("shuffled.PCA.rep", rep, "rds", sep = ".")))
@@ -128,7 +128,7 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
         }
 
         pc.time <- Sys.time()
-        pca <- stats::prcomp(t(data), retx = TRUE, center = T, scale. = T)
+        pca <- stats::prcomp(t(data), retx = TRUE, center = T, scale = T)
         print.message("Single PCA run time:")
         print(Sys.time() - pc.time)
         var <- pca$sdev[1:ndf]^2/sum(pca$sdev[1:ndf]^2)

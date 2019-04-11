@@ -21,7 +21,7 @@ run_tSNE <- function(environment, perplexity, max_iter, rerun, local = F, mem = 
         on.exit(end(t))
         print(tSNEs.dir)
         # unlink(tSNEs.dir,recursive=T,force=T)
-        dir.create(tSNEs.dir)
+        dir.create(tSNEs.dir, showWarnings = F)
 
         duplicated.indices <- duplicated(t(environment$PCA))
         if (sum(duplicated.indices) > 0) {

@@ -136,7 +136,7 @@ cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuf
         on.exit(end(t))
         if (deleteCache)
             unlink(clustering.dir, recursive = T, force = T)
-        dir.create(clustering.dir)
+        dir.create(clustering.dir, showWarnings = F)
 
         print.message("knn.ratios:")
         print(knn.ratios)
@@ -275,7 +275,7 @@ cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuf
                 pattern = "*.pdf", full.names = T), list.files(file.path(environment$work.path,
                 "tracking"), pattern = "*.txt", full.names = T))
         dir <- file.path(environment$work.path, format(Sys.time(), "%a_%b_%e_%Y__%H_%M_%S"))
-        dir.create(dir)
+        dir.create(dir, showWarnings = F)
         if (length(files) > 0) {
             file.copy(files, dir)
             file.remove(files)

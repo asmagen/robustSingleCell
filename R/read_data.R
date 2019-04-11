@@ -101,9 +101,9 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
             dataset.labels <- rep(paste(unique(environment$origins)[environment$datasets ==
                 dataset], " (", unique(environment$experiments)[environment$datasets == dataset],
                 ")", sep = ""), ncol(measurements))
-            origins <- rep(environment$origins[environment$datasets == dataset],
+            origins <- rep(unique(environment$origins)[environment$datasets == dataset],
                 ncol(measurements))
-            experiments <- rep(environment$experiments[environment$datasets == dataset],
+            experiments <- rep(unique(environment$experiments)[environment$datasets == dataset],
                 ncol(measurements))
             cat(dim(measurements))
             # corner(measurements) measurements = measurements[,measurements['Cd4',]>0]
