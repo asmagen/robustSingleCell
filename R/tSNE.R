@@ -65,7 +65,6 @@ run_tSNE <- function(environment, perplexity, max_iter, rerun, local = F, mem = 
         } else {
             sjob <- slurm_apply(tSNE, params, nodes = nrow(params), cpus_per_node = 1,
                                 add_objects = c("data.path", "tSNEs.dir"), submit = TRUE, slurm_options = sopt)
-            waiting <- get_slurm_out(sjob)
         }
     }
 

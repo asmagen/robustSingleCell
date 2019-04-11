@@ -391,6 +391,9 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
         on.exit(end(t))
         if (is.na(path))
             path <- dirname(environment$baseline.work.path)
+        environment$datasets <- unique(environment$datasets)
+        environment$origins <- unique(environment$origins)
+        environment$experiments <- unique(environment$experiments)
         dataset <- environment$datasets[1]
         merged.clustering <- {
         }
@@ -418,10 +421,10 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
         }
         dataset.genes <- NA
         sample.index <- 1
-        for (sample.index in seq(length(unique(environment$datasets)))) {
+        for (sample.index in seq(length(environment$datasets))) {
             dataset <- environment$datasets[sample.index]
             origin <- environment$origins[sample.index]
-            experiment <- unique(environment$experiments)[sample.index]
+            experiment <- environment$experiments[sample.index]
             data.files <- list.files(path = file.path(path, dataset), pattern = "clustering.rds",
                 full.names = T, recursive = recursive)
             file.index <- 1
