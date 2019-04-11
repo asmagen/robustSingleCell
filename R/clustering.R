@@ -36,9 +36,6 @@
 get.cluster.names <- function(environment, types, min.fold = 1.25, max.Qval = 0.1,
     print = T) {
 
-    if (check_not_slurm("get.cluster.names")) {
-        return(environment)
-    }
     precomputed <- readRDS(file.path(environment$res.data.path, paste("main", "all",
         "diff.exp.rds", sep = ".")))
     limma.all <- precomputed$limma.all
@@ -101,9 +98,7 @@ get.cluster.names.with.diff <- function(cluster.diff, types, print) {
 #' @export
 #' @describeIn get.cluster.names set annotations to clusters
 set.cluster.names <- function(environment, names) {
-    if (check_not_slurm("set.cluster.names")) {
-        return(environment)
-    }
+
     cluster.name.map <- data.frame(id = seq(length(names)), name = names)
     environment$cluster.names <- cluster.names <- names[environment$clustering$membership]
     saveRDS(list(cluster.names = cluster.names, cluster.name.map = cluster.name.map),

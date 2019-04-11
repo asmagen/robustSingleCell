@@ -152,7 +152,7 @@ Figure 7 shows the tSNE visualization of the cells, color coded by cluster assig
 
 We can also visualize the average expression of selected T cells marker genes for initial evaluation (Figure 8).
 
-```{r plotLCMV1, include = F}
+```{r plotLCMV1}
 canonical_genes <- c("Cd8a", "Cd4", "Mki67", "Foxp3", "Il2ra", "Bcl6",
                      "Cxcr5", "Cxcr6", "Ifng", "Tbx21", "Id2", "Rora",
                      "Cxcr3", "Tcf7", "Ccr7", "Cxcr4", "Pdcd1", "Ctla4")

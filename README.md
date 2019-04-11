@@ -277,6 +277,13 @@ Fig 7. t-SNE plot colored by cluster assignment.
 We can also visualize the average expression of selected T cells marker
 genes for initial evaluation (Figure 8).
 
+``` r
+canonical_genes <- c("Cd8a", "Cd4", "Mki67", "Foxp3", "Il2ra", "Bcl6",
+                     "Cxcr5", "Cxcr6", "Ifng", "Tbx21", "Id2", "Rora",
+                     "Cxcr3", "Tcf7", "Ccr7", "Cxcr4", "Pdcd1", "Ctla4")
+plot_simple_heatmap(LCMV1, name = "canonical", markers = canonical_genes, main = "Expression of marker genes")
+```
+
 <figure>
 
 <img src="vignettes/figs/diff.genes.png" width="700">
@@ -313,6 +320,7 @@ summarize(LCMV2, local = T)
 LCMV2_cluster_names <- get.cluster.names(LCMV2, types, min.fold = 1.0, max.Qval = 0.01)
 LCMV2 <- set.cluster.names(LCMV2, names = LCMV2_cluster_names)
 summarize(LCMV2, local = T)
+plot_simple_heatmap(LCMV2, name = "canonical", markers = canonical_genes, main = "Expression of marker genes")
 ```
 
 ## Dataset Integration by Correlation Analysis

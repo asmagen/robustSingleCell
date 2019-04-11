@@ -602,9 +602,7 @@ plot.heatmaps <- function(environment, diff.exp, membership, order = NA, nTopRan
 #' plot_contour_overlay_tSNE(LCMV1,genes = c('Cd4','Cd8a'))
 #' }
 plot_contour_overlay_tSNE <- function (environment,genes,perplexity = 30,max_iter = 10000,width = 10, height = 10) {
-    if (check_not_slurm("plot_contour_overlay_tSNE")) {
-        return()
-    }
+
     if (any(!genes %in% environment$genes)) {
         cat('Removing genes not found in dataset:')
         print(genes[!genes %in% environment$genes])
@@ -784,7 +782,7 @@ visualize.cluster.cors.heatmaps <- function(environment, work.path, similarity, 
             color.palette <- grDevices::colorRampPalette(colors)
             print(heatmap.2(similarity.matrix, col = color.palette, key = T, cexRow = 1,
                 cexCol = 1, srtCol = 45, scale = "none", density.info = "none", trace = "none",
-                Rowv = T, Colv = T, dendrogram = "both", margins = c(17, 17), cellnote = round(similarity.matrix,
+                Rowv = T, Colv = T, dendrogram = "both", margins = margins, cellnote = round(similarity.matrix,
                   1), notecol = "white", main = "Pearson Correlation Between Cluster FC"))
             print(heatmap.2(ocl.similarity.matrix, col = color.palette, key = T,
                 cexRow = 1, cexCol = 1, srtCol = 45, scale = "none", density.info = "none",
@@ -802,6 +800,7 @@ visualize.cluster.cors.heatmaps <- function(environment, work.path, similarity, 
 #'
 #' @param environment \code{environment} object
 #' @param similarity similarity matrix defined in compare.cluster.similarity or get.robust.cluster.similarity
+#' @param margins The margins to the plot
 #' @export
 #' @examples
 #' \donttest{
@@ -842,7 +841,7 @@ visualize.cluster.cors.heatmaps <- function(environment, work.path, similarity, 
 #'    pooled_env, similarity, min.sd = qnorm(.9), max.q.val = 0.01, rerun = F)
 #' visualize.cluster.similarity.stats(pooled_env, filtered_similarity)
 #' }
-visualize.cluster.similarity.stats <- function(environment, similarity) {
+visualize.cluster.similarity.stats <- function(environment, similarity, margins = c(40, 40)) {
     if (check_not_slurm("visualize.cluster.similarity.stats")) {
         return()
     }
@@ -883,10 +882,9 @@ visualize.cluster.similarity.stats <- function(environment, similarity) {
     print(gplots::heatmap.2(similarity.matrix, col = color.palette, key = T, cexRow = 3.5,
         cexCol = 3.5, scale = "none", density.info = "none", trace = "none", Rowv = stats::as.dendrogram(hc.dist),
         Colv = stats::as.dendrogram(hc.dist), dendrogram = "both", notecol = "white",
-        main = "", keysize = 1, margins = c(40, 40)))  # cellnote = round(similarity.matrix, 1), notecex = 2,
+        main = "", keysize = 1, margins = margins))  # cellnote = round(similarity.matrix, 1), notecex = 2,
     print(gplots::heatmap.2(similarity.matrix, col = color.palette, key = T, cexRow = 3.5,
         cexCol = 3.5, scale = "none", density.info = "none", trace = "none", keysize = 1,
-        Rowv = T, Colv = T, dendrogram = "both", notecol = "white", main = "", margins = c(40,
-            40)))  # cellnote = round(similarity.matrix, 1), notecex = 2, main = 'Pearson Correlation Between Cluster FC'
+        Rowv = T, Colv = T, dendrogram = "both", notecol = "white", main = "", margins = margins))  # cellnote = round(similarity.matrix, 1), notecex = 2, main = 'Pearson Correlation Between Cluster FC'
     grDevices::dev.off()
 }

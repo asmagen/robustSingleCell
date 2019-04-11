@@ -589,7 +589,7 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
     environment$counts <- counts
     environment$normalized <- normalized
     environment$genes <- rownames(normalized)
-    environment$genes.filter <- union.genes.filter
+    environment$genes.filter <- genes.filter
     environment$datasets <- colnames(environment$normalized)
     environment$dataset.labels <- dataset.labels
     environment$dataset_ids <- dataset_ids

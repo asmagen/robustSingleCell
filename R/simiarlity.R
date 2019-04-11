@@ -55,9 +55,6 @@
 get.robust.cluster.similarity <- function(environment, similarity, min.sd = stats::qnorm(0.95),
     max.q.val = 0.01, rerun = F) {
 
-    if (check_not_slurm("get.robust.cluster.similarity")) {
-        return(environment)
-    }
     cache <- file.path(environment$res.data.path, "filtered.cluster.similarity.rds")
     if (!rerun && file.exists(cache)) {
         print.message("Loading precomputed similarity")
