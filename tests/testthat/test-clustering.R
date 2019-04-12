@@ -14,13 +14,14 @@ LCMV1 <- initialize.project(datasets = "LCMV1",
                             work.path = file.path(tempdir(), "LCMV/LCMV_analysis"))
 
 LCMV1 <- read.data(LCMV1,
-                   raw.data.matrices = list(LCMV1 = raw_LCMV1),
-                   min.genes.per.cell = 100,
+                   raw.data.matrices = structure(list(raw_LCMV1), names = "LCMV1"),
+                   min.genes.per.cell = 10,
                    max.genes.per.cell.quantile = 1,
                    max.UMIs.per.cell.quantile = 1,
-                   min.cells.per.gene = 1)
+                   min.cells.per.gene = 1, rerun = T)
 
-LCMV1 <- get.variable.genes(LCMV1)
+LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
+                            min.dispersion.scaled = 0.1, rerun = T)
 
 test_that("The number of 'significant' PCs and number of clusters", {
   if (SLURM) skip(SLURM_MSG)

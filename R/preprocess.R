@@ -116,8 +116,10 @@ nGenes <- function() {
 #' @return \code{environment} parameter containing added confounder variable
 #' @export
 #' @examples
+#' \donttest{
 #' LCMV1 <- setup_LCMV_example()
 #' LCMV1 <- add.confounder.variables(LCMV1, ribosomal.score = ribosomal.score(LCMV1))
+#' }
 add.confounder.variables <- function(environment, ...) {
     environment$confounders <- data.frame(environment$confounders, data.frame(...))
     print(utils::head(environment$confounders))
