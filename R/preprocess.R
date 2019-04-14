@@ -198,8 +198,10 @@ get.mito.genes <- function(genes) {
 #' @return a matrix of cell cycle genes activation scores (S, G2M and aggregated S/G2M scores, separately)
 #' @export
 #' @examples
+#' \donttest{
 #' LCMV1 <- setup_LCMV_example()
 #' cell.cycle.score <- cell.cycle.score(LCMV1)
+#' }
 cell.cycle.score <- function(environment, knn = 10, cc.genes.path = NA) {
     t <- start(file.path(environment$work.path, "tracking"))
     on.exit(end(t))
