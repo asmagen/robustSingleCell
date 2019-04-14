@@ -377,6 +377,7 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
         genes.filter <- precomputed$genes.filter
         dataset.labels <- precomputed$dataset.labels
         origins <- precomputed$origins
+        origin_id <- precomputed$origin_id
         experiments <- precomputed$experiments
         clustering <- precomputed$clustering
         merged.original.clustering <- precomputed$merged.original.clustering
@@ -392,8 +393,8 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
         if (is.na(path))
             path <- dirname(environment$baseline.work.path)
         environment$datasets <- unique(environment$datasets)
-        environment$origins <- unique(environment$origins)
         environment$experiments <- unique(environment$experiments)
+        environment$origin_id <- environment$origins 
         dataset <- environment$datasets[1]
         merged.clustering <- {
         }
@@ -423,7 +424,7 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
         sample.index <- 1
         for (sample.index in seq(length(environment$datasets))) {
             dataset <- environment$datasets[sample.index]
-            origin <- environment$origins[sample.index]
+            origin <- environment$origin_id[sample.index]
             experiment <- environment$experiments[sample.index]
             data.files <- list.files(path = file.path(path, dataset), pattern = "clustering.rds",
                 full.names = T, recursive = recursive)
@@ -482,6 +483,7 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
             genes.filter <- precomputed$genes.filter
             dataset.labels <- precomputed$dataset.labels
             dataset_ids <- precomputed$dataset_ids
+            origin_id <- precomputed$origin_id
             rm(precomputed)
 
             colnames(counts) <- colnames(normalized) <- rep(dataset, ncol(normalized))
@@ -579,7 +581,7 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
         cluster.names <- merged.cluster.names
         print.message("Saving")
         saveRDS(list(genes.filter = genes.filter, counts = counts, normalized = normalized,
-            dataset.labels = dataset.labels, dataset_ids = dataset_ids, origins = origins, experiments = experiments,
+            dataset.labels = dataset.labels, dataset_ids = dataset_ids, origins = origins, origin_id = origin_id, experiments = experiments,
             HVG = HVG, clustering = clustering, merged.diff.exp = merged.diff.exp,
             merged.original.clustering = merged.original.clustering, cluster.names = cluster.names),
             file = cache)
@@ -597,6 +599,7 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
     environment$dataset.labels <- dataset.labels
     environment$dataset_ids <- dataset_ids
     environment$origins <- origins
+    environment$origin_id <- origin_id
     environment$experiments <- experiments
     environment$confounders <- data.frame(nUMI = colSums(counts), nGenes = colSums(counts >
         0))

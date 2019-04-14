@@ -65,7 +65,7 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = stat
 
         match.significance.stats <- {
         }
-        origin <- unique(similarity$origin1)[2]
+        origin <- unique(similarity$origin1)[1]
         origins <- sort(unique(c(as.vector(similarity$origin1), as.vector(similarity$origin2))))
         for (origin in origins) {
             filter <- similarity$origin1 == origin & similarity$origin2 == origin &

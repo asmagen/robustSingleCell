@@ -107,7 +107,9 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
         get.shuffled.var <- function(rep) {
 
             data.perm <- apply(data, 2, sample, replace = FALSE)
-            pca.perm <- stats::prcomp(t(data.perm), retx = TRUE, center = T, scale = T)
+            data.perm <- t(data.perm)
+            data.perm <- data.perm[,apply(data.perm, 2, var) > 0]
+            pca.perm <- stats::prcomp(data.perm, retx = TRUE, center = T, scale = T)
             var.perm <- pca.perm$sdev[1:ndf]^2/sum(pca.perm$sdev[1:ndf]^2)
             saveRDS(list(pca.perm = pca.perm, var.perm = var.perm), file = file.path(shuffled.PCA.data.path,
                 paste("shuffled.PCA.rep", rep, "rds", sep = ".")))

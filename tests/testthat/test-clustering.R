@@ -26,7 +26,7 @@ LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
 test_that("The number of 'significant' PCs and number of clusters", {
   if (SLURM) skip(SLURM_MSG)
   LCMV1 <- PCA(LCMV1, local = T)
-  expect_equal(dim(LCMV1$PCA), c(13, 960))
+  expect_equal(dim(LCMV1$PCA), c(8, 27))
 #  LCMV1 <- cluster.analysis(LCMV1, knn.ratios = c(0.1, 0.2), loadPreviousKnn = F,
 #                            rerun = T, deleteCache = T, plot = F, local = T)
 #  expect_equal(LCMV1$clustering$nclusters, 6)
