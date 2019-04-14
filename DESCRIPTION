@@ -4,7 +4,8 @@ Title: Robust Clustering of Single Cell RNA-Seq Data
 Version: 0.1.1
 Authors@R: 
   c(
-    person("Assaf", "Magen", email = "assaf.magen@nih.gov", role = "aut"),
+    person("Assaf", "Magen", email = "assaf.magen@nih.gov", role = c("aut","cph"), 
+    comment = c(ORCID = "0000-0001-5473-274X")),
     person("Meng", "Wang", email = "szmamie@live.com", role = c("aut", "cre"), 
     comment = c(ORCID = "0000-0002-3453-7805")),
     person("Hao", "Chen", role = "ctb")
