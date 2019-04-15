@@ -243,10 +243,12 @@ cell.cycle.score <- function(environment, knn = 10, cc.genes.path = NA) {
 #' @return gene signature activation scores per cell
 #' @export
 #' @examples
+#' \donttest{
 #' LCMV1 <- setup_LCMV_example()
 #' exhaustion_markers <- c('Pdcd1', 'Cd244', 'Havcr2', 'Ctla4', 'Cd160', 'Lag3',
 #' 'Tigit', 'Cd96')
 #' Exhaustion <- controlled.mean.score(LCMV1, exhaustion_markers)
+#' }
 controlled.mean.score <- function(environment, genes, knn = 10, exclude.missing.genes = T,
     constrain.cell.universe = NA) {
     # similarly to

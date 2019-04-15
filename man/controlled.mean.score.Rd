@@ -25,8 +25,10 @@ gene signature activation scores per cell
 Compute mean gene signatures activation scores while controlling for technically similar genes.
 }
 \examples{
+\donttest{
 LCMV1 <- setup_LCMV_example()
 exhaustion_markers <- c('Pdcd1', 'Cd244', 'Havcr2', 'Ctla4', 'Cd160', 'Lag3',
 'Tigit', 'Cd96')
 Exhaustion <- controlled.mean.score(LCMV1, exhaustion_markers)
+}
 }
