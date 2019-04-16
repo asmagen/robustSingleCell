@@ -158,7 +158,7 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
             }
         }
 
-
+        
         t <- start(file.path(environment$work.path, "tracking"), append = T)
         on.exit(end(t), add = T)
 
@@ -189,8 +189,6 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
         corner(Rotation)
 
         saveRDS(list(PCA = PCA, Rotation = Rotation), file = cache)
-
-
     }
 
     environment$PCA <- PCA

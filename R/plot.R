@@ -140,10 +140,11 @@ plot.cluster.stats <- function(environment, membership, label = NA, order = NA) 
         dir.create(work.path, showWarnings = F)
         file.name <- paste(label, file.name, sep = ".")
     }
+    cluster.size <- table(environment$cluster.names)
     if (length(order) == 1 && is.na(order))
-        order <- order(table(membership), decreasing = T)
+        order <- names(cluster.size)[order(cluster.size, decreasing = T)]
     grDevices::pdf(file.path(work.path, file.name), width = 8, height = 5)
-    data <- data.frame(clustering = factor(membership, levels = names(table(membership))[order]), Dataset = factor(environment$dataset.labels))
+    data <- data.frame(clustering = factor(membership, levels = order), Dataset = factor(environment$dataset.labels))
     if (length(unique(environment$dataset.labels)) > 1) {
         print(ggplot(data, aes(clustering, fill = Dataset)) + geom_bar() + scale_fill_brewer(palette = "Set3") +
             xlab("Cluster ID") + ylab("Number of cells") + theme_classic(base_size = 15) +
