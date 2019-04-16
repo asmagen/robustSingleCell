@@ -92,22 +92,19 @@ get.robust.cluster.similarity <- function(environment, similarity, min.sd = stat
         plot.data <- data.frame(correlation = match.significance.stats$cor.val, SD = match.significance.stats$sd.dist,
             origin = match.significance.stats$origin)
         grDevices::pdf(file.path(work.path, "cluster.matching.similarity.histogram.pdf"))
-        print(ggplot(plot.data, aes(x = correlation, fill = origin)) + geom_density(alpha = 0.5) +
-            theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-                panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-            ylab("Density") + theme_classic(base_size = 25))
         print(ggplot(plot.data, aes(x = SD, fill = origin)) + geom_density(alpha = 0.5) +
             geom_vline(xintercept = min.sd) + theme(panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(), panel.background = element_blank(),
-            axis.line = element_line(colour = "black")) + ylab("Density") + theme_classic(base_size = 25))
+            axis.line = element_line(colour = "black"), theme(legend.position = "bottom")) + ylab("Density") + theme_classic(base_size = 25))
+        print(ggplot(plot.data, aes(x = correlation, fill = origin)) + geom_density(alpha = 0.5) +
+            theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+                panel.background = element_blank(), axis.line = element_line(colour = "black"), theme(legend.position = "bottom")) + ylab("Density") + theme_classic(base_size = 25))
+        print(ggplot(plot.data, aes(x = SD)) + geom_density(alpha = 0.5) + geom_vline(xintercept = min.sd) +
+            theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+                panel.background = element_blank(), axis.line = element_line(colour = "black"), theme(legend.position = "bottom")) + ylab("Density") + theme_classic(base_size = 25))
         print(ggplot(plot.data, aes(x = correlation)) + geom_density(alpha = 0.5) +
             theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-                panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-            ylab("Density") + theme_classic(base_size = 25))
-        print(ggplot(plot.data, aes(x = SD)) + geom_density(alpha = 0.5) + geom_vline(xintercept = 2) +
-            theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-                panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-            ylab("Density") + theme_classic(base_size = 25))
+                panel.background = element_blank(), axis.line = element_line(colour = "black"), theme(legend.position = "bottom")) + ylab("Density") + theme_classic(base_size = 25))
         grDevices::dev.off()
 
         sum(match.significance.stats$sd.dist >= min.sd)/length(match.significance.stats$sd.dist)
