@@ -123,7 +123,7 @@ start <- function(track_dir_path, name = NA, append = F, split = F, print = T) {
     if (!is.na(name))
         label <- paste(label, name, sep = ".")
     file <- paste(label, "txt", sep = ".")
-    sink(file.path(track_dir_path, file), type = "output", append, split)
+    sink(file.path(track_dir_path, file), type = "output", append = append, split = split)
     if (!split && print)
         print(as.list(sys.calls())[seq(sys.nframe() - 1)])
     return(time)

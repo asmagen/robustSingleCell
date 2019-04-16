@@ -143,7 +143,7 @@ plot.cluster.stats <- function(environment, membership, label = NA, order = NA) 
     if (length(order) == 1 && is.na(order))
         order <- order(table(membership), decreasing = T)
     grDevices::pdf(file.path(work.path, file.name), width = 8, height = 5)
-    data <- data.frame(clustering = factor(membership, levels = order), Dataset = factor(environment$dataset.labels))
+    data <- data.frame(clustering = factor(membership, levels = names(table(membership))[order]), Dataset = factor(environment$dataset.labels))
     if (length(unique(environment$dataset.labels)) > 1) {
         print(ggplot(data, aes(clustering, fill = Dataset)) + geom_bar() + scale_fill_brewer(palette = "Set3") +
             xlab("Cluster ID") + ylab("Number of cells") + theme_classic(base_size = 15) +
@@ -162,14 +162,13 @@ plot.cluster.stats <- function(environment, membership, label = NA, order = NA) 
     }
     for (dataset in unique(environment$dataset.labels)) {
         print(ggplot(data[data$Dataset == dataset, ], aes(clustering)) + geom_bar(aes(y = (..count..)/sum(..count..))) +
-            scale_y_continuous(labels = scales::percent) + ylab("Relative frequencies") +
-            theme(axis.text.x = element_text(angle = 25, hjust = 1)) + xlab("Cluster ID") +
-            ggtitle(dataset) + theme_classic(base_size = 15))
+            scale_y_continuous(labels = scales::percent) + ylab("Relative frequencies") + theme_classic(base_size = 15) +
+            theme(axis.text.x = element_text(angle = 25, hjust = 1)) + xlab("Cluster ID") + ggtitle(dataset))
     }
-    print(ggplot(data, aes(clustering)) + geom_bar() + theme(axis.text.x = element_text(angle = 25,
-        hjust = 1)))
+    print(ggplot(data, aes(clustering)) + geom_bar() + theme_classic(base_size = 15) + theme(axis.text.x = element_text(angle = 25, hjust = 1)) +
+            ylab("Number of cells") + xlab("Cluster ID"))
     print(ggplot(data, aes(clustering)) + geom_bar(aes(y = (..count..)/sum(..count..))) +
-        scale_y_continuous(labels = scales::percent) + ylab("relative frequencies") +
+        scale_y_continuous(labels = scales::percent) + ylab("Relative frequencies") + xlab("Cluster ID") + theme_classic(base_size = 15) +
         theme(axis.text.x = element_text(angle = 25, hjust = 1)))
 
     grDevices::dev.off()

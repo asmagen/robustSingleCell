@@ -392,8 +392,8 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
         on.exit(end(t))
         if (is.na(path))
             path <- dirname(environment$baseline.work.path)
-        environment$datasets <- unique(environment$datasets)
-        environment$experiments <- unique(environment$experiments)
+        environment$datasets <- environment$datasets
+        environment$experiments <- environment$experiments
         environment$origin_id <- environment$origins 
         dataset <- environment$datasets[1]
         merged.clustering <- {

@@ -162,7 +162,7 @@ cluster.analysis <- function(environment, knn.ratios = c(0.01, 0.05, 0.1), nShuf
             get_slurm_out(sjob)
             get_slurm_out(sjob)
         }, error = function(v) v)
-
+        end(t)
     }
 
     if (loadPreviousKnn && file.exists(cache)) {
