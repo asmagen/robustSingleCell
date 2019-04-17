@@ -94,7 +94,7 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
         print(dim(data))
 
         if (length(regress) > 1 || !is.na(regress)) {
-            corrected <- regress.covariates(regress, data, groups, rerun, save = T)
+            corrected <- regress.covariates(environment = environment, regress = regress, data = data, groups = groups, rerun = rerun, save = T)
             print.message("Regressed matrix")
             corner(corrected)
             data <- corrected
@@ -158,7 +158,7 @@ PCA <- function(environment, regress = NA, groups = NA, nShuffleRuns = 10, thres
             }
         }
 
-        
+
         t <- start(file.path(environment$work.path, "tracking"), append = T)
         on.exit(end(t), add = T)
 
