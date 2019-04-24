@@ -5,12 +5,14 @@
 \title{Plot Similarity Results}
 \usage{
 visualize.cluster.similarity.stats(environment, similarity,
-  margins = c(40, 40))
+  hclust.resolution = 8, margins = c(40, 40))
 }
 \arguments{
 \item{environment}{\code{environment} object}
 
 \item{similarity}{similarity matrix defined in compare.cluster.similarity or get.robust.cluster.similarity}
+
+\item{hclust.resolution}{clustering resolution to impose on hclust cutree function}
 
 \item{margins}{The margins to the plot}
 }
