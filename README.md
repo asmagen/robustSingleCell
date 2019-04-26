@@ -1,8 +1,8 @@
 robustSingleCell
 ================
 
-<!--[![CRAN status](https://www.r-pkg.org/badges/version/robustSingleCell)](https://cran.r-project.org/package=robustSingleCell)-->
-
+[![CRAN
+status](https://www.r-pkg.org/badges/version/robustSingleCell)](https://cran.r-project.org/package=robustSingleCell)
 [![Travis build
 status](https://travis-ci.org/asmagen/robustSingleCell.svg?branch=master)](https://travis-ci.org/asmagen/robustSingleCell)
 
