@@ -17,6 +17,8 @@ Imports:
   grDevices,
   graphics,
   Matrix,
+  SingleCellExperiment,
+  Biobase,
   limma,
   biomaRt,
   dplyr,

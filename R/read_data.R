@@ -1,22 +1,3 @@
-#' Read 10X Data
-#'
-#' Load sparse data matrices from 10X genomics.
-#'
-#' @param path Path to directory containing matrix.mtx, genes.tsv, and barcodes.tsv
-#' @return a matrix of genes by cells
-read_10x_data <- function(path) {
-    barcode.path <- list.files(path, pattern = "barcodes.tsv", full.names = T)
-    features.path <- list.files(path, pattern = "genes.tsv", full.names = T)
-    matrix.path <- list.files(path, pattern = "matrix.mtx", full.names = T)
-    mat <- Matrix::readMM(file = matrix.path)
-    feature.names <- utils::read.delim(features.path, header = FALSE, stringsAsFactors = FALSE)
-    barcode.names <- utils::read.delim(barcode.path, header = FALSE, stringsAsFactors = FALSE)
-    colnames(mat) <- barcode.names$V1
-    rownames(mat) <- feature.names$V2
-    return(mat)
-}
-
-
 #' Read and Preprocess Data
 #'
 #' Read 10X data files or a raw data matrix and perform normalization, QC filtering and duplicates removal.
@@ -394,7 +375,7 @@ read.preclustered.datasets <- function(environment, path = NA, recursive = T, re
             path <- dirname(environment$baseline.work.path)
         environment$datasets <- unique(environment$datasets)
         environment$experiments <- unique(environment$experiments)
-        environment$origin_id <- environment$origins 
+        environment$origin_id <- environment$origins
         dataset <- environment$datasets[1]
         merged.clustering <- {
         }
