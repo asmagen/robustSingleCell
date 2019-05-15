@@ -152,8 +152,12 @@ ribosomal.score <- function(environment, control = T, knn = 10) {
     score
 }
 
-get.ribo.genes <- function(genes) {
+get_ribo_genes <- function(genes) {
     return(genes[c(grep("^Rpl", genes, ignore.case = T), grep("^Rps", genes, ignore.case = T))])
+}
+
+is_ribo <- function(genes) {
+    grepl("^Rp[ls]", genes, ignore.case = T)
 }
 
 #' Compute Mitochondrial Score
@@ -184,8 +188,12 @@ mitochondrial.score <- function(environment, control = F, knn = 10) {
     return(score)
 }
 
-get.mito.genes <- function(genes) {
+get_mito_genes <- function(genes) {
     return(genes[grep("^Mt-", genes, ignore.case = T)])
+}
+
+is_mito <- function(genes) {
+    grepl("^Mt-", genes, ignore.case = T)
 }
 
 #' Compute Cell Cycle Score

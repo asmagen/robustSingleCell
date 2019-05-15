@@ -17,7 +17,6 @@
 #' @return \code{environment} parameter containing PC coordinates
 #' @export
 #' @import rslurm SingleCellExperiment
-#' TODO allow running on nonslurm platform
 shuffled_PCA <- function(sce, regress = NULL, groups = NULL, nShuffleRuns = 10, threshold = 0.1,
                 maxPCs = 100, label = NULL, mem = "2GB", time = "0:10:00", rerun = F,
                 local = F) {
