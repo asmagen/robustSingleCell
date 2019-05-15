@@ -1,5 +1,9 @@
 library(robustSingleCell)
 
 download_LCMV()
-LCMV1_sce <- read_10x_data(file.path(tempdir(), "LCMV/LCMV1"), subsample = 500)
-compute_summary_stats(LCMV1_sce)
+LCMV1_sce <- read_10x_data(file.path(tempdir(), "LCMV/LCMV1"))
+# plot_summary_statistics(colData(LCMV1_sce))
+LCMV1_sce <- robustSingleCell::filter(LCMV1_sce, verbose = T)
+LCMV1_sce <- log_normalize(LCMV1_sce, verbose = T)
+LCMV1_sce <- get_variable_genes(LCMV1_sce, verbose = T)
+exhaustion_markers <- c('Pdcd1', 'Cd244', 'Havcr2', 'Ctla4', 'Cd160', 'Lag3', 'Tigit', 'Cd96')
