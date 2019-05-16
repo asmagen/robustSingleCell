@@ -1,4 +1,5 @@
 library(robustSingleCell)
+library(SingleCellExperiment)
 
 download_LCMV()
 LCMV1_sce <- read_10x_data(file.path(tempdir(), "LCMV/LCMV1"))
@@ -7,3 +8,5 @@ LCMV1_sce <- robustSingleCell::filter(LCMV1_sce, verbose = T)
 LCMV1_sce <- log_normalize(LCMV1_sce, verbose = T)
 LCMV1_sce <- get_variable_genes(LCMV1_sce, verbose = T)
 exhaustion_markers <- c('Pdcd1', 'Cd244', 'Havcr2', 'Ctla4', 'Cd160', 'Lag3', 'Tigit', 'Cd96')
+LCMV1_sce <- ribosomal_score(LCMV1_sce)
+LCMV1_sce <- mitochondrial_score(LCMV1_sce)

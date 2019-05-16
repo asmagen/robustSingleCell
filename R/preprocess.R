@@ -152,13 +152,7 @@ ribosomal.score <- function(environment, control = T, knn = 10) {
     score
 }
 
-get_ribo_genes <- function(genes) {
-    return(genes[c(grep("^Rpl", genes, ignore.case = T), grep("^Rps", genes, ignore.case = T))])
-}
 
-is_ribo <- function(genes) {
-    grepl("^Rp[ls]", genes, ignore.case = T)
-}
 
 #' Compute Mitochondrial Score
 #'
@@ -188,13 +182,7 @@ mitochondrial.score <- function(environment, control = F, knn = 10) {
     return(score)
 }
 
-get_mito_genes <- function(genes) {
-    return(genes[grep("^Mt-", genes, ignore.case = T)])
-}
 
-is_mito <- function(genes) {
-    grepl("^Mt-", genes, ignore.case = T)
-}
 
 #' Compute Cell Cycle Score
 #'
@@ -322,21 +310,7 @@ get.technically.similar.genes <- function(environment, knn = 10) {
     return(list(knns = knns, technical.variables = technical.variables))
 }
 
-get_dist <- function(dist_obj, i, n, names) {
-   stopifnot(i <= n)
-   distance <- c(0)
-   if (i < n) {
-       idx <- c(seq(0, n - i - 1) + (2 * n - i) * (i - 1) / 2 + 1)
-       distance <- c(distance, dist_obj[idx])
-   }
-   if (i > 1) {
-       pre <- rev(seq(n - i + 1 , n - 2))
-       pre <- Reduce(sum, pre, init = i - 1, accumulate = T)
-       distance <- c(dist_obj[pre], distance)
-   }
-   names(distance) <- names
-   return(distance)
-}
+
 
 background.genes <- function(environment, foreground.genes, knn) {
 

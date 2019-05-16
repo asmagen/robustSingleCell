@@ -7,6 +7,7 @@
 #' @param seed seed for subsampling of cells
 #' @return a SingleCellExperiment object
 #' @export
+#' @import SingleCellExperiment
 read_10x_data <- function(path, subsample = NULL, seed = 1) {
   barcode.path <- list.files(path, pattern = "barcodes.tsv", full.names = T)
   features.path <- list.files(path, pattern = "genes.tsv", full.names = T)
@@ -39,8 +40,18 @@ read_10x_data <- function(path, subsample = NULL, seed = 1) {
   )
 
   sce <- update_summary_stats(sce)
+  sce <- as(sce, "robustSingleCell")
+  sce@cache <- file.path(tempdir(), randomString(1))
+  dir.create(sce@cache)
 
   return(sce)
+}
+
+randomString <- function(n = 5000, seed = NULL) {
+  if (is.null(seed)) seed <- Sys.time()
+  set.seed(seed)
+  a <- do.call(paste0, replicate(5, sample(LETTERS, n, TRUE), FALSE))
+  paste0(a, sprintf("%04d", sample(9999, n, TRUE)), sample(LETTERS, n, TRUE))
 }
 
 #' Compute summary statistics on count matrix

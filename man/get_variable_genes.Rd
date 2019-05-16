@@ -8,6 +8,8 @@ get_variable_genes(sce, min.mean = 0.05, min.frac.cells = 0,
   min.dispersion.scaled = 1, plot = F, verbose = F)
 }
 \arguments{
+\item{sce}{A SingleCellExperiment object}
+
 \item{min.mean}{minimum mean expression per gene}
 
 \item{min.frac.cells}{minimum fraction of cells expressing each gene}
@@ -17,11 +19,9 @@ get_variable_genes(sce, min.mean = 0.05, min.frac.cells = 0,
 \item{plot}{whether to plot mean vs dispersion plot}
 
 \item{verbose}{whether to print diagnostic message}
-
-\item{environment}{A SingleCellExperiment object}
 }
 \value{
-\code{environment} parameter containing highly variable genes selection
+\code{SingleCellExperiment} parameter containing highly variable genes selection
 }
 \description{
 Get highly variable genes by Heteroscedasticity controlled binning of gene expression measurements within each dataset separately.
