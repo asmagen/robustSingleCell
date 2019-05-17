@@ -139,6 +139,55 @@ is_mito <- function(genes) {
   grepl("^Mt-", genes, ignore.case = T)
 }
 
+#' Compute Cell Cycle Score
+#'
+#' Compute the activation of cell cycle genes defined in Kowalczyk, M. S. et al.
+#'
+#' @param sce A SingleCellExperiment object
+#' @param knn number of nearest neighbor
+#' @param cc_genes_genes cell cycle gene set. Default uses gene sets defined in Kowalczyk, M. S. et al. Single-cell RNA-seq reveals changes in cell cycle and differentiation programs upon aging of hematopoietic stem cells. Genome Res 25, 1860-1872, doi:10.1101/gr.192237.115 (2015).
+#' @param verbose Whether to print diagnostic messages
+#' @return a matrix of cell cycle genes activation scores (S, G2M and aggregated S/G2M scores, separately)
+#' @export
+cell_cycle_score <- function(sce, knn = 10, cc_cycle_genes = NULL, verbose = F) {
+  cc.genes <- capwords(cell_cycle_genes)
+  s.genes <- cc.genes[1:43]
+  row_genes <- rowData(sce)$gene_name
+  s.genes <- s.genes[s.genes %in% capwords(row_genes)]
+  print(s.genes)
+  g2m.genes <- cc.genes[44:98]
+  g2m.genes <- g2m.genes[g2m.genes %in% capwords(row_genes)]
+  print(g2m.genes)
+
+  s.score <- controlled_mean_score(sce, s.genes, knn)
+  g2m.score <- controlled_mean_score(sce, g2m.genes, knn)
+  cell.cycle.score <- controlled_mean_score(sce, c(s.genes, g2m.genes),
+                                            knn)
+  if (verbose) {
+    print.message("# s.score > 0:", sum(s.score > 0), "fraction", sum(s.score > 0)/length(s.score))
+    print.message("# g2m.score > 0:", sum(g2m.score > 0), "fraction", sum(g2m.score >
+                                                                            0)/length(g2m.score))
+  }
+
+
+  colData(sce)$S_stage <- s.score
+  colData(sce)$G2M_stage <- g2m.score
+  colData(sce)$aggregate_S_G2M_stage <- cell.cycle.score
+  return(sce)
+}
+
+#' Add cell specific score to metadata
+#'
+#'
+#' @param sce A SingleCellExperiment object
+#' @param name The name of the variable
+#' @param values The value of the variables
+#' @export
+add_cell_score <- function(sce, name, values) {
+  colData(sce)[[name]] <- values
+  return(sce)
+}
+
 #' Compute Controlled Activation Score
 #'
 #' Compute mean gene signatures activation scores while controlling for technically similar genes.
@@ -149,6 +198,7 @@ is_mito <- function(genes) {
 #' @param exclude.missing.genes whether to exclude genes with missing values
 #' @param constrain.cell.universe binary vector indicating in which subset of cells to calculate the gene signature activation. Default is all cells.
 #' @return gene signature activation scores per cell
+#' @export
 controlled_mean_score <- function(rbs, genes, knn = 10, exclude.missing.genes = T,
                                   constrain.cell.universe = NULL, verbose = F) {
   # similarly to
@@ -207,7 +257,7 @@ get_technically_similar_genes <- function(rbs, knn = 10) {
     return(readRDS(cache_path))
   }
 
-  print.message("Memory intensive step. Please allocate adequate memory for running.")
+  print.message("Memory intensive step. Please allocate adequate memory if the function aborts.")
   normed_counts <- assay(rbs, "normcounts")
   row_genes <- rowData(rbs)$gene_name
   technical.variables <- data.frame(means = rowMeans(normed_counts),
