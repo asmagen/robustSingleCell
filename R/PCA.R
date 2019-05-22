@@ -1,9 +1,11 @@
-check_not_slurm <- function(func_name) {
+check_not_slurm <- function(func_name, warning = F) {
     not_slurm = suppressWarnings(system('sinfo', ignore.stdout = TRUE, ignore.stderr = TRUE))
-    slurm_msg = paste0('SLURM not detected. Please run ',
+    if (warning) {
+      slurm_msg = paste0('SLURM not detected. Please run ',
                        func_name,
                        ' on a SLURM cluster.\n')
-    if (not_slurm) cat(slurm_msg)
+      if (not_slurm) cat(slurm_msg)
+    }
     return(not_slurm)
 }
 

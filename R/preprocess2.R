@@ -154,10 +154,16 @@ cell_cycle_score <- function(sce, knn = 10, cc_cycle_genes = NULL, verbose = F) 
   s.genes <- cc.genes[1:43]
   row_genes <- rowData(sce)$gene_name
   s.genes <- s.genes[s.genes %in% capwords(row_genes)]
-  print(s.genes)
+  if (verbose) {
+    print.message("S phase siganture genes used are ")
+    print.message(s.genes)
+  }
   g2m.genes <- cc.genes[44:98]
   g2m.genes <- g2m.genes[g2m.genes %in% capwords(row_genes)]
-  print(g2m.genes)
+  if (verbose) {
+    print.message("G2/M phase siganture genes used are ")
+    print.message(g2m.genes)
+  }
 
   s.score <- controlled_mean_score(sce, s.genes, knn)
   g2m.score <- controlled_mean_score(sce, g2m.genes, knn)
@@ -269,9 +275,11 @@ get_technically_similar_genes <- function(rbs, knn = 10) {
   dist_obj <- stats::dist(scaled.technical.variables)
   knns <- array("", c(length(row_genes), knn))
   rownames(knns) <- row_genes
-  for (index in seq(length(row_genes))) {
-    gene.dist <- get_dist(dist_obj, index, n, row_genes)
+  p <- dplyr::progress_estimated(n)
+  for (index in seq(n)) {
+    gene.dist <- get_dist(dist_obj, index, row_genes)
     knns[index, ] <- names(gene.dist[order(gene.dist)[2:(knn + 1)]])
+    p$pause(0.1)$tick()$print()
   }
 
   ret <- list(knns = knns, technical.variables = technical.variables)
@@ -280,7 +288,8 @@ get_technically_similar_genes <- function(rbs, knn = 10) {
   return(ret)
 }
 
-get_dist <- function(dist_obj, i, n, names) {
+get_dist <- function(dist_obj, i, names) {
+  n <- nrow(dist_obj)
   stopifnot(i <= n)
   distance <- c(0)
   if (i < n) {
@@ -296,3 +305,43 @@ get_dist <- function(dist_obj, i, n, names) {
   return(distance)
 }
 
+#' Regress covariate
+#' @param rbs A RobustSingleCell object
+#' @param regress Character of variables to regress
+#' @param data Data matrix of normalized count
+#' @param groups Group of cells
+#' @param verbose Whether to print diagnostic messages
+regress_covariates <- function(rbs, regress, data, groups, verbose = F) {
+  cache <- file.path(rbs@cache, paste0("HVG.regressed.", paste(sort(colnames(regress)), collapse = "."), ".rds"))
+
+  if (file.exists(cache)) {
+    if (verbose) print.message("Loading precomputed")
+    corrected <- readRDS(cache)
+  } else {
+    if (verbose) print.message("Computing")
+    formula.str <- paste("gene", paste(colnames(regress), collapse = " + "),
+                         sep = " ~ ")
+    formula <- stats::as.formula(formula.str)
+    if (verbose) {
+      print.message("Regressing:", formula.str)
+      print.message("Not regressed matrix")
+      corner(data)
+    }
+    corrected <- data
+
+    for (group in unique(groups)) {
+      group.indices <- groups == group
+      p <- dplyr::progress_estimated(nrow(data))
+      for (gene in rownames(data)) {
+        lm.data <- data.frame(gene = data[gene, group.indices], regress[group.indices,])
+        colnames(lm.data)[2:ncol(lm.data)] <- colnames(regress)
+        model <- stats::lm(formula, lm.data)
+        corrected[gene, group.indices] <- model$residuals
+        p$pause(0.1)$tick()$print()
+      }
+    }
+    saveRDS(corrected, file = cache)
+  }
+
+  return(corrected)
+}

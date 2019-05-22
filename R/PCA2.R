@@ -3,7 +3,7 @@
 #' Run PCA analysis with a simulation analysis of shuffled data to determine the appropriate number of PCs.
 #'
 #' @param sce \code{SingleCellExperiment} object
-#' @param regress gene signature activation scores to regress
+#' @param regress A character vector of variables to regress
 #' @param groups experimental design annotation to guide dataset-specific regression
 #' @param nShuffleRuns number of shuffled analyses
 #' @param threshold FDR threshold
@@ -11,17 +11,24 @@
 #' @param label optional analyses label folder
 #' @param mem HPC memory
 #' @param time HPC time
-#' @param rerun whether to rerun the analysis rather than load from cache
+#' @param force whether to rerun the analysis
 #' @param clear.previously.calculated.clustering whether to clear previous clustering analysis
 #' @param local whether to run jobs locally on slurm instead of submitting the job
+#' @param verbose whether to print diagnostic messages
 #' @return \code{environment} parameter containing PC coordinates
 #' @export
 #' @import rslurm SingleCellExperiment
 shuffled_PCA <- function(sce, regress = NULL, groups = NULL, nShuffleRuns = 10, threshold = 0.1,
-                maxPCs = 100, label = NULL, mem = "2GB", time = "0:10:00", rerun = F,
-                local = F) {
+                maxPCs = 100, label = NULL, mem = "2GB", time = "0:10:00", force = F,
+                local = F, verbose = F) {
+
+  if (!force & !is.null(reducedDim(LCMV1_sce, "pca"))) {
+    print.message("PCA already computed. Use force = T to rerun.")
+    return(LCMV1_sce)
+  }
+
   browser()
-  #check_not_slurm("PCA")
+
   if (length(regress) > 1 || !is.null(regress)) {
     config <- paste(colnames(regress), collapse = "+")
   } else {
@@ -42,27 +49,28 @@ shuffled_PCA <- function(sce, regress = NULL, groups = NULL, nShuffleRuns = 10, 
   cache_dir <- file.path(tempdir(), "shuffled.PCA")
   cache <- file.path(cache_dir, paste(config, "PCA.rds", sep = "."))
 
-  if (!rerun && file.exists(cache)) {
-    print.message("Loading precomputed")
-    precomputed <- readRDS(cache)
-    PCA <- precomputed$PCA
-    Rotation <- precomputed$Rotation
-    rm(precomputed)
-  } else {
-    print.message("Computing")
-    unlink(cache_dir, recursive = T, force = T)
-    dir.create(cache_dir, showWarnings = F, recursive = T, mode = "700")
+  if (is.null(rowData(sce)$is_HVG)) {
+    stop("Please run get_variable_genes before running shuffled_PCA.")
+  }
 
-    data <- assay(sce, "normcounts")[rowData(sce)$is_HVG, ]
+  data <- assay(sce, "normcounts")[rowData(sce)$is_HVG, ]
+
+  if (verbose) {
     print.message("Dim")
     print(dim(data))
+  }
 
-    if (length(regress) > 1 || !is.na(regress)) {
-      corrected <- regress.covariates(regress, data, groups, rerun, save = T)
-      print.message("Regressed matrix")
-      corner(corrected)
+  if (!is.null(regress)) {
+    regress_data <- colData(sce)[, regress, drop = F]
+    if (ncol(regress_data) > 1) {
+      corrected <- regress_covariates(sce, regress_data, data, groups)
       data <- corrected
+      if (verbose) {
+        print.message("Regressed matrix")
+        corner(data)
+      }
     }
+  }
 
     n <- min(maxPCs, ncol(data))
     ndf <- n - 1
@@ -72,20 +80,24 @@ shuffled_PCA <- function(sce, regress = NULL, groups = NULL, nShuffleRuns = 10, 
       data.perm <- apply(data, 2, sample, replace = FALSE)
       data.perm <- t(data.perm)
       data.perm <- data.perm[,apply(data.perm, 2, var) > 0]
-      pca.perm <- stats::prcomp(data.perm, retx = TRUE, center = T, scale = T)
+      pca.perm <- stats::prcomp(as.matrix(data.perm), retx = TRUE, center = T, scale = T)
       var.perm <- pca.perm$sdev[1:ndf]^2/sum(pca.perm$sdev[1:ndf]^2)
-      saveRDS(list(pca.perm = pca.perm, var.perm = var.perm), file = file.path(cache_dir,
-                                                                               paste("shuffled.PCA.rep", rep, "rds", sep = ".")))
+      # saveRDS(list(pca.perm = pca.perm, var.perm = var.perm), file = file.path(cache_dir,
+      #                                                                          paste("shuffled.PCA.rep", rep, "rds", sep = ".")))
       return(var.perm)
     }
 
     sopt <- list(mem = mem, time = time, share = TRUE)
 
     if (local) {
-      sjob <- slurm_apply(get.shuffled.var, data.frame(rep = seq(nShuffleRuns)),
-                          add_objects = c("shuffled.PCA.data.path", "data", "ndf"), pkgs = NULL,
-                          nodes = nShuffleRuns, cpus_per_node = 1, submit = FALSE, slurm_options = sopt)
-      local_slurm_array(sjob)
+      if (check_not_slurm("PCA", warning = F)) {
+
+      } else {
+        sjob <- slurm_apply(get.shuffled.var, data.frame(rep = seq(nShuffleRuns)),
+                            add_objects = c("shuffled.PCA.data.path", "data", "ndf"), pkgs = NULL,
+                            nodes = nShuffleRuns, cpus_per_node = 1, submit = FALSE, slurm_options = sopt)
+        local_slurm_array(sjob)
+      }
     } else {
       sjob <- slurm_apply(get.shuffled.var, data.frame(rep = seq(nShuffleRuns)),
                           add_objects = c("shuffled.PCA.data.path", "data", "ndf"), pkgs = NULL,
@@ -93,15 +105,19 @@ shuffled_PCA <- function(sce, regress = NULL, groups = NULL, nShuffleRuns = 10, 
     }
 
     pc.time <- Sys.time()
-    pca <- stats::prcomp(t(data), retx = TRUE, center = T, scale = T)
+    pca <- stats::prcomp(as.matrix(t(data)), retx = TRUE, center = T, scale = T)
     print.message("Single PCA run time:")
     print(Sys.time() - pc.time)
+
     var <- pca$sdev[1:ndf]^2/sum(pca$sdev[1:ndf]^2)
     print.message("Real PCA Var")
     print(utils::head(var, 10))
 
-    var.perm <- get_slurm_out(sjob)
-    dim(var.perm)
+    if (!local) var.perm <- get_slurm_out(sjob)
+    if (verbose) {
+      print.message("Dimension of permutated variance")
+      print.message(dim(var.perm))
+    }
 
     if (length(var.perm) == 0 || nrow(var.perm) < nShuffleRuns) {
       print.message("JOB ERROR: Not enough shuffled results:", nrow(var.perm),
@@ -144,9 +160,8 @@ shuffled_PCA <- function(sce, regress = NULL, groups = NULL, nShuffleRuns = 10, 
     corner(Rotation)
 
     saveRDS(list(PCA = PCA, Rotation = Rotation), file = cache)
-  }
 
-  reducedDim(example_sce)$PCA <- AnnotatedDataFrame(PCA, varMetaData = Rotation)
+  reducedDim(sce, "pca") <- AnnotatedDataFrame(PCA, varMetaData = Rotation)
 
   cat("# PCs = ", nrow(environment$PCA), "\n", sep = "")
 
