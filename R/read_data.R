@@ -303,8 +303,9 @@ read.data <- function(environment, genome = "mm10", min.genes.per.cell = 500, ma
 
     }
 
-    counts <- counts[genes.filter, ]
-    normalized <- normalized[genes.filter, ]
+    counts = counts[names(genes.filter)[genes.filter==T],]
+    normalized = normalized[names(genes.filter)[genes.filter==T],]
+    HVG = HVG[HVG %in% rownames(normalized)]
 
     environment$genes.filter <- genes.filter
     environment$counts <- counts
