@@ -5,6 +5,7 @@ robustSingleCell
 status](https://www.r-pkg.org/badges/version/robustSingleCell)](https://cran.r-project.org/package=robustSingleCell)
 [![Travis build
 status](https://travis-ci.org/asmagen/robustSingleCell.svg?branch=master)](https://travis-ci.org/asmagen/robustSingleCell)
+[![DOI](https://zenodo.org/badge/163871827.svg)](https://zenodo.org/badge/latestdoi/163871827)
 
 ### Overview
 
