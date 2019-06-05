@@ -77,11 +77,11 @@ library(robustSingleCell)
 download_LCMV()
 ```
 
-Note: when using your own data, the 10X genomics files (`matrix.mtx`,
-`gene.tsv` and `barcode.tsv`) will be typically located at
-⁨outs⁩/⁨filtered\_gene\_bc\_matrices⁩/⁨mm10⁩ \[depending on the
-genome used for alignment\]. Copy the contents of this directory to the
-working directory ‘data.path’.
+**Note:** when using your own data, the 10X genomics files
+(`matrix.mtx`, `gene.tsv` and `barcode.tsv`) will be typically located
+at ⁨`outs⁩/⁨filtered_gene_bc_matrices⁩/⁨mm10⁩`, depending on the genome
+used for alignment. Copy the contents of this directory to the working
+directory `data.path` specified in `initialize.project` below.
 
 We cluster each dataset separately to account for dataset-specific
 technical and biological differences. Then, we measure the
