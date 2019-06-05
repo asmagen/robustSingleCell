@@ -47,8 +47,8 @@ parallel batch jobs.
 
 ### Getting help
 
-If you encounter a clear bug, please submit an
-[issue](https://github.com/asmagen/robustSingleCell/issues) with
+If you identify a bug, please submit an
+[issue](https://github.com/asmagen/robustSingleCell/issues) with a
 reproducible example.
 
 ### Tutorial
@@ -69,13 +69,19 @@ biocLite("GEOquery")
 ```
 
 The two datasets `LCMV1`, `LCMV2` will be downloaded into TMPDIR. Each
-folder will contain the `matrix.mtx`, `gene.tsv`, `barcode.tsv` files as
-in 10X genomics format.
+folder will contain the `matrix.mtx`, `gene.tsv` and `barcode.tsv` files
+as in 10X genomics format.
 
 ``` r
 library(robustSingleCell)
 download_LCMV()
 ```
+
+Note: when using your own data, the 10X genomics files (`matrix.mtx`,
+`gene.tsv` and `barcode.tsv`) will be typically located at
+⁨outs⁩/⁨filtered\_gene\_bc\_matrices⁩/⁨mm10⁩ \[depending on the
+genome used for alignment\]. Copy the contents of this directory to the
+working directory ‘data.path’.
 
 We cluster each dataset separately to account for dataset-specific
 technical and biological differences. Then, we measure the
@@ -97,7 +103,7 @@ LCMV1 <- initialize.project(datasets = "LCMV1",
 
 `read.data` function reads the data in 10X genomics format and performs
 quality filtering as described in *Magen et al 2019*. We randomly
-downsampled the datasets to 1000 cells to shorten the simplify this
+downsampled the datasets to 500 cells to shorten the simplify this
 example.
 
 ``` r
