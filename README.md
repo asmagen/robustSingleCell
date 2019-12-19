@@ -103,8 +103,7 @@ LCMV1 <- initialize.project(datasets = "LCMV1",
 
 `read.data` function reads the data in 10X genomics format and performs
 quality filtering as described in *Magen et al 2019*. We randomly
-downsampled the datasets to 500 cells to shorten the simplify this
-example.
+downsampled the datasets to 500 cells for this tuutorial.
 
 ``` r
 LCMV1 <- read.data(LCMV1, subsample = 500)
