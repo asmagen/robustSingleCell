@@ -10,7 +10,7 @@ globalVariables(c("Modularity", "Type", "sd", "Fold", "correlation", "SD", "gene
 #' @param environment \code{environment} object
 #' @param quantile quantile of PCA loadings for which to define top genes driving PCs
 #' @param order ordering by which to plot the in heatmap of top genes driving PCs
-#' @import GGally
+#' @rawNamespace import(GGally, except = c(mean_sd, mean_iqr))
 #' @import ggrepel
 #' @importFrom graphics plot
 #' @importFrom stats quantile rnorm
