@@ -27,7 +27,7 @@ check_not_slurm <- function(func_name) {
 #' @export
 #' @import rslurm
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' LCMV1 <- setup_LCMV_example()
 #' LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
 #' min.dispersion.scaled = 0.1)

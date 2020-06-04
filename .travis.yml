@@ -1,22 +1,3 @@
-# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
-
-# language: R
-# sudo: false
-# cache: packages
-
-#language: c
-
-#script: ./travis-tool.sh run_tests
-
-#before_install:
-#    - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
-#    - chmod 755 ./travis-tool.sh
-#    - ./travis-tool.sh bootstrap
-
-#install:
-#    - ./travis-tool.sh bioc_install GEOquery biomaRt limma
-#    - ./travis-tool.sh install_deps
-
 language: r
 r:
   - bioc-release
@@ -27,4 +8,8 @@ jobs:
     - stage: prepare cache
       script: true
     - stage: test
-
+env:
+  global:
+    - R_BUILD_ARGS="--no-build-vignettes --no-manual"
+    - R_CHECK_ARGS="--no-build-vignettes --no-manual --timings"  ## do not build vignettes or manual
+    - _R_CHECK_TIMINGS_="0"  ## get the timing information for the examples for all of your functions

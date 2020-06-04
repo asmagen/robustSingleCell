@@ -593,7 +593,7 @@ plot.heatmaps <- function(environment, diff.exp, membership, order = NA, nTopRan
 #' @param height pdf file canvas height
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' LCMV1 <- setup_LCMV_example()
 #' LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
 #' min.dispersion.scaled = 0.1)
@@ -639,7 +639,7 @@ plot_contour_overlay_tSNE <- function (environment,genes,perplexity = 30,max_ite
 #' @param height pdf file canvas height
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' LCMV1 <- setup_LCMV_example()
 #' LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
 #' min.dispersion.scaled = 0.1)
@@ -689,7 +689,7 @@ plot_pair_scatter <- function (environment,gene1,gene2,cluster_group1,cluster_gr
 #' @param margins The margins to the plot
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' LCMV1 <- setup_LCMV_example()
 #' LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
 #' min.dispersion.scaled = 0.1)
@@ -804,7 +804,7 @@ visualize.cluster.cors.heatmaps <- function(environment, work.path, similarity, 
 #' @param margins The margins to the plot
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' LCMV1 <- setup_LCMV_example()
 #' LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
 #' min.dispersion.scaled = 0.1)

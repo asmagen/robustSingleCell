@@ -52,7 +52,7 @@ setup_pooled_env <- function() {
 #' @export
 #' @return 1 if download fails and 0 if succeeds
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' download_LCMV()
 #' }
 download_LCMV <- function(base_dir = NULL) {

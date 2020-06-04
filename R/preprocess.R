@@ -116,7 +116,7 @@ nGenes <- function() {
 #' @return \code{environment} parameter containing added confounder variable
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' LCMV1 <- setup_LCMV_example()
 #' LCMV1 <- add.confounder.variables(LCMV1, ribosomal.score = ribosomal.score(LCMV1))
 #' }
@@ -198,7 +198,7 @@ get.mito.genes <- function(genes) {
 #' @return a matrix of cell cycle genes activation scores (S, G2M and aggregated S/G2M scores, separately)
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' LCMV1 <- setup_LCMV_example()
 #' cell.cycle.score <- cell.cycle.score(LCMV1)
 #' }
@@ -243,7 +243,7 @@ cell.cycle.score <- function(environment, knn = 10, cc.genes.path = NA) {
 #' @return gene signature activation scores per cell
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' LCMV1 <- setup_LCMV_example()
 #' exhaustion_markers <- c('Pdcd1', 'Cd244', 'Havcr2', 'Ctla4', 'Cd160', 'Lag3',
 #' 'Tigit', 'Cd96')
@@ -405,7 +405,7 @@ regress.covariates <- function(environment, regress, data, groups, rerun = F, sa
 #' @param time Time for each job; default 15 minutes
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # after running cluster.analysis()
 #' LCMV1 <- setup_LCMV_example()
 #' LCMV1 <- get.variable.genes(LCMV1, min.mean = 0.1, min.frac.cells = 0,
