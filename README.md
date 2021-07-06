@@ -7,6 +7,8 @@ status](https://www.r-pkg.org/badges/version/robustSingleCell)](https://cran.r-p
 status](https://travis-ci.org/asmagen/robustSingleCell.svg?branch=master)](https://travis-ci.org/asmagen/robustSingleCell)
 [![DOI](https://zenodo.org/badge/163871827.svg)](https://zenodo.org/badge/latestdoi/163871827)
 
+**This package is not maintained at the moment -- please contact if you're interested in collaborating and improving this project.**
+
 ### Overview
 
 robustSingleCell is a pipeline designed to identify robust cell
