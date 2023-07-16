@@ -486,5 +486,4 @@ Fig 13. Contours of CD4 vs CD8 normalized expression level.
 
 3.  [slurm](https://slurm.schedmd.com)
 
-See profile at https://assafmagen.com
-[Assaf Magen Ph.D.](https://assafmagen.com)
+[Assaf Magen Ph.D.](https://assafmagen.com) and [Ask Mendel](https://askmendel.ai)
